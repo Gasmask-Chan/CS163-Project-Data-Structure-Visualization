@@ -1,5 +1,0 @@
-\babel@toc {vietnamese}{}\relax 
-\babel@toc {english}{}\relax 
-\babel@toc {vietnamese}{}\relax 
-\contentsline {section}{References}{2}{section*.1}%
-\contentsline {section}{\numberline {A}Appendix}{2}{appendix.A}%
