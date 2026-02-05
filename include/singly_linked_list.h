@@ -14,10 +14,7 @@ private:
          * 
          * @param val 
          */
-        Node(int val = -1) {
-            this->val = val;
-            pNext = nullptr;
-        }
+        Node(int val = -1);
     };
 
     Node *pHead, *pTail;
@@ -36,7 +33,9 @@ public:
     ~Singly_Linked_List();
    
     /**
-     * @brief Insert new value `x` to the linked list. this value will be insert to the end of the linked list by default 
+     * @brief Insert new value `x` to the linked list
+     * 
+     * This value will be inserted to the end of the linked list by default 
      * 
      * @param x 
      * @param insert_at_the_end 
@@ -44,7 +43,9 @@ public:
    void insert(int x, bool insert_at_the_end = true);
 
     /**
-     * @brief Return the node which contains the value of `x`. If no such node exists, the function will return `nullptr`
+     * @brief Return the node which contains the value of `x`
+     * 
+     * If no such node exists, a `nullptr` will be returned
      * 
      * @param x 
      * @return Node* 
@@ -52,11 +53,20 @@ public:
     Node* find(int x);
 
     /**
-     * @brief Delete the node which contains the value of `x`. if no such node exists, the function will do nothing
+     * @brief Delete the node which contains the value of `x`
+     * 
+     * If no such node exists, this function will do nothing
      * 
      * @param x 
      */
     void erase(int x);
+
+    /**
+     * @brief Clear the entire linked list
+     * 
+     * @return void 
+     */
+    void clear();
 };
 
 }

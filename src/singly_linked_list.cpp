@@ -2,17 +2,17 @@
 
 using namespace Data_Structure;
 
+Singly_Linked_List::Node::Node(int val) {
+    this->val = val;
+    pNext = nullptr;
+}
+
 Singly_Linked_List::Singly_Linked_List() {
     pHead = pTail = nullptr;
 }
 
 Singly_Linked_List::~Singly_Linked_List() {
-    for (Node *cur = pHead; cur != nullptr;) {
-        Node *to_delete = cur;
-        cur = cur->pNext;
-        delete to_delete;
-    }
-    pHead = pTail = nullptr;
+    clear();
 }
 
 void Singly_Linked_List::insert(int x, bool insert_at_the_end) {
@@ -61,4 +61,13 @@ void Singly_Linked_List::erase(int x) {
             delete to_delete;
         }
     }
+}
+
+void Singly_Linked_List::clear() {
+    for (Node *cur = pHead; cur != nullptr;) {
+        Node *to_delete = cur;
+        cur = cur->pNext;
+        delete to_delete;
+    }
+    pHead = pTail = nullptr;
 }
