@@ -1,8 +1,6 @@
 #ifndef AVL_TREE
 #define AVL_TREE
 
-#include <algorithm> //For std::max
-
 namespace Data_Structure {
 
 class AVL_Tree {
@@ -128,6 +126,6 @@ public:
      */
     void clear();
 };
-};
+}
 
 #endif

@@ -68,7 +68,6 @@ public:
      */
     void clear();
 };
-
 }
 
 #endif

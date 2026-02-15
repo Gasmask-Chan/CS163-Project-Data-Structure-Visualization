@@ -4,7 +4,7 @@ This visualizer supports the following data structures:
 - Singly Linked List.
 - Heap.
 - AVL.
-- Tree.
+- Trie.
 
 and graph algorithms such as:
 - Minimum Spanning Tree using Kruskal's algorithm.

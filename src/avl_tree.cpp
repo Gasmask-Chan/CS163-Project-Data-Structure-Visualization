@@ -1,5 +1,7 @@
 #include "../include/avl_tree.h"
 
+#include <algorithm>
+
 using namespace Data_Structure;
 
 AVL_Tree::Node::Node(int val) {
