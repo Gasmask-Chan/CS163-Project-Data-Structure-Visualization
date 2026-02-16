@@ -7,7 +7,8 @@ namespace Data_Structure {
 class Trie {
 private:
     struct Node {
-        int cnt; //Number of string ends at this node
+        int cnt; //Number of strings go through this node
+        int exist; //Number of strings end at this node
         Node *child[26];
 
         /**
@@ -64,11 +65,19 @@ public:
     /**
      * @brief Erase the string from the trie
      * 
-     * If the string initially is not in trie, the function will do nothing
+     * If the string is not in trie initiallys, the function will do nothing
+     * 
      * 
      * @param str 
      */
     void erase(std::string str);
+
+    /**
+     * @brief Clear the entire trie
+     * 
+     * @param cur 
+     */
+    void clear(Node *cur);
 
     /**
      * @brief Clear the entire trie

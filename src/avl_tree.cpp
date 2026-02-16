@@ -189,6 +189,7 @@ void AVL_Tree::clear(Node *cur) {
     if (cur == nullptr) return;
     clear(cur->left);
     clear(cur->right);
+    cur->left = cur->right = nullptr;
     delete cur;
 }
 
