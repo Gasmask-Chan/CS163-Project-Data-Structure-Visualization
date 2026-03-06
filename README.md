@@ -14,4 +14,4 @@ and graph algorithms such as:
 - Language: C++.
     - Compiler: g++ (Rev8, Built by MSYS2 project) 15.2.0.
     - Build system: Makefile.
-- Graphic: SFML 3.0.2.
+- Graphic: Raylib 5.5.
