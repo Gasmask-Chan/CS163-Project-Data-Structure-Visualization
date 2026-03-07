@@ -1,8 +1,27 @@
 #ifndef UI_ELEMENT
 #define UI_ELEMENT
 
+#include "UI_config.h"
+
 namespace UI {
-    
+    /**
+     * @brief Check mouse click on the input `Rectangle` button
+     * 
+     * @param button 
+     * @return true 
+     * @return false 
+     */
+    bool is_clicked(Rectangle button);
+
+    /**
+     * @brief Draw `Rectangle` button with text
+     * 
+     * @param button 
+     * @param text 
+     * @param background_color 
+     * @param text_color 
+     */
+    void draw_button(Rectangle &button, const char *text, Color background_color, Color text_color);
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef AVL_TREE
-#define AVL_TREE
+#ifndef AVL_TREE_H
+#define AVL_TREE_H
 
 namespace Data_Structure {
 

@@ -11,6 +11,12 @@ namespace UI {
 
     public:
         /**
+         * @brief Destroy the Handler object
+         * 
+         */
+        ~Handler();
+
+        /**
          * @brief Construct a new Hanlder object
          * 
          */

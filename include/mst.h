@@ -1,5 +1,5 @@
-#ifndef MINIMUM_SPANNING_TREE
-#define MINIMUM_SPANNING_TREE
+#ifndef MINIMUM_SPANNING_TREE_H
+#define MINIMUM_SPANNING_TREE_H
 
 #include <vector>
 

@@ -1,5 +1,5 @@
-#ifndef TRIE
-#define TRIE
+#ifndef TRIE_H
+#define TRIE_H
 
 #include <string>
 

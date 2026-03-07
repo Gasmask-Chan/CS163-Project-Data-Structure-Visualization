@@ -2,6 +2,14 @@
 #define UI_CANVAS
 
 #include "UI_config.h"
+#include "UI_element.h"
+
+#include "avl_tree.h"
+#include "singly_linked_list.h"
+#include "heap.h"
+#include "mst.h"
+#include "trie.h"
+#include "shortest_path.h"
 
 enum UI_State {
     MENU,
@@ -39,6 +47,11 @@ namespace UI {
     };
 
     class Menu_Canvas : public Canvas {
+    public:
+        void run() override;
+    };
+
+    class AVL_Canvas : public Canvas {
     public:
         void run() override;
     };
