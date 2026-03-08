@@ -21,7 +21,7 @@ namespace UI {
      * @param background_color 
      * @param text_color 
      */
-    void draw_button(Rectangle &button, const char *text, Color background_color, Color text_color);
+    void draw_button(Rectangle &button, const char *text, Color background_color, Color text_color, int font_size = 20);
 };
 
 #endif

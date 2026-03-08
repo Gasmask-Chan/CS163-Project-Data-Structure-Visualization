@@ -22,12 +22,12 @@ namespace UI {
 
         DrawText("DATA STRUCTURE VISUALIZATION", 210, 116, 48, BLACK);
 
-        draw_button(avl_tree_button, "AVL TREE", button_color, BLACK);
-        draw_button(linked_list_button, "LINKED LIST", button_color, BLACK);
-        draw_button(trie_button, "TRIE", button_color, BLACK);
-        draw_button(heap_button, "HEAP", button_color, BLACK);
-        draw_button(mst_button, "MST", button_color, BLACK);
-        draw_button(sp_button, "SP", button_color, BLACK);
+        draw_button(avl_tree_button, "AVL TREE", button_color, BLACK, 32);
+        draw_button(linked_list_button, "LINKED LIST", button_color, BLACK, 32);
+        draw_button(trie_button, "TRIE", button_color, BLACK, 32);
+        draw_button(heap_button, "HEAP", button_color, BLACK, 32);
+        draw_button(mst_button, "MST", button_color, BLACK, 32);
+        draw_button(sp_button, "SP", button_color, BLACK, 32);
 
         if (is_clicked(avl_tree_button)) *current_state = UI_State::AVL;
         if (is_clicked(linked_list_button)) *current_state = UI_State::LINKED_LIST;
