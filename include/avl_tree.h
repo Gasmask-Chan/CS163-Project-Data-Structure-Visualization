@@ -7,6 +7,9 @@ class AVL_Tree {
 private:
     struct Node {
         int val, height;
+        int current_x, current_y;
+        int target_x, target_y;
+
         Node *left, *right;
 
         /**

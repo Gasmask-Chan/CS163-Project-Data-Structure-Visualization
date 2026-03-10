@@ -15,3 +15,10 @@ and graph algorithms such as:
     - Compiler: g++ (Rev8, Built by MSYS2 project) 15.2.0.
     - Build system: Makefile.
 - Graphic: Raylib 5.5.
+
+## Reminder
+Remeber to add
+```bash
+-Wl,--subsystem,windows
+```
+after line `210` in `Makefile` to stop showing console when running
