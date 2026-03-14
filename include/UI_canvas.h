@@ -40,7 +40,15 @@ namespace UI {
         void set_current_state(UI_State *cur_state);
 
         /**
-         * @brief Initial all basic components and run the current UI state.
+         * @brief Initialize all basic components
+         * 
+         * Need to be overrided since the default does not do anything
+         * 
+         */
+        virtual void setup();
+
+        /**
+         * @brief Run the current UI state.
          * 
          * The default does not add anything.
          * 
@@ -51,12 +59,48 @@ namespace UI {
     };
 
     class Menu_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle avl_tree_button;
+        Rectangle linked_list_button;
+        Rectangle trie_button ;
+        Rectangle heap_button;
+        Rectangle mst_button;
+        Rectangle sp_button;
+
+        const Color button_color = {255, 255, 136, 255};
+
     public:
+        void setup() override;
+
         void run() override;
     };
 
     class AVL_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle input_text_field;
+        Rectangle insert_button;
+        Rectangle erase_button;
+        Rectangle find_button;
+        Rectangle undo_button;
+        Rectangle redo_button;
+        Rectangle clear_button;
+        Rectangle mode_button;
+        Rectangle file_button;
+        Rectangle exit_button;
+        Rectangle random_button;
+
+        Data_Structure::AVL_Tree tree;
+
+        //Input text field
+        char text_string[MAX_INPUT_INT_CHAR + 1];
+        int letter_count;
+        int frames_counter;
+
     public:
+        void setup() override;
+
         void run() override;
     };
 }

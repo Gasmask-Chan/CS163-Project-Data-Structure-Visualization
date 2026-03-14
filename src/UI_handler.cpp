@@ -13,6 +13,7 @@ namespace UI {
         for (int i = 0; i < static_cast<int>(UI_State::COUNT); i++) {
             if (canvas[i]) {
                 canvas[i]->set_current_state(&current_state);
+                canvas[i]->setup();
             }
         }
     }
