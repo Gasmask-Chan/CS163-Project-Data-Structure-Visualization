@@ -8,8 +8,8 @@ namespace UI {
     void draw_button(Rectangle &button, const char *text, Color background_color, Color text_color, int font_size) {
         DrawRectangle(button.x, button.y, button.width, button.height, background_color);
         DrawRectangleLinesEx(button, 1, BLACK);
-        Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
-        DrawTextEx(main_font, text, (Vector2){button.x + (button.width - text_size.x) / 2, button.y + (button.height - text_size.y) / 2}, font_size, 2, text_color);
+        Vector2 text_size = MeasureTextEx(GetFontDefault(), text, font_size, 2);
+        DrawTextEx(GetFontDefault(), text, (Vector2){button.x + (button.width - text_size.x) / 2, button.y + (button.height - text_size.y) / 2}, font_size, 2, text_color);
     }
 
     void draw_node(int pos_x, int pos_y, float radius, bool highlight, const char *text, int font_size) {
