@@ -1,6 +1,8 @@
 #ifndef AVL_TREE_H
 #define AVL_TREE_H
 
+#include <vector>
+
 namespace Data_Structure {
 
 class AVL_Tree {
@@ -9,6 +11,7 @@ private:
         int val, height;
         int current_x, current_y;
         int target_x, target_y;
+        bool highlighted;
 
         Node *left, *right;
 
@@ -23,6 +26,7 @@ private:
     Node *root;
 
 public:
+    
     /**
      * @brief Construct a new `AVL_Tree` object
      * 

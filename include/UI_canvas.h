@@ -29,15 +29,23 @@ namespace UI {
     
     class Canvas {
     protected:
+        Camera2D *camera;
         UI_State *current_state;
     
     public:
         /**
          * @brief Set the `current_state` object
          * 
-         * @param cur_state 
+         * @param current_state 
          */
-        void set_current_state(UI_State *cur_state);
+        void set_current_state(UI_State *current_state);
+
+        /**
+         * @brief Set the `camera` object
+         * 
+         * @param camera 
+         */
+        void set_camera(Camera2D *camera);
 
         /**
          * @brief Initialize all basic components

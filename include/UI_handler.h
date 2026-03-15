@@ -7,6 +7,7 @@ namespace UI {
     class Handler {
     private:
         UI_State current_state;
+        Camera2D camera;
         Canvas *canvas[static_cast<int>(UI_State::COUNT)] = {nullptr};
 
     public:
@@ -21,6 +22,12 @@ namespace UI {
          * 
          */
         Handler();
+
+        /**
+         * @brief Handle camera update event
+         * 
+         */
+        void update_camera();
 
         /**
          * @brief run the visualizer

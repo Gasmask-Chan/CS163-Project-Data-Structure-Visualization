@@ -1,8 +1,12 @@
 #include "../include/UI_canvas.h"
 
 namespace UI {
-    void Canvas::set_current_state(UI_State *cur_state) {
-        current_state = cur_state;
+    void Canvas::set_current_state(UI_State *current_state) {
+        this->current_state = current_state;
+    }
+
+    void Canvas::set_camera(Camera2D *camera) {
+        this->camera = camera;
     }
 
     void Canvas::setup() {}
@@ -97,6 +101,12 @@ namespace UI {
 
         BeginDrawing();
         ClearBackground(main_background_color);
+
+        BeginMode2D(*camera);
+
+        draw_node(610 + 30, 8 + 30, 30.0f, false, "7227");
+
+        EndMode2D();
 
         draw_button(input_text_field, "", WHITE, WHITE);
         draw_button(insert_button, "INSERT", WHITE, BLACK);

@@ -8,6 +8,7 @@ AVL_Tree::Node::Node(int val) {
     this->val = val;
     height = 1;
     current_x = current_y = target_x = target_y = 0;
+    highlighted = false;
     left = right = nullptr;
 }
 
