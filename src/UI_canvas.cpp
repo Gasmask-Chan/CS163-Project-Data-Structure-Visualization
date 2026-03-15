@@ -64,6 +64,23 @@ namespace UI {
         frames_counter = 0;
     }
 
+    void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
+        if (!cur) return;
+        
+        if (cur->left) {
+            DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->left->current_x, cur->left->current_y}, 3.0f, (cur->highlighted && cur->left->highlighted) ? RED : BLACK);
+            draw_tree(cur->left);
+        }
+        
+        if (cur->right) {
+            DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->right->current_x, cur->right->current_y}, 3.0f, (cur->highlighted && cur->right->highlighted) ? RED : BLACK);
+            draw_tree(cur->right);
+        }
+
+        const char *label = std::to_string(cur->val).c_str();
+        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label);
+    }
+
     void AVL_Canvas::run() {
         bool mouse_on_input_text_field = CheckCollisionPointRec(GetMousePosition(), input_text_field);
 
@@ -74,7 +91,7 @@ namespace UI {
             int key = GetCharPressed();
 
             while (key > 0) {
-                if ((key >= '0' && key <= '9') && letter_count < MAX_INPUT_INT_CHAR) {
+                if (((key > '0' || (key == '0' && letter_count > 0)) && key <= '9') && letter_count < MAX_INPUT_INT_CHAR) {
                     text_string[letter_count] = static_cast<char>(key);
                     text_string[letter_count + 1] = '\0';
                     ++letter_count;
@@ -98,13 +115,26 @@ namespace UI {
             *current_state = UI_State::MENU;
             return;
         }
+        else if (is_clicked(insert_button) && letter_count > 0) {
+            int val_to_insert = 0;
+            for (int __i = 0; __i < letter_count; __i++) {
+                val_to_insert = val_to_insert * 10 + (text_string[__i] - '0');
+            }
+
+            letter_count = 0;
+            text_string[0] = '\0';
+
+            tree.insert(val_to_insert);
+        }
 
         BeginDrawing();
         ClearBackground(main_background_color);
 
         BeginMode2D(*camera);
 
-        draw_node(610 + 30, 8 + 30, 30.0f, false, "7227");
+        // draw_node(610 + 30, 8 + 30, 30.0f, false, "7227");
+
+        draw_tree(tree.get_root());
 
         EndMode2D();
 

@@ -1,12 +1,14 @@
 #ifndef AVL_TREE_H
 #define AVL_TREE_H
 
+#include "UI_config.h"
+
 #include <vector>
 
 namespace Data_Structure {
 
 class AVL_Tree {
-private:
+public:
     struct Node {
         int val, height;
         int current_x, current_y;
@@ -23,10 +25,10 @@ private:
         Node(int val = -1);
     };
 
+private:
     Node *root;
 
 public:
-    
     /**
      * @brief Construct a new `AVL_Tree` object
      * 
@@ -132,6 +134,31 @@ public:
      * @return void
      */
     void clear();
+
+    //For UI
+    const int vertical_gap = 100;
+
+    /**
+     * @brief Return a `std::vector<Node*>` contains tree nodes in order.
+     * 
+     * @return std::vector<Node*> 
+     */
+    Node* get_root();
+
+    /**
+     * @brief Return the maximum horizontal gap we need based on the tree's height
+     * 
+     * @return int 
+     */
+    int get_initial_gap();
+
+    void recalculate_position(Node* cur, int x, int y, int gap);
+
+    /**
+     * @brief Recalculate postion of each node in tree
+     * 
+     */
+    void recalculate_position();
 };
 }
 

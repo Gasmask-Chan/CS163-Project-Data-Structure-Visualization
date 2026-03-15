@@ -26,6 +26,7 @@ namespace UI {
     const int MAX_INPUT_INT_CHAR = 4;
     const int MAX_INPUT_CHAR = 10;
     const Color main_background_color = {255, 255, 212, 255};
+    const float node_radius = 30.0f;
     
     class Canvas {
     protected:
@@ -108,8 +109,9 @@ namespace UI {
 
     public:
         void setup() override;
-
         void run() override;
+        
+        void draw_tree(Data_Structure::AVL_Tree::Node* cur);
     };
 }
 
