@@ -64,7 +64,8 @@ AVL_Tree::Node* AVL_Tree::right_rotate(Node *cur) {
 
 AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x) {
     if (cur == nullptr) {
-        return new Node(x);
+        Node* new_node = new Node(x);
+        return new_node;
     }
 
     cur->highlighted = true;
@@ -107,6 +108,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x) {
 void AVL_Tree::insert(int x) {
     root = insert(root, x);
     recalculate_position();
+    history.push_back(get_copy());
 }
 
 AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
@@ -202,6 +204,43 @@ void AVL_Tree::clear(Node *cur) {
 void AVL_Tree::clear() {
     clear(root);
     root = nullptr;
+
+    for (Node* &node : history) {
+        clear(node);
+        node = nullptr;
+    }
+
+    for (Node* &node : undo_history) {
+        clear(node);
+        node = nullptr;
+    }
+
+    history.clear();
+    undo_history.clear();
+}
+
+
+//===========================UI===========================
+
+AVL_Tree::Node* AVL_Tree::get_copy(Node* cur) {
+    if (!cur) return nullptr;
+
+    Node* new_node = new Node(cur->val);
+    new_node->height = cur->height;
+    new_node->current_x = cur->current_x;
+    new_node->current_y = cur->current_y;
+    new_node->target_x = cur->target_x;
+    new_node->target_y = cur->target_y;
+    new_node->highlighted = cur->highlighted;
+
+    new_node->left = get_copy(cur->left);
+    new_node->right = get_copy(cur->right);
+
+    return new_node;
+}
+
+AVL_Tree::Node* AVL_Tree::get_copy() {
+    return get_copy(root);
 }
 
 AVL_Tree::Node* AVL_Tree::get_root() {
@@ -210,7 +249,7 @@ AVL_Tree::Node* AVL_Tree::get_root() {
 
 int AVL_Tree::get_initial_gap() {
     if (!root) return 0;
-    return (1 << (root->height - 1)) * 60;
+    return (1 << (root->height - 1)) * 25;
 }
 
 void AVL_Tree::recalculate_position(Node* cur, int x, int y, int gap) {

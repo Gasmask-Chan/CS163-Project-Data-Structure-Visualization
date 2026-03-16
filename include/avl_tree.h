@@ -135,8 +135,20 @@ public:
      */
     void clear();
 
-    //For UI
-    const int vertical_gap = 100;
+    //========================UI========================
+    const int vertical_gap = 80;
+
+    std::vector<Node*> history;
+    std::vector<Node*> undo_history; //For redo
+
+    Node* get_copy(Node* cur);
+
+    /**
+     * @brief Return the root of a new copy of the current tree
+     * 
+     * @return Node* 
+     */
+    Node* get_copy();
 
     /**
      * @brief Return a `std::vector<Node*>` contains tree nodes in order.
