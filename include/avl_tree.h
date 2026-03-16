@@ -11,8 +11,8 @@ class AVL_Tree {
 public:
     struct Node {
         int val, height;
-        int current_x, current_y;
-        int target_x, target_y;
+        float current_x, current_y;
+        float target_x, target_y;
         bool highlighted;
 
         Node *left, *right;
@@ -138,14 +138,7 @@ public:
     //========================UI========================
     const int vertical_gap = 80;
 
-    std::vector<Node*> *history;
-
-    /**
-     * @brief Set the history object
-     * 
-     * @param history 
-     */
-    void set_history(std::vector<Node*> *history);
+    std::vector<Node*> history;
 
     Node* get_copy(Node* cur);
 
@@ -170,7 +163,7 @@ public:
      */
     int get_initial_gap();
 
-    void recalculate_position(Node* cur, int x, int y, int gap);
+    void recalculate_position(Node* cur, float x, float y, int gap);
 
     /**
      * @brief Recalculate postion of each node in tree

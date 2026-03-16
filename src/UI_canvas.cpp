@@ -66,10 +66,9 @@ namespace UI {
 
         //Animation setup
         current_step = -1;
-        ani_speed = 0.15f;
+        ani_speed = 0.1f;
         pause_timer = time_between_steps;
         is_playing = false;
-        tree.set_history(&history);
     }
 
     void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
@@ -101,7 +100,8 @@ namespace UI {
             cur->current_x = new_pos.x;
             cur->current_y = new_pos.y;
             is_moving = true;
-        } else {
+        } 
+        else {
             cur->current_x = cur->target_x;
             cur->current_y = cur->target_y;
         }
@@ -113,9 +113,9 @@ namespace UI {
     }
 
     void AVL_Canvas::update_animation() {
-        if (history.empty() || !is_playing || current_step < 0) return;
+        if (tree.history.empty() || !is_playing || current_step < 0) return;
 
-        auto current_tree = history[current_step];
+        auto current_tree = tree.history[current_step];
         
         bool is_animating = update_node_position(current_tree);
 
@@ -126,10 +126,11 @@ namespace UI {
             pause_timer -= GetFrameTime();
 
             if (pause_timer <= 0.0f) {
-                if (current_step + 1 < (int)history.size()) {
+                if (current_step + 1 < (int)tree.history.size()) {
                     ++current_step;
                 }
                 else {
+                    pause_timer = time_between_steps;
                     is_playing = false;
                 }
             }
@@ -139,7 +140,7 @@ namespace UI {
     void AVL_Canvas::run() {
         bool mouse_on_input_text_field = CheckCollisionPointRec(GetMousePosition(), input_text_field);
 
-        if (mouse_on_input_text_field) {
+        if (mouse_on_input_text_field && !is_playing) {
             ++frames_counter;
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
 
@@ -195,9 +196,9 @@ namespace UI {
 
         // draw_node(610 + 30, 8 + 30, 30.0f, false, "7227");
 
-        // if (current_step >= 0) {
-        //     draw_tree(history[current_step]);
-        // }
+        if (current_step >= 0) {
+            draw_tree(tree.history[current_step]);
+        }
 
         EndMode2D();
 
@@ -215,7 +216,7 @@ namespace UI {
 
         DrawText(text_string, input_text_field.x + 10, input_text_field.y + 13, 20, BLACK);
 
-        if (mouse_on_input_text_field) {
+        if (mouse_on_input_text_field && !is_playing) {
             if (letter_count < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter / 20) & 1) == 0) {
                     DrawText("_", input_text_field.x + 13 + MeasureText(text_string, 20), input_text_field.y + 15, 20, BLACK);

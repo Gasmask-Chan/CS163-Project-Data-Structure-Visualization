@@ -120,9 +120,9 @@ namespace UI {
         float ani_speed;
         float pause_timer; //Pause time between each step
         bool is_playing;
-        std::vector<Data_Structure::AVL_Tree::Node*> history;
+        
+        public:
 
-    public:
         void setup() override;
         void run() override;
         void update_animation() override;

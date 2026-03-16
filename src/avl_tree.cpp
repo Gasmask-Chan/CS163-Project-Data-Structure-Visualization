@@ -70,11 +70,11 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Vector2 parent_pos) {
         new_node->current_x = parent_pos.x;
         new_node->current_y = parent_pos.y;
 
-        if (root) history->push_back(get_copy(root));
+        if (root) history.push_back(get_copy(root));
         else {
-            history->push_back(new_node);
+            history.push_back(get_copy(new_node));
             new_node->highlighted = false;
-            history->push_back(new_node);
+            history.push_back(get_copy(new_node));
         }
 
         new_node->highlighted = false;
@@ -83,7 +83,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Vector2 parent_pos) {
     }
 
     cur->highlighted = true;
-    history->push_back(get_copy(root));
+    history.push_back(get_copy(root));
 
     Vector2 new_parent_pos = {cur->current_x, cur->current_y};
 
@@ -97,7 +97,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Vector2 parent_pos) {
         return cur;
     }
 
-    history->push_back(get_copy(root));
+    history.push_back(get_copy(root));
     cur->highlighted = false;
     
     cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
@@ -126,7 +126,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Vector2 parent_pos) {
     
     if (rotated) {
         recalculate_position();
-        history->push_back(get_copy(root));
+        history.push_back(get_copy(root));
     }
 
     return cur;
@@ -135,7 +135,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Vector2 parent_pos) {
 void AVL_Tree::insert(int x) {
     root = insert(root, x, (Vector2){UI::window_width >> 1, 38});
     recalculate_position();
-    history->push_back(get_copy(root));
+    history.push_back(get_copy(root));
 }
 
 AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
@@ -232,20 +232,16 @@ void AVL_Tree::clear() {
     clear(root);
     root = nullptr;
 
-    for (Node* &node : *history) {
+    for (Node* &node : history) {
         clear(node);
         node = nullptr;
     }
 
-    history->clear();
+    history.clear();
 }
 
 
 //===========================UI===========================
-
-void AVL_Tree::set_history(std::vector<Node*> *history) {
-    this->history = history;
-}
 
 AVL_Tree::Node* AVL_Tree::get_copy(Node* cur) {
     if (!cur) return nullptr;
@@ -277,7 +273,7 @@ int AVL_Tree::get_initial_gap() {
     return (1 << (root->height - 1)) * 25;
 }
 
-void AVL_Tree::recalculate_position(Node* cur, int x, int y, int gap) {
+void AVL_Tree::recalculate_position(Node* cur, float x, float y, int gap) {
     if (!cur) return;
 
     // cur->current_x = x;
