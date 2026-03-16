@@ -51,13 +51,14 @@ namespace UI {
         insert_button = {198, 653, 100, 45};
         erase_button = {309, 653, 100, 45};
         find_button = {420, 653, 100, 45};
-        undo_button = {531, 653, 100, 45};
-        redo_button = {642, 653, 100, 45};
+        prev_button = {531, 653, 100, 45};
+        next_button = {642, 653, 100, 45};
         clear_button = {753, 653, 100, 45};
         mode_button = {864, 653, 100, 45};
         file_button = {975, 653, 100, 45};
         exit_button = {1086, 653, 100, 45};
         random_button = {21, 599, 126, 45};
+        skip_button = {642, 599, 100, 45};
 
         //Input text field setup
         text_string[0] = '\0';
@@ -66,7 +67,7 @@ namespace UI {
 
         //Animation setup
         current_step = -1;
-        ani_speed = 0.1f;
+        ani_speed = 0.05f;
         pause_timer = time_between_steps;
         is_playing = false;
     }
@@ -93,6 +94,8 @@ namespace UI {
 
         bool is_moving = false;
 
+        std::cout << "ANIMATION UPDATING " << cur->val << ": " << cur->current_x << ' ' << cur->current_y << " - " << cur->target_x << ' ' << cur->target_y << std::endl;
+
         float distance = Vector2Distance((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y});
 
         if (distance > 1.0f) {
@@ -112,12 +115,31 @@ namespace UI {
         return is_moving;
     }
 
+    void AVL_Canvas::sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* &old_root) {
+        if (!new_root) return;
+
+        auto old_node = tree.find(old_root, new_root->val);
+
+        if (old_node) {
+            std::cout << "MODIFING " << new_root->val << ": " << new_root->current_x << ' ' << new_root->current_y << " - " << old_node->target_x << ' ' << old_node->target_y << std::endl;
+            new_root->current_x = old_node->current_x;
+            new_root->current_y = old_node->current_y;
+        }
+
+        sync_position(new_root->left, old_root);
+        sync_position(new_root->right, old_root);
+    }
+
     void AVL_Canvas::update_animation() {
         if (tree.history.empty() || !is_playing || current_step < 0) return;
-
+        
         auto current_tree = tree.history[current_step];
         
         bool is_animating = update_node_position(current_tree);
+        std::cout << "====================================================" << std::endl;
+        std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
+                  << " | Timer " << pause_timer 
+                  << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
 
         if (is_animating) {
             pause_timer = time_between_steps;
@@ -126,11 +148,13 @@ namespace UI {
             pause_timer -= GetFrameTime();
 
             if (pause_timer <= 0.0f) {
+                pause_timer = time_between_steps;
+
                 if (current_step + 1 < (int)tree.history.size()) {
+                    sync_position(tree.history[current_step + 1], tree.history[current_step]);
                     ++current_step;
                 }
                 else {
-                    pause_timer = time_between_steps;
                     is_playing = false;
                 }
             }
@@ -172,7 +196,7 @@ namespace UI {
             return;
         }
         else if (!is_playing) { //No animation is running
-            if (is_clicked(insert_button) && letter_count > 0) {
+            if (is_clicked(insert_button) && letter_count > 0 && current_step == (int)tree.history.size() - 1) {
                 int val_to_insert = 0;
                 for (int __i = 0; __i < letter_count; __i++) {
                     val_to_insert = val_to_insert * 10 + (text_string[__i] - '0');
@@ -183,7 +207,26 @@ namespace UI {
 
                 tree.insert(val_to_insert);
                 is_playing = true;
+
                 ++current_step;
+                if (current_step > 0) {
+                    sync_position(tree.history[current_step], tree.history[current_step - 1]);
+                }
+            }
+            else if (is_clicked(prev_button) && current_step >= 0) {
+                --current_step;
+            }
+            else if (is_clicked(next_button) && current_step + 1 < (int)tree.history.size()) {
+                ++current_step;
+            }
+            else if (is_clicked(clear_button)) {
+                tree.clear();
+                current_step = -1;
+                pause_timer = time_between_steps;
+                is_playing = false;
+            }
+            else if (is_clicked(skip_button)) {
+                current_step = (int)tree.history.size() - 1;
             }
         }
 
@@ -193,8 +236,6 @@ namespace UI {
         ClearBackground(main_background_color);
 
         BeginMode2D(*camera);
-
-        // draw_node(610 + 30, 8 + 30, 30.0f, false, "7227");
 
         if (current_step >= 0) {
             draw_tree(tree.history[current_step]);
@@ -206,13 +247,14 @@ namespace UI {
         draw_button(insert_button, "INSERT", WHITE, BLACK);
         draw_button(erase_button, "ERASE", WHITE, BLACK);
         draw_button(find_button, "FIND", WHITE, BLACK);
-        draw_button(undo_button, "UNDO", WHITE, BLACK);
-        draw_button(redo_button, "REDO", WHITE, BLACK);
+        draw_button(prev_button, "PREV", WHITE, BLACK);
+        draw_button(next_button, "NEXT", WHITE, BLACK);
         draw_button(clear_button, "CLEAR", WHITE, BLACK);
         draw_button(mode_button, "MODE", WHITE, BLACK);
         draw_button(file_button, "FILE", WHITE, BLACK);
         draw_button(exit_button, "EXIT", WHITE, BLACK);
         draw_button(random_button, "RANDOM", WHITE, BLACK);
+        draw_button(skip_button, "SKIP", WHITE, BLACK);
 
         DrawText(text_string, input_text_field.x + 10, input_text_field.y + 13, 20, BLACK);
 

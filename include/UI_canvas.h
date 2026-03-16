@@ -27,6 +27,7 @@ namespace UI {
     const int MAX_INPUT_CHAR = 10;
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
+    const float time_between_steps = 0.4f;
     
     class Canvas {
     protected:
@@ -98,13 +99,14 @@ namespace UI {
         Rectangle insert_button;
         Rectangle erase_button;
         Rectangle find_button;
-        Rectangle undo_button;
-        Rectangle redo_button;
+        Rectangle prev_button;
+        Rectangle next_button;
         Rectangle clear_button;
         Rectangle mode_button;
         Rectangle file_button;
         Rectangle exit_button;
         Rectangle random_button;
+        Rectangle skip_button;
 
         Data_Structure::AVL_Tree tree;
 
@@ -114,8 +116,7 @@ namespace UI {
         int frames_counter;
 
         //Animation
-        const float time_between_steps = 1.0f;
-
+        
         int current_step;
         float ani_speed;
         float pause_timer; //Pause time between each step
@@ -136,6 +137,14 @@ namespace UI {
          * @return false 
          */
         bool update_node_position(Data_Structure::AVL_Tree::Node* cur);
+
+        /**
+         * @brief Sync nodes position between two contiguous histories.
+         * 
+         * @param old_root 
+         * @param new_root 
+         */
+        void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* &old_root);
 
         /**
          * @brief draw the tree with root `cur`

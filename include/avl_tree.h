@@ -78,9 +78,10 @@ public:
      * 
      * @param cur 
      * @param x 
+     * @param parent
      * @return Node* 
      */
-    Node* insert(Node *cur, int x, Vector2 parent_pos);
+    Node* insert(Node *cur, int x, Node *parent);
 
     /**
      * @brief Insert new value `x` to the AVL tree
@@ -155,6 +156,14 @@ public:
      * @return std::vector<Node*> 
      */
     Node* get_root();
+
+    /**
+     * @brief Get the current height of the tree
+     * 
+     * @param cur 
+     * @return int 
+     */
+    int get_tree_height(Node* cur);
 
     /**
      * @brief Return the maximum horizontal gap we need based on the tree's height
