@@ -62,27 +62,49 @@ AVL_Tree::Node* AVL_Tree::right_rotate(Node *cur) {
     return x;
 }
 
-AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x) {
+AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Vector2 parent_pos) {
     if (cur == nullptr) {
         Node* new_node = new Node(x);
+
+        new_node->highlighted = true;
+        new_node->current_x = parent_pos.x;
+        new_node->current_y = parent_pos.y;
+
+        if (root) history->push_back(get_copy(root));
+        else {
+            history->push_back(new_node);
+            new_node->highlighted = false;
+            history->push_back(new_node);
+        }
+
+        new_node->highlighted = false;
+
         return new_node;
     }
 
     cur->highlighted = true;
+    history->push_back(get_copy(root));
+
+    Vector2 new_parent_pos = {cur->current_x, cur->current_y};
 
     if (cur->val > x) {
-        cur->left = insert(cur->left, x);
+        cur->left = insert(cur->left, x, new_parent_pos);
     }
     else if (cur->val < x) {
-        cur->right = insert(cur->right, x);
+        cur->right = insert(cur->right, x, new_parent_pos);
     }
     else {
         return cur;
     }
 
+    history->push_back(get_copy(root));
+    cur->highlighted = false;
+    
     cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
     int balance = get_balance_factor(cur);
-
+    
+    bool rotated = abs(balance) <= 1;
+    
     if (balance > 1) {
         if (x < cur->left->val) { //LL
             cur = right_rotate(cur);
@@ -100,15 +122,20 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x) {
             cur->right = right_rotate(cur->right);
             cur = left_rotate(cur);
         }
-    }  
+    }
+    
+    if (rotated) {
+        recalculate_position();
+        history->push_back(get_copy(root));
+    }
 
     return cur;
 }
 
 void AVL_Tree::insert(int x) {
-    root = insert(root, x);
+    root = insert(root, x, (Vector2){UI::window_width >> 1, 38});
     recalculate_position();
-    history.push_back(get_copy());
+    history->push_back(get_copy(root));
 }
 
 AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
@@ -205,22 +232,20 @@ void AVL_Tree::clear() {
     clear(root);
     root = nullptr;
 
-    for (Node* &node : history) {
+    for (Node* &node : *history) {
         clear(node);
         node = nullptr;
     }
 
-    for (Node* &node : undo_history) {
-        clear(node);
-        node = nullptr;
-    }
-
-    history.clear();
-    undo_history.clear();
+    history->clear();
 }
 
 
 //===========================UI===========================
+
+void AVL_Tree::set_history(std::vector<Node*> *history) {
+    this->history = history;
+}
 
 AVL_Tree::Node* AVL_Tree::get_copy(Node* cur) {
     if (!cur) return nullptr;
@@ -255,11 +280,11 @@ int AVL_Tree::get_initial_gap() {
 void AVL_Tree::recalculate_position(Node* cur, int x, int y, int gap) {
     if (!cur) return;
 
-    cur->current_x = x;
-    cur->current_y = y;
+    // cur->current_x = x;
+    // cur->current_y = y;
 
-    // cur->target_x = x;
-    // cur->target_y = y;
+    cur->target_x = x;
+    cur->target_y = y;
     
     recalculate_position(cur->left, x - gap, y + vertical_gap, gap >> 1);
     recalculate_position(cur->right, x + gap, y + vertical_gap, gap >> 1);

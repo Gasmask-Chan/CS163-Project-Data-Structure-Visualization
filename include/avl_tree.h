@@ -80,7 +80,7 @@ public:
      * @param x 
      * @return Node* 
      */
-    Node* insert(Node *cur, int x);
+    Node* insert(Node *cur, int x, Vector2 parent_pos);
 
     /**
      * @brief Insert new value `x` to the AVL tree
@@ -138,8 +138,14 @@ public:
     //========================UI========================
     const int vertical_gap = 80;
 
-    std::vector<Node*> history;
-    std::vector<Node*> undo_history; //For redo
+    std::vector<Node*> *history;
+
+    /**
+     * @brief Set the history object
+     * 
+     * @param history 
+     */
+    void set_history(std::vector<Node*> *history);
 
     Node* get_copy(Node* cur);
 

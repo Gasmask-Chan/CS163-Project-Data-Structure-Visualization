@@ -11,6 +11,7 @@ namespace UI {
 
     void Canvas::setup() {}
     void Canvas::run() {}
+    void Canvas::update_animation() {}
 
     void Menu_Canvas::setup() {
         avl_tree_button = {84, 288, 293, 74};
@@ -62,6 +63,13 @@ namespace UI {
         text_string[0] = '\0';
         letter_count = 0;
         frames_counter = 0;
+
+        //Animation setup
+        current_step = -1;
+        ani_speed = 0.15f;
+        pause_timer = time_between_steps;
+        is_playing = false;
+        tree.set_history(&history);
     }
 
     void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
@@ -77,8 +85,55 @@ namespace UI {
             draw_tree(cur->right);
         }
 
-        const char *label = std::to_string(cur->val).c_str();
-        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label);
+        std::string label = std::to_string(cur->val);
+        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label.c_str());
+    }
+
+    bool AVL_Canvas::update_node_position(Data_Structure::AVL_Tree::Node* cur) {
+        if (!cur) return false;
+
+        bool is_moving = false;
+
+        float distance = Vector2Distance((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y});
+
+        if (distance > 1.0f) {
+            Vector2 new_pos = Vector2Lerp((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y}, ani_speed);
+            cur->current_x = new_pos.x;
+            cur->current_y = new_pos.y;
+            is_moving = true;
+        } else {
+            cur->current_x = cur->target_x;
+            cur->current_y = cur->target_y;
+        }
+
+        is_moving |= update_node_position(cur->left);
+        is_moving |= update_node_position(cur->right);
+
+        return is_moving;
+    }
+
+    void AVL_Canvas::update_animation() {
+        if (history.empty() || !is_playing || current_step < 0) return;
+
+        auto current_tree = history[current_step];
+        
+        bool is_animating = update_node_position(current_tree);
+
+        if (is_animating) {
+            pause_timer = time_between_steps;
+        }
+        else {
+            pause_timer -= GetFrameTime();
+
+            if (pause_timer <= 0.0f) {
+                if (current_step + 1 < (int)history.size()) {
+                    ++current_step;
+                }
+                else {
+                    is_playing = false;
+                }
+            }
+        }
     }
 
     void AVL_Canvas::run() {
@@ -115,17 +170,23 @@ namespace UI {
             *current_state = UI_State::MENU;
             return;
         }
-        else if (is_clicked(insert_button) && letter_count > 0) {
-            int val_to_insert = 0;
-            for (int __i = 0; __i < letter_count; __i++) {
-                val_to_insert = val_to_insert * 10 + (text_string[__i] - '0');
+        else if (!is_playing) { //No animation is running
+            if (is_clicked(insert_button) && letter_count > 0) {
+                int val_to_insert = 0;
+                for (int __i = 0; __i < letter_count; __i++) {
+                    val_to_insert = val_to_insert * 10 + (text_string[__i] - '0');
+                }
+
+                letter_count = 0;
+                text_string[0] = '\0';
+
+                tree.insert(val_to_insert);
+                is_playing = true;
+                ++current_step;
             }
-
-            letter_count = 0;
-            text_string[0] = '\0';
-
-            tree.insert(val_to_insert);
         }
+
+        update_animation();
 
         BeginDrawing();
         ClearBackground(main_background_color);
@@ -134,7 +195,9 @@ namespace UI {
 
         // draw_node(610 + 30, 8 + 30, 30.0f, false, "7227");
 
-        draw_tree(tree.get_root());
+        // if (current_step >= 0) {
+        //     draw_tree(history[current_step]);
+        // }
 
         EndMode2D();
 

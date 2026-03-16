@@ -57,14 +57,20 @@ namespace UI {
         virtual void setup();
 
         /**
-         * @brief Run the current UI state.
+         * @brief Run the current UI state
          * 
-         * The default does not add anything.
-         * 
-         * Need to override
+         * The default does not add anything, need to be overrided
          * 
          */
         virtual void run();
+
+        /**
+         * @brief update animation for each frame
+         * 
+         * The default does not do anything, need to be overred
+         * 
+         */
+        virtual void update_animation();
     };
 
     class Menu_Canvas : public Canvas {
@@ -107,10 +113,35 @@ namespace UI {
         int letter_count;
         int frames_counter;
 
+        //Animation
+        const float time_between_steps = 1.0f;
+
+        int current_step;
+        float ani_speed;
+        float pause_timer; //Pause time between each step
+        bool is_playing;
+        std::vector<Data_Structure::AVL_Tree::Node*> history;
+
     public:
         void setup() override;
         void run() override;
-        
+        void update_animation() override;
+
+        /**
+         * @brief update the current position of all nodes in the tree rooted at `cur`
+         * 
+         * @param cur 
+         * @param parent_pos 
+         * @return true 
+         * @return false 
+         */
+        bool update_node_position(Data_Structure::AVL_Tree::Node* cur);
+
+        /**
+         * @brief draw the tree with root `cur`
+         * 
+         * @param cur 
+         */
         void draw_tree(Data_Structure::AVL_Tree::Node* cur);
     };
 }
