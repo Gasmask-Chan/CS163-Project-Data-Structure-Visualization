@@ -59,12 +59,12 @@ namespace UI {
         exit_button = {1086, 653, 100, 45};
         random_button = {21, 599, 126, 45};
         skip_button = {642, 599, 100, 45};
-
+        
         //Input text field setup
         text_string[0] = '\0';
         letter_count = 0;
         frames_counter = 0;
-
+        
         //Animation setup
         current_step = -1;
         ani_speed = 0.05f;

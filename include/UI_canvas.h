@@ -27,7 +27,7 @@ namespace UI {
     const int MAX_INPUT_CHAR = 10;
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
-    const float time_between_steps = 0.4f;
+    const float time_between_steps = 0.4f; 
     
     class Canvas {
     protected:

@@ -46,5 +46,5 @@ $(PROJECT_NAME): $(OBJS)
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 clean:
-	rm -f /s /q *.o *.exe
+	rm -f $(OBJS) $(PROJECT_NAME).exe
 	@echo "Finished cleaning"
