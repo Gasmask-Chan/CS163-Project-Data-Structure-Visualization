@@ -65,11 +65,7 @@ AVL_Tree::Node* AVL_Tree::right_rotate(Node *cur) {
 AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     if (cur == nullptr) {
         Node* new_node = new Node(x);
-
         new_node->highlighted = true;
-        new_node->current_x = parent->current_x;
-        new_node->current_x = parent->current_y;
-
         return new_node;
     }
 

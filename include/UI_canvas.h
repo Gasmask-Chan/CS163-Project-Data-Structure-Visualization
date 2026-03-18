@@ -144,7 +144,7 @@ namespace UI {
          * @param old_root 
          * @param new_root 
          */
-        void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* &old_root);
+        void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root);
 
         /**
          * @brief draw the tree with root `cur`

@@ -115,19 +115,25 @@ namespace UI {
         return is_moving;
     }
 
-    void AVL_Canvas::sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* &old_root) {
+    void AVL_Canvas::sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root) {
         if (!new_root) return;
 
         auto old_node = tree.find(old_root, new_root->val);
 
         if (old_node) {
-            std::cout << "MODIFING " << new_root->val << ": " << new_root->current_x << ' ' << new_root->current_y << " - " << old_node->target_x << ' ' << old_node->target_y << std::endl;
+            std::cout << "SYNCING " << new_root->val << ": " << new_root->current_x << ' ' << new_root->current_y << " - " << old_node->target_x << ' ' << old_node->target_y << std::endl;
             new_root->current_x = old_node->current_x;
             new_root->current_y = old_node->current_y;
         }
+        else {
+            if (new_root_parent) {
+                new_root->current_x = new_root_parent->current_x;
+                new_root->current_y = new_root_parent->current_y;
+            }
+        }
 
-        sync_position(new_root->left, old_root);
-        sync_position(new_root->right, old_root);
+        sync_position(new_root->left, new_root, old_root);
+        sync_position(new_root->right, new_root, old_root);
     }
 
     void AVL_Canvas::update_animation() {
@@ -151,7 +157,7 @@ namespace UI {
                 pause_timer = time_between_steps;
 
                 if (current_step + 1 < (int)tree.history.size()) {
-                    sync_position(tree.history[current_step + 1], tree.history[current_step]);
+                    sync_position(tree.history[current_step + 1], nullptr, tree.history[current_step]);
                     ++current_step;
                 }
                 else {
@@ -210,7 +216,7 @@ namespace UI {
 
                 ++current_step;
                 if (current_step > 0) {
-                    sync_position(tree.history[current_step], tree.history[current_step - 1]);
+                    sync_position(tree.history[current_step], nullptr, tree.history[current_step - 1]);
                 }
             }
             else if (is_clicked(prev_button) && current_step >= 0) {
