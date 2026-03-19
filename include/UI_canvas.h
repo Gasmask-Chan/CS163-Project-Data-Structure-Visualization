@@ -32,6 +32,13 @@ namespace UI {
     protected:
         Camera2D *camera;
         UI_State *current_state;
+
+        enum OPERATION {
+            INSERT,
+            ERASE,
+            FIND,
+            NONE
+        };
     
     public:
         /**
@@ -122,6 +129,10 @@ namespace UI {
         int speed_multiplier; //Instant mode = 5
         float pause_timer; //Pause time between each step
         bool is_playing;
+
+        //Code highlight
+        OPERATION cur_operation;
+        Code_Highlight insert_highlight;
         
         public:
 

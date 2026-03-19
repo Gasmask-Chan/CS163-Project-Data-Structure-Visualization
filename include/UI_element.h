@@ -3,6 +3,8 @@
 
 #include "UI_config.h"
 
+#include <vector>
+
 namespace UI {
     /**
      * @brief Check mouse click on the input `Rectangle` button
@@ -33,6 +35,47 @@ namespace UI {
      * @return int 
      */
     int get_random_int(int l, int r);
+
+    class Code_Highlight {
+    private:
+        const float h_left_padding = 7.0f;
+        const float h_right_padding = 12.f;
+        const float v_padding = 7.0f;
+        const float font_size = 15.0f;
+
+        Vector2 start_pos;
+        float height = 0, width = 0;
+        std::vector<std::string> source_code;
+        int highlighted_line = -1;
+
+    public:
+        /**
+         * @brief Set the position of the top right corner of the source code box
+         * 
+         * @param start_pos 
+         */
+        void set_start_pos(Vector2 start_pos);
+
+        /**
+         * @brief Set the index of the highlighted line
+         * 
+         * @param index 
+         */
+        void set_highlighted_line(int index);
+
+        /**
+         * @brief Add new line to the source code
+         * 
+         * @param new_line 
+         */
+        void add(const std::string &new_line);    
+
+        /**
+         * @brief Draw the source code to the screen
+         * 
+         */
+        void draw_code();
+    };
 };
 
 #endif

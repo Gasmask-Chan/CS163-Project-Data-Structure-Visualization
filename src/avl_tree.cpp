@@ -63,6 +63,7 @@ AVL_Tree::Node* AVL_Tree::right_rotate(Node *cur) {
 }
 
 AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
+    save_snapshot(0);
     if (cur == nullptr) {
         Node* new_node = new Node(x);
         new_node->highlighted = true;
@@ -70,7 +71,9 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     }
 
     cur->highlighted = true;
-    save_snapshot();
+    save_snapshot(1);
+
+    int pre_save = 1;
 
     if (cur->val > x) {
         bool flag = cur->left == nullptr;
@@ -78,27 +81,30 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
 
         if (flag) {
-            save_snapshot();
+            save_snapshot(1);
             cur->left->highlighted = false;
         }
     }
     else if (cur->val < x) {
+        save_snapshot(2);
+        pre_save = 2;
         bool flag = cur->right == nullptr;
         cur->right = insert(cur->right, x, cur);
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
         
         if (flag) {
-            save_snapshot();
+            save_snapshot(2);
             cur->right->highlighted = false;
         }
     }
     else {
         cur->highlighted = false;
-        save_snapshot();
+        save_snapshot(3);
         return cur;
     }
 
-    save_snapshot();
+    save_snapshot(pre_save);
+    save_snapshot(4);
     cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
     
     cur->highlighted = false;
@@ -127,7 +133,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     }
     
     if (rotated) {
-        save_snapshot();
+        save_snapshot(4);
     }
 
     return cur;
@@ -137,14 +143,14 @@ void AVL_Tree::insert(int x) {
     if (!root) {
         root = new Node(x);
         root->highlighted = true;
-        save_snapshot();
+        save_snapshot(0);
         root->highlighted = false;
-        save_snapshot();
+        save_snapshot(0);
     }
     else {
         root = insert(root, x, root);
         root->highlighted = false;
-        save_snapshot();
+        save_snapshot(4);
     }
 }
 

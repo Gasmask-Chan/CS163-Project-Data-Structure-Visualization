@@ -68,10 +68,22 @@ namespace UI {
         
         //Animation setup
         current_step = -1;
-        ani_speed = 0.2f;
+        ani_speed = 0.05f;
         speed_multiplier = 1;
         pause_timer = time_between_steps;
         is_playing = false;
+
+        //Code highlight setup
+        cur_operation = OPERATION::NONE;
+
+        insert_highlight.set_start_pos({1280, 296});
+        
+        insert_highlight.add("if (cur == nullptr) create_node(x);");
+        insert_highlight.add("if (cur->val > x) go_left();");
+        insert_highlight.add("else if (cur->val < x) go_right();");
+        insert_highlight.add("else return;");
+        insert_highlight.add("balance_tree()");
+
     }
 
     void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
@@ -150,8 +162,9 @@ namespace UI {
         }
 
         auto current_tree = tree.history[current_step];
-        
+
         bool is_animating = update_node_position(current_tree.tree_root);
+        insert_highlight.set_highlighted_line(current_tree.index);
 
         std::cout << "====================================================" << std::endl;
         std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
@@ -173,6 +186,8 @@ namespace UI {
                 }
                 else {
                     is_playing = false;
+                    insert_highlight.set_highlighted_line(-1);
+                    cur_operation = OPERATION::NONE;
                 }
             }
         }
@@ -205,6 +220,7 @@ namespace UI {
             }
 
             is_playing = true;
+            cur_operation = OPERATION::INSERT;
 
             ++current_step;
             if (current_step > 0) {
@@ -225,6 +241,9 @@ namespace UI {
         text_string[0] = '\0';
         letter_count = 0;
         frames_counter = 0;
+
+        //Code highlight
+        cur_operation = OPERATION::NONE;
     }
 
     void AVL_Canvas::run() {
@@ -296,7 +315,7 @@ namespace UI {
             }
             else if (is_clicked(random_button)) {
                 clear();
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 10; i++) {
                     std::string cur_str = std::to_string(get_random_int(1, 100));
                     for (const auto &c : cur_str) {
                         text_string[letter_count++] = c;
@@ -308,9 +327,16 @@ namespace UI {
         }
 
         if (is_clicked(skip_button)) {
+            int prev_speed = speed_multiplier;
+
+            speed_multiplier = 5;
             pause_timer = time_between_steps / speed_multiplier;
             current_step = (int)tree.history.size() - 1;
-            is_playing = false;
+
+            update_animation();
+
+            speed_multiplier = prev_speed;
+            pause_timer = time_between_steps / speed_multiplier;
         }
 
         update_animation();
@@ -326,6 +352,7 @@ namespace UI {
 
         EndMode2D();
 
+        //Buttons
         draw_button(input_text_field, "", WHITE, WHITE);
         draw_button(insert_button, "INSERT", WHITE, is_playing ? GRAY : BLACK);
         draw_button(erase_button, "ERASE", WHITE, is_playing ? GRAY : BLACK);
@@ -335,7 +362,7 @@ namespace UI {
         draw_button(clear_button, "CLEAR", WHITE, is_playing ? GRAY : BLACK);
         draw_button(mode_button, "MODE", WHITE, is_playing ? GRAY : BLACK);
         draw_button(file_button, "FILE", WHITE, is_playing ? GRAY : BLACK);
-        draw_button(exit_button, "EXIT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(exit_button, "EXIT", WHITE, BLACK);
         draw_button(random_button, "RANDOM", WHITE, is_playing ? GRAY : BLACK);
         draw_button(skip_button, "SKIP", WHITE, is_playing ? GRAY : BLACK);
 
@@ -362,7 +389,6 @@ namespace UI {
                     DrawText("_", text_start_x + text_width + 2, input_text_field.y + 15, 20, BLACK);
                 }
             }
-            
         }
 
         EndScissorMode();
@@ -371,6 +397,12 @@ namespace UI {
             DrawText("MAXIMUM INPUT REACHED", 198, 607, 23, RED);
         
         }
+
+        //Code highlight drawing
+        if (cur_operation == INSERT) {
+            insert_highlight.draw_code();
+        }
+
         EndDrawing();
     }
 }

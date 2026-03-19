@@ -26,4 +26,33 @@ namespace UI {
     int get_random_int(int l, int r) {
         return std::uniform_int_distribution<int>(l, r)(rng);
     }
+
+    void Code_Highlight::set_start_pos(Vector2 start_pos) {
+        this->start_pos = start_pos;
+    }
+
+    void Code_Highlight::set_highlighted_line(int index) {
+        this->highlighted_line = index;
+    }
+
+    void Code_Highlight::add(const std::string &new_line) {
+        Vector2 text_size = MeasureTextEx(code_font, new_line.c_str(), font_size, 2);
+        height = std::max(height, text_size.y + 2 * v_padding);
+        width = std::max(width, h_left_padding + text_size.x + h_right_padding);
+        source_code.push_back(new_line);
+    }
+
+    void Code_Highlight::draw_code() {
+        DrawRectangle(start_pos.x - width, start_pos.y, width, height, WHITE);
+
+        for (int i = 0; i < (int)source_code.size(); i++) {
+            auto &cur_line = source_code[i];
+            Vector2 pos = {start_pos.x - width, start_pos.y + i * height};
+
+            DrawRectangle(pos.x, pos.y, width, height, i == highlighted_line ? Fade(RED, 0.7f) : WHITE);
+            DrawRectangleLinesEx({pos.x, pos.y, width, height}, 1.0f, BLACK);
+            
+            DrawTextEx(code_font, cur_line.c_str(), {pos.x + h_left_padding, pos.y + v_padding}, font_size, 2, BLACK);
+        }
+    }
 }

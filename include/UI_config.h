@@ -10,6 +10,7 @@ namespace UI {
     const int window_height = 720;
     const int window_width = 1280;
     extern Font main_font;
+    extern Font code_font;
 
     void load_font();
     void unload_font();
