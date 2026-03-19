@@ -178,27 +178,22 @@ namespace UI {
         }
     }
 
-    void AVL_Canvas::insert(int val) {
+    void AVL_Canvas::insert() {
         std::vector<int> val_to_insert;
-        
-        if (val != -1) {
-            val_to_insert.push_back(val);
-        }
-        else {
-            std::string cur_num = "";
-            for (int i = 0; i < letter_count; i++) {
-                if (text_string[i] != ' ') {
-                    cur_num.push_back(text_string[i]);
-                }
-                else if (!cur_num.empty()) {
-                    val_to_insert.push_back(std::stoi(cur_num));
-                    cur_num = "";
-                }
-            }
+        std::string cur_num = "";
 
-            if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+        for (int i = 0; i < letter_count; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(text_string[i]);
             }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_insert.push_back(std::stoi(cur_num));
         }
 
         letter_count = 0;
@@ -220,9 +215,16 @@ namespace UI {
 
     void AVL_Canvas::clear() {
         tree.clear();
+
+        //Animation
         current_step = -1;
         pause_timer = time_between_steps / speed_multiplier;
         is_playing = false;
+
+        //Input text field
+        text_string[0] = '\0';
+        letter_count = 0;
+        frames_counter = 0;
     }
 
     void AVL_Canvas::run() {
@@ -294,9 +296,14 @@ namespace UI {
             }
             else if (is_clicked(random_button)) {
                 clear();
-                for (int i = 0; i < 4; i++) {
-                    insert(get_random_int(1, 100));
+                for (int i = 0; i < 3; i++) {
+                    std::string cur_str = std::to_string(get_random_int(1, 100));
+                    for (const auto &c : cur_str) {
+                        text_string[letter_count++] = c;
+                    }
+                    text_string[letter_count++] = ' ';
                 }
+                insert();
             }
         }
 

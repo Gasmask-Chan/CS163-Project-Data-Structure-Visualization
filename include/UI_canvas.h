@@ -157,11 +157,10 @@ namespace UI {
         /**
          * @brief Handle insert operation
          * 
-         * By default insert value from the input text field
+         * By default insert values from the input text field
          * 
-         * @param val
          */
-        void insert(int val = -1);
+        void insert();
 
         /**
          * @brief Handle erase operation
