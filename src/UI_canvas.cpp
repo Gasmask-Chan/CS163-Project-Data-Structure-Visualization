@@ -59,6 +59,7 @@ namespace UI {
         exit_button = {1086, 653, 100, 45};
         random_button = {21, 599, 126, 45};
         skip_button = {642, 599, 100, 45};
+        speed_button = {21, 545, 143, 45};
         
         //Input text field setup
         text_string[0] = '\0';
@@ -67,7 +68,8 @@ namespace UI {
         
         //Animation setup
         current_step = -1;
-        ani_speed = 0.05f;
+        ani_speed = 0.2f;
+        speed_multiplier = 1;
         pause_timer = time_between_steps;
         is_playing = false;
     }
@@ -98,8 +100,12 @@ namespace UI {
 
         float distance = Vector2Distance((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y});
 
+        if (speed_multiplier == 5) { //Instant mode is on
+            distance = 0.0f;
+        }
+
         if (distance > 1.0f) {
-            Vector2 new_pos = Vector2Lerp((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y}, ani_speed);
+            Vector2 new_pos = Vector2Lerp((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y}, ani_speed * speed_multiplier);
             cur->current_x = new_pos.x;
             cur->current_y = new_pos.y;
             is_moving = true;
@@ -139,22 +145,27 @@ namespace UI {
     void AVL_Canvas::update_animation() {
         if (tree.history.empty() || !is_playing || current_step < 0) return;
         
+        if (speed_multiplier == 5) { //Instant mode is on
+            current_step = (int)tree.history.size() - 1;
+        }
+
         auto current_tree = tree.history[current_step];
         
         bool is_animating = update_node_position(current_tree);
+
         std::cout << "====================================================" << std::endl;
         std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
                   << " | Timer " << pause_timer 
                   << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
 
         if (is_animating) {
-            pause_timer = time_between_steps;
+            pause_timer = time_between_steps / speed_multiplier;
         }
         else {
             pause_timer -= GetFrameTime();
 
             if (pause_timer <= 0.0f) {
-                pause_timer = time_between_steps;
+                pause_timer = time_between_steps / speed_multiplier;
 
                 if (current_step + 1 < (int)tree.history.size()) {
                     sync_position(tree.history[current_step + 1], nullptr, tree.history[current_step]);
@@ -167,6 +178,53 @@ namespace UI {
         }
     }
 
+    void AVL_Canvas::insert(int val) {
+        std::vector<int> val_to_insert;
+        
+        if (val != -1) {
+            val_to_insert.push_back(val);
+        }
+        else {
+            std::string cur_num = "";
+            for (int i = 0; i < letter_count; i++) {
+                if (text_string[i] != ' ') {
+                    cur_num.push_back(text_string[i]);
+                }
+                else if (!cur_num.empty()) {
+                    val_to_insert.push_back(std::stoi(cur_num));
+                    cur_num = "";
+                }
+            }
+
+            if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+            }
+        }
+
+        letter_count = 0;
+        text_string[0] = '\0';
+
+        if (!val_to_insert.empty()) {
+            for (auto to_insert : val_to_insert) {
+                tree.insert(to_insert);
+            }
+
+            is_playing = true;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(tree.history[current_step], nullptr, tree.history[current_step - 1]);
+            }
+        }
+    }
+
+    void AVL_Canvas::clear() {
+        tree.clear();
+        current_step = -1;
+        pause_timer = time_between_steps / speed_multiplier;
+        is_playing = false;
+    }
+
     void AVL_Canvas::run() {
         bool mouse_on_input_text_field = CheckCollisionPointRec(GetMousePosition(), input_text_field);
 
@@ -177,7 +235,7 @@ namespace UI {
             int key = GetCharPressed();
 
             while (key > 0) {
-                if (((key > '0' || (key == '0' && letter_count > 0)) && key <= '9') && letter_count < MAX_INPUT_INT_CHAR) {
+                if (((((key > '0' || (key == '0' && letter_count > 0 && text_string[letter_count - 1] != ' ')) && key <= '9')) || key == ' ') && letter_count < MAX_INPUT_INT_CHAR) {
                     text_string[letter_count] = static_cast<char>(key);
                     text_string[letter_count + 1] = '\0';
                     ++letter_count;
@@ -203,21 +261,7 @@ namespace UI {
         }
         else if (!is_playing) { //No animation is running
             if (is_clicked(insert_button) && letter_count > 0 && current_step == (int)tree.history.size() - 1) {
-                int val_to_insert = 0;
-                for (int __i = 0; __i < letter_count; __i++) {
-                    val_to_insert = val_to_insert * 10 + (text_string[__i] - '0');
-                }
-
-                letter_count = 0;
-                text_string[0] = '\0';
-
-                tree.insert(val_to_insert);
-                is_playing = true;
-
-                ++current_step;
-                if (current_step > 0) {
-                    sync_position(tree.history[current_step], nullptr, tree.history[current_step - 1]);
-                }
+                insert();
             }
             else if (is_clicked(prev_button) && current_step >= 0) {
                 --current_step;
@@ -226,14 +270,40 @@ namespace UI {
                 ++current_step;
             }
             else if (is_clicked(clear_button)) {
-                tree.clear();
-                current_step = -1;
-                pause_timer = time_between_steps;
-                is_playing = false;
+                clear();
             }
-            else if (is_clicked(skip_button)) {
-                current_step = (int)tree.history.size() - 1;
+            else if (is_clicked(speed_button)) {
+                switch (speed_multiplier) {
+                case 1:
+                    speed_multiplier = 2;
+                    break;
+                case 2:
+                    speed_multiplier = 3;
+                    break;
+                case 3:
+                    speed_multiplier = 4;
+                    break;
+                case 4:
+                    speed_multiplier = 5;
+                    break;
+                
+                default:
+                    speed_multiplier = 1;
+                    break;
+                }
             }
+            else if (is_clicked(random_button)) {
+                clear();
+                for (int i = 0; i < 4; i++) {
+                    insert(get_random_int(1, 100));
+                }
+            }
+        }
+
+        if (is_clicked(skip_button)) {
+            pause_timer = time_between_steps / speed_multiplier;
+            current_step = (int)tree.history.size() - 1;
+            is_playing = false;
         }
 
         update_animation();
@@ -250,29 +320,49 @@ namespace UI {
         EndMode2D();
 
         draw_button(input_text_field, "", WHITE, WHITE);
-        draw_button(insert_button, "INSERT", WHITE, BLACK);
-        draw_button(erase_button, "ERASE", WHITE, BLACK);
-        draw_button(find_button, "FIND", WHITE, BLACK);
-        draw_button(prev_button, "PREV", WHITE, BLACK);
-        draw_button(next_button, "NEXT", WHITE, BLACK);
-        draw_button(clear_button, "CLEAR", WHITE, BLACK);
-        draw_button(mode_button, "MODE", WHITE, BLACK);
-        draw_button(file_button, "FILE", WHITE, BLACK);
-        draw_button(exit_button, "EXIT", WHITE, BLACK);
-        draw_button(random_button, "RANDOM", WHITE, BLACK);
-        draw_button(skip_button, "SKIP", WHITE, BLACK);
+        draw_button(insert_button, "INSERT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(erase_button, "ERASE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(find_button, "FIND", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(prev_button, "PREV", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(next_button, "NEXT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(clear_button, "CLEAR", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(mode_button, "MODE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(file_button, "FILE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(exit_button, "EXIT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(random_button, "RANDOM", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(skip_button, "SKIP", WHITE, is_playing ? GRAY : BLACK);
 
-        DrawText(text_string, input_text_field.x + 10, input_text_field.y + 13, 20, BLACK);
+        std::string speed_text = "SPEED " + (speed_multiplier != 5 ? "x" + std::to_string(speed_multiplier) : "TA`Y");
+
+        draw_button(speed_button, speed_text.c_str(), WHITE, is_playing ? GRAY : BLACK);
+
+        //Input text field drawing
+
+        int text_width = MeasureText(text_string, 20);
+        int text_start_x = input_text_field.x + 10;
+
+        if (text_width > input_text_field.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field.x, input_text_field.y, input_text_field.width, input_text_field.height);
+
+        DrawText(text_string, text_start_x, input_text_field.y + 13, 20, BLACK);
 
         if (mouse_on_input_text_field && !is_playing) {
             if (letter_count < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter / 20) & 1) == 0) {
-                    DrawText("_", input_text_field.x + 13 + MeasureText(text_string, 20), input_text_field.y + 15, 20, BLACK);
+                    DrawText("_", text_start_x + text_width + 2, input_text_field.y + 15, 20, BLACK);
                 }
             }
-            else {
-                DrawText("MAXIMUM INPUT REACHED", 21, 562, 23, RED);
-            }
+            
+        }
+
+        EndScissorMode();
+
+        if (mouse_on_input_text_field && !is_playing && letter_count >= MAX_INPUT_INT_CHAR) {
+            DrawText("MAXIMUM INPUT REACHED", 198, 607, 23, RED);
+        
         }
         EndDrawing();
     }

@@ -1,5 +1,7 @@
 #include "../include/UI_element.h"
 
+#include <random>
+
 namespace UI {
     bool is_clicked(Rectangle button) {
         return CheckCollisionPointRec(GetMousePosition(), button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
@@ -18,5 +20,10 @@ namespace UI {
         Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
         DrawRing((Vector2){pos_x, pos_y}, radius, radius + 4, 0, 360, 36, highlight ? RED : BLACK);
         DrawTextEx(main_font, text, {pos_x - text_size.x / 2, pos_y - text_size.y / 2}, font_size, 2, BLACK);
+    }
+
+    std::mt19937 rng(727);
+    int get_random_int(int l, int r) {
+        return std::uniform_int_distribution<int>(l, r)(rng);
     }
 }

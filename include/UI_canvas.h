@@ -23,11 +23,10 @@ enum UI_State {
 };
 
 namespace UI {
-    const int MAX_INPUT_INT_CHAR = 4;
-    const int MAX_INPUT_CHAR = 10;
+    const int MAX_INPUT_INT_CHAR = 100;
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
-    const float time_between_steps = 0.4f; 
+    const float time_between_steps = 0.4f;
     
     class Canvas {
     protected:
@@ -107,6 +106,7 @@ namespace UI {
         Rectangle exit_button;
         Rectangle random_button;
         Rectangle skip_button;
+        Rectangle speed_button;
 
         Data_Structure::AVL_Tree tree;
 
@@ -119,6 +119,7 @@ namespace UI {
         
         int current_step;
         float ani_speed;
+        int speed_multiplier; //Instant mode = 5
         float pause_timer; //Pause time between each step
         bool is_playing;
         
@@ -129,7 +130,7 @@ namespace UI {
         void update_animation() override;
 
         /**
-         * @brief update the current position of all nodes in the tree rooted at `cur`
+         * @brief Update the current position of all nodes in the tree rooted at `cur`
          * 
          * @param cur 
          * @param parent_pos 
@@ -147,11 +148,32 @@ namespace UI {
         void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root);
 
         /**
-         * @brief draw the tree with root `cur`
+         * @brief Draw the tree with root `cur`
          * 
          * @param cur 
          */
         void draw_tree(Data_Structure::AVL_Tree::Node* cur);
+
+        /**
+         * @brief Handle insert operation
+         * 
+         * By default insert value from the input text field
+         * 
+         * @param val
+         */
+        void insert(int val = -1);
+
+        /**
+         * @brief Handle erase operation
+         * 
+         */
+        void erase();
+
+        /**
+         * @brief Handle clear operation
+         * 
+         */
+        void clear();
     };
 }
 
