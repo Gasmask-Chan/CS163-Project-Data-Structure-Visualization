@@ -51,7 +51,7 @@ Trie::Node* Trie::find(std::string str) {
 }
 
 bool Trie::erase(Node *cur, int pos, std::string &str) {
-    if (pos < str.size()) {
+    if (pos < (int)str.size()) {
         int c = str[pos] - 'a';
         bool res = erase(cur->child[c], pos + 1, str);
         if (res) {

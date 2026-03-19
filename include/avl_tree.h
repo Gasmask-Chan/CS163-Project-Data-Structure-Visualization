@@ -137,9 +137,14 @@ public:
     void clear();
 
     //========================UI========================
+    struct Snapshot_Data {
+        Node* tree_root;
+        int index; //Current code line
+    };
+
     const int vertical_gap = 80;
 
-    std::vector<Node*> history;
+    std::vector<Snapshot_Data> history;
 
     Node* get_copy(Node* cur);
 
@@ -171,6 +176,13 @@ public:
      * @return int 
      */
     int get_initial_gap();
+
+    /**
+     * @brief Save snapshot of the current tree to `history` vector
+     * 
+     * @param index
+     */
+    void save_snapshot(int index);
 
     void recalculate_position(Node* cur, float x, float y, int gap);
 

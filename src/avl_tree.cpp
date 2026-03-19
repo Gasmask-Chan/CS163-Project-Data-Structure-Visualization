@@ -70,7 +70,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     }
 
     cur->highlighted = true;
-    history.push_back(get_copy(root));
+    save_snapshot();
 
     if (cur->val > x) {
         bool flag = cur->left == nullptr;
@@ -78,7 +78,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
 
         if (flag) {
-            history.push_back(get_copy());
+            save_snapshot();
             cur->left->highlighted = false;
         }
     }
@@ -88,17 +88,17 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
         
         if (flag) {
-            history.push_back(get_copy());
+            save_snapshot();
             cur->right->highlighted = false;
         }
     }
     else {
         cur->highlighted = false;
-        history.push_back(get_copy());
+        save_snapshot();
         return cur;
     }
 
-    history.push_back(get_copy());
+    save_snapshot();
     cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
     
     cur->highlighted = false;
@@ -127,7 +127,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     }
     
     if (rotated) {
-        history.push_back(get_copy());
+        save_snapshot();
     }
 
     return cur;
@@ -137,14 +137,14 @@ void AVL_Tree::insert(int x) {
     if (!root) {
         root = new Node(x);
         root->highlighted = true;
-        history.push_back(get_copy()); 
+        save_snapshot();
         root->highlighted = false;
-        history.push_back(get_copy());
+        save_snapshot();
     }
     else {
         root = insert(root, x, root);
         root->highlighted = false;
-        history.push_back(get_copy());
+        save_snapshot();
     }
 }
 
@@ -242,9 +242,9 @@ void AVL_Tree::clear() {
     clear(root);
     root = nullptr;
 
-    for (Node* &node : history) {
-        clear(node);
-        node = nullptr;
+    for (auto &cur : history) {
+        clear(cur.tree_root);
+        cur.tree_root = nullptr;
     }
 
     history.clear();
@@ -287,6 +287,10 @@ int AVL_Tree::get_tree_height(Node* cur) {
 int AVL_Tree::get_initial_gap() {
     if (!root) return 0;
     return (1 << (get_tree_height(root) - 1)) * 25;
+}
+
+void AVL_Tree::save_snapshot(int index) {
+    history.push_back({get_copy(), index});
 }
 
 void AVL_Tree::recalculate_position(Node* cur, float x, float y, int gap) {

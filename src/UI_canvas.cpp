@@ -151,7 +151,7 @@ namespace UI {
 
         auto current_tree = tree.history[current_step];
         
-        bool is_animating = update_node_position(current_tree);
+        bool is_animating = update_node_position(current_tree.tree_root);
 
         std::cout << "====================================================" << std::endl;
         std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
@@ -168,7 +168,7 @@ namespace UI {
                 pause_timer = time_between_steps / speed_multiplier;
 
                 if (current_step + 1 < (int)tree.history.size()) {
-                    sync_position(tree.history[current_step + 1], nullptr, tree.history[current_step]);
+                    sync_position(tree.history[current_step + 1].tree_root, nullptr, tree.history[current_step].tree_root);
                     ++current_step;
                 }
                 else {
@@ -208,7 +208,7 @@ namespace UI {
 
             ++current_step;
             if (current_step > 0) {
-                sync_position(tree.history[current_step], nullptr, tree.history[current_step - 1]);
+                sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
             }
         }
     }
@@ -321,7 +321,7 @@ namespace UI {
         BeginMode2D(*camera);
 
         if (current_step >= 0) {
-            draw_tree(tree.history[current_step]);
+            draw_tree(tree.history[current_step].tree_root);
         }
 
         EndMode2D();

@@ -18,7 +18,7 @@ namespace UI {
         DrawCircle(pos_x, pos_y, radius, WHITE);
         DrawCircleLines(pos_x, pos_y, radius, highlight ? RED : BLACK);
         Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
-        DrawRing((Vector2){pos_x, pos_y}, radius, radius + 4, 0, 360, 36, highlight ? RED : BLACK);
+        DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 4, 0, 360, 36, highlight ? RED : BLACK);
         DrawTextEx(main_font, text, {pos_x - text_size.x / 2, pos_y - text_size.y / 2}, font_size, 2, BLACK);
     }
 
