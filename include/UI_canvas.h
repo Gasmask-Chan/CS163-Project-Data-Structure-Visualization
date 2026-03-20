@@ -32,13 +32,6 @@ namespace UI {
     protected:
         Camera2D *camera;
         UI_State *current_state;
-
-        enum OPERATION {
-            INSERT,
-            ERASE,
-            FIND,
-            NONE
-        };
     
     public:
         /**

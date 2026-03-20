@@ -63,7 +63,7 @@ AVL_Tree::Node* AVL_Tree::right_rotate(Node *cur) {
 }
 
 AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
-    save_snapshot(0);
+    save_snapshot(0, UI::OPERATION::INSERT);
     if (cur == nullptr) {
         Node* new_node = new Node(x);
         new_node->highlighted = true;
@@ -71,7 +71,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     }
 
     cur->highlighted = true;
-    save_snapshot(1);
+    save_snapshot(1, UI::OPERATION::INSERT);
 
     int pre_save = 1;
 
@@ -81,30 +81,29 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
 
         if (flag) {
-            save_snapshot(1);
+            save_snapshot(1, UI::OPERATION::INSERT);
             cur->left->highlighted = false;
         }
     }
     else if (cur->val < x) {
-        save_snapshot(2);
+        save_snapshot(2, UI::OPERATION::INSERT);
         pre_save = 2;
-        bool flag = cur->right == nullptr;
-        cur->right = insert(cur->right, x, cur);
+        bool flag = cur->right == nullptr; cur->right = insert(cur->right, x, cur);
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
         
         if (flag) {
-            save_snapshot(2);
+            save_snapshot(2, UI::OPERATION::INSERT);
             cur->right->highlighted = false;
         }
     }
     else {
         cur->highlighted = false;
-        save_snapshot(3);
+        save_snapshot(3, UI::OPERATION::INSERT);
         return cur;
     }
 
-    save_snapshot(pre_save);
-    save_snapshot(4);
+    save_snapshot(pre_save, UI::OPERATION::INSERT);
+    save_snapshot(4, UI::OPERATION::INSERT);
     cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
     
     cur->highlighted = false;
@@ -133,7 +132,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     }
     
     if (rotated) {
-        save_snapshot(4);
+        save_snapshot(4, UI::OPERATION::INSERT);
     }
 
     return cur;
@@ -143,14 +142,14 @@ void AVL_Tree::insert(int x) {
     if (!root) {
         root = new Node(x);
         root->highlighted = true;
-        save_snapshot(0);
+        save_snapshot(0, UI::OPERATION::INSERT);
         root->highlighted = false;
-        save_snapshot(0);
+        save_snapshot(0, UI::OPERATION::INSERT);
     }
     else {
         root = insert(root, x, root);
         root->highlighted = false;
-        save_snapshot(4);
+        save_snapshot(4, UI::OPERATION::INSERT);
     }
 }
 
@@ -295,8 +294,8 @@ int AVL_Tree::get_initial_gap() {
     return (1 << (get_tree_height(root) - 1)) * 25;
 }
 
-void AVL_Tree::save_snapshot(int index) {
-    history.push_back({get_copy(), index});
+void AVL_Tree::save_snapshot(int index, UI::OPERATION op) {
+    history.push_back({get_copy(), index, op});
 }
 
 void AVL_Tree::recalculate_position(Node* cur, float x, float y, int gap) {

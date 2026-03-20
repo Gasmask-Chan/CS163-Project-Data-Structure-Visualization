@@ -140,6 +140,7 @@ public:
     struct Snapshot_Data {
         Node* tree_root;
         int index; //Current code line
+        UI::OPERATION op;
     };
 
     const int vertical_gap = 80;
@@ -181,8 +182,9 @@ public:
      * @brief Save snapshot of the current tree to `history` vector
      * 
      * @param index
+     * @param op
      */
-    void save_snapshot(int index);
+    void save_snapshot(int index, UI::OPERATION op);
 
     void recalculate_position(Node* cur, float x, float y, int gap);
 

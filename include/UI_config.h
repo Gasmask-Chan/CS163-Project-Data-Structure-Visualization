@@ -7,6 +7,13 @@
 #include <iostream> //For debugging
 
 namespace UI {
+    enum OPERATION {
+        INSERT,
+        ERASE,
+        FIND,
+        NONE
+    };
+    
     const int window_height = 720;
     const int window_width = 1280;
     extern Font main_font;
@@ -14,6 +21,7 @@ namespace UI {
 
     void load_font();
     void unload_font();
+
 }
 
 #endif
