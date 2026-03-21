@@ -53,13 +53,13 @@ namespace UI {
         find_button = {420, 653, 100, 45};
         prev_button = {531, 653, 100, 45};
         next_button = {642, 653, 100, 45};
-        clear_button = {753, 653, 100, 45};
-        mode_button = {864, 653, 100, 45};
+        skip_button = {753, 654, 100, 45};
+        clear_button = {864, 653, 100, 45};
         file_button = {975, 653, 100, 45};
         exit_button = {1086, 653, 100, 45};
         random_button = {21, 599, 126, 45};
-        skip_button = {642, 599, 100, 45};
-        speed_button = {21, 545, 143, 45};
+        speed_button = {21, 491, 143, 45};
+        update_button = {21, 545, 126, 45};
         
         //Input text field setup
         text_string[0] = '\0';
@@ -74,16 +74,28 @@ namespace UI {
         is_playing = false;
 
         //Code highlight setup
-        cur_operation = OPERATION::NONE;
+        current_operation = OPERATION::NONE;
 
-        insert_highlight.set_start_pos({1280, 296});
+        insert_highlight.set_start_pos({window_width, 296});
         
+        //insert highlight code
         insert_highlight.add("if (cur == nullptr) create_node(x);");
         insert_highlight.add("if (cur->val > x) go_left();");
         insert_highlight.add("else if (cur->val < x) go_right();");
         insert_highlight.add("else return;");
-        insert_highlight.add("balance_tree()");
+        insert_highlight.add("balance_tree();");
 
+        erase_highlight.set_start_pos({window_width, 296});
+
+        //erase highlight code
+        erase_highlight.add("if (cur == nullptr) return;");
+        erase_highlight.add("if (cur->val == x) {");
+        erase_highlight.add("   erase(cur);");
+        erase_highlight.add("   replace_node();");
+        erase_highlight.add("}");
+        erase_highlight.add("if (cur->val > x) go_left();");
+        erase_highlight.add("else if (cur->val < x) go_right();");
+        erase_highlight.add("balance_tree();");
     }
 
     void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
@@ -156,15 +168,17 @@ namespace UI {
 
     void AVL_Canvas::update_animation() {
         if (tree.history.empty() || !is_playing || current_step < 0) return;
-        
-        if (speed_multiplier == 5) { //Instant mode is on
-            current_step = (int)tree.history.size() - 1;
-        }
 
         auto current_tree = tree.history[current_step];
 
         bool is_animating = update_node_position(current_tree.tree_root);
-        insert_highlight.set_highlighted_line(current_tree.index);
+
+        if (current_operation == INSERT) {
+            insert_highlight.set_highlighted_line(current_tree.index);
+        }
+        else if (current_operation == ERASE) {
+            erase_highlight.set_highlighted_line(current_tree.index);
+        }
 
         std::cout << "====================================================" << std::endl;
         std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
@@ -177,17 +191,23 @@ namespace UI {
         else {
             pause_timer -= GetFrameTime();
 
-            if (pause_timer <= 0.0f) {
+            if (pause_timer <= 0.0f || speed_multiplier == 5) {
                 pause_timer = time_between_steps / speed_multiplier;
 
                 if (current_step + 1 < (int)tree.history.size()) {
                     sync_position(tree.history[current_step + 1].tree_root, nullptr, tree.history[current_step].tree_root);
                     ++current_step;
+                    current_operation = tree.history[current_step].op;
                 }
                 else {
                     is_playing = false;
-                    insert_highlight.set_highlighted_line(-1);
-                    cur_operation = OPERATION::NONE;
+                    if (current_operation == INSERT) {
+                        insert_highlight.set_highlighted_line(-1);
+                    }
+                    else if (current_operation == ERASE) {
+                        erase_highlight.set_highlighted_line(-1);
+                    }
+                    current_operation = OPERATION::NONE;
                 }
             }
         }
@@ -220,7 +240,43 @@ namespace UI {
             }
 
             is_playing = true;
-            cur_operation = OPERATION::INSERT;
+            current_operation = OPERATION::INSERT;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
+            }
+        }
+    }
+
+    void AVL_Canvas::erase() {
+        std::vector<int> val_to_erase;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(text_string[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_erase.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_erase.push_back(std::stoi(cur_num));
+        }
+
+        letter_count = 0;
+        text_string[0] = '\0';
+
+        if (!val_to_erase.empty()) {
+            for (auto to_insert : val_to_erase) {
+                tree.erase(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::ERASE;
 
             ++current_step;
             if (current_step > 0) {
@@ -243,7 +299,78 @@ namespace UI {
         frames_counter = 0;
 
         //Code highlight
-        cur_operation = OPERATION::NONE;
+        current_operation = OPERATION::NONE;
+    }
+
+    void AVL_Canvas::next() {
+        ++current_step;
+        current_operation = tree.history[current_step].op;
+        if (current_operation == INSERT) {
+            insert_highlight.set_highlighted_line(tree.history[current_step].index);
+        }
+        else if (current_operation == ERASE) {
+            erase_highlight.set_highlighted_line(tree.history[current_step].index);
+        }
+    }
+
+    void AVL_Canvas::prev() {
+        --current_step;
+        current_operation = tree.history[current_step].op; 
+        if (current_operation == INSERT) {
+            insert_highlight.set_highlighted_line(tree.history[current_step].index);
+        }
+        else if (current_operation == ERASE) {
+            erase_highlight.set_highlighted_line(tree.history[current_step].index);
+        }
+    }
+
+    void AVL_Canvas::update() {
+        std::vector<int> val_to_insert;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count && val_to_insert.size() < 2; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(text_string[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty() && val_to_insert.size() < 2) {
+            val_to_insert.push_back(std::stoi(cur_num));
+        }
+
+        letter_count = 0;
+        text_string[0] = '\0';
+
+        if (!val_to_insert.empty()) {
+            for (auto to_insert : val_to_insert) {
+                tree.insert(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::INSERT;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
+            }
+        }
+    }
+
+    void AVL_Canvas::skip() {
+        int prev_speed = speed_multiplier;
+
+        speed_multiplier = 5;
+        pause_timer = 0.0f;
+        while (current_step + 1 < (int)tree.history.size()) {
+            update_animation();
+        }
+
+        speed_multiplier = prev_speed;
+        pause_timer = time_between_steps / speed_multiplier;
     }
 
     void AVL_Canvas::run() {
@@ -281,14 +408,17 @@ namespace UI {
             return;
         }
         else if (!is_playing) { //No animation is running
-            if (is_clicked(insert_button) && letter_count > 0 && current_step == (int)tree.history.size() - 1) {
+            if (is_clicked(insert_button) && letter_count > 0) {
+                if (current_step != (int)tree.history.size() - 1) {
+                    skip();
+                }
                 insert();
             }
             else if (is_clicked(prev_button) && current_step >= 0) {
-                --current_step;
+                prev();
             }
             else if (is_clicked(next_button) && current_step + 1 < (int)tree.history.size()) {
-                ++current_step;
+                next();
             }
             else if (is_clicked(clear_button)) {
                 clear();
@@ -324,19 +454,16 @@ namespace UI {
                 }
                 insert();
             }
+            else if (is_clicked(update_button) && letter_count > 0) {
+                update();
+            }
+            else if (is_clicked(erase_button) && letter_count > 0) {
+                erase();
+            }
         }
 
         if (is_clicked(skip_button)) {
-            int prev_speed = speed_multiplier;
-
-            speed_multiplier = 5;
-            pause_timer = time_between_steps / speed_multiplier;
-            current_step = (int)tree.history.size() - 1;
-
-            update_animation();
-
-            speed_multiplier = prev_speed;
-            pause_timer = time_between_steps / speed_multiplier;
+            skip();
         }
 
         update_animation();
@@ -359,12 +486,12 @@ namespace UI {
         draw_button(find_button, "FIND", WHITE, is_playing ? GRAY : BLACK);
         draw_button(prev_button, "PREV", WHITE, is_playing ? GRAY : BLACK);
         draw_button(next_button, "NEXT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(skip_button, "SKIP", WHITE, is_playing ? GRAY : BLACK);
         draw_button(clear_button, "CLEAR", WHITE, is_playing ? GRAY : BLACK);
-        draw_button(mode_button, "MODE", WHITE, is_playing ? GRAY : BLACK);
         draw_button(file_button, "FILE", WHITE, is_playing ? GRAY : BLACK);
         draw_button(exit_button, "EXIT", WHITE, BLACK);
         draw_button(random_button, "RANDOM", WHITE, is_playing ? GRAY : BLACK);
-        draw_button(skip_button, "SKIP", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(update_button, "UPDATE", WHITE, is_playing ? GRAY : BLACK);
 
         std::string speed_text = "SPEED " + (speed_multiplier != 5 ? "x" + std::to_string(speed_multiplier) : "TA`Y");
 
@@ -399,8 +526,11 @@ namespace UI {
         }
 
         //Code highlight drawing
-        if (cur_operation == INSERT) {
+        if (current_operation == INSERT) {
             insert_highlight.draw_code();
+        }
+        else if (current_operation == ERASE) {
+            erase_highlight.draw_code();
         }
 
         EndDrawing();

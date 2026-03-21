@@ -26,7 +26,7 @@ namespace UI {
     const int MAX_INPUT_INT_CHAR = 100;
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
-    const float time_between_steps = 0.4f;
+    const float time_between_steps = 0.75f;
     
     class Canvas {
     protected:
@@ -101,12 +101,12 @@ namespace UI {
         Rectangle prev_button;
         Rectangle next_button;
         Rectangle clear_button;
-        Rectangle mode_button;
         Rectangle file_button;
         Rectangle exit_button;
         Rectangle random_button;
         Rectangle skip_button;
         Rectangle speed_button;
+        Rectangle update_button;
 
         Data_Structure::AVL_Tree tree;
 
@@ -124,8 +124,9 @@ namespace UI {
         bool is_playing;
 
         //Code highlight
-        OPERATION cur_operation;
+        OPERATION current_operation;
         Code_Highlight insert_highlight;
+        Code_Highlight erase_highlight;
         
         public:
 
@@ -173,10 +174,35 @@ namespace UI {
         void erase();
 
         /**
+         * @brief Handle next operation
+         * 
+         */
+        void next();
+    
+        /**
+         * @brief Handle back operation
+         * 
+         */
+        void prev();
+
+        /**
          * @brief Handle clear operation
          * 
          */
         void clear();
+
+        /**
+         * @brief Handle skip operation
+         * 
+         */
+        void skip();
+
+        /**
+         * @brief Handle update operation
+         * 
+         * Status: unfinished
+         */
+        void update();
     };
 }
 

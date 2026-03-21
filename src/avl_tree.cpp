@@ -81,7 +81,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
 
         if (flag) {
-            save_snapshot(1, UI::OPERATION::INSERT);
+            save_snapshot(0, UI::OPERATION::INSERT);
             cur->left->highlighted = false;
         }
     }
@@ -92,7 +92,7 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
         
         if (flag) {
-            save_snapshot(2, UI::OPERATION::INSERT);
+            save_snapshot(0, UI::OPERATION::INSERT);
             cur->right->highlighted = false;
         }
     }
@@ -144,13 +144,12 @@ void AVL_Tree::insert(int x) {
         root->highlighted = true;
         save_snapshot(0, UI::OPERATION::INSERT);
         root->highlighted = false;
-        save_snapshot(0, UI::OPERATION::INSERT);
     }
     else {
         root = insert(root, x, root);
         root->highlighted = false;
-        save_snapshot(4, UI::OPERATION::INSERT);
     }
+    save_snapshot(-1, UI::OPERATION::NONE);
 }
 
 AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
@@ -173,37 +172,75 @@ AVL_Tree::Node* AVL_Tree::find(int x) {
     return find(root, x);
 }
 
-AVL_Tree::Node* AVL_Tree::erase(Node *cur, int x) {
+AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del) {
+    if (prev_del == 0) {
+        save_snapshot(0, UI::OPERATION::ERASE);
+    }
+
     if (cur == nullptr) {
         return nullptr;
     }
 
+    if (prev_del == 0) {
+        cur->highlighted = true;
+        save_snapshot(1, UI::OPERATION::ERASE);
+    }
+
     if (cur->val == x) {
+        if (prev_del == 0) {
+            save_snapshot(2, UI::OPERATION::ERASE);
+        }
+        
+        
         if (cur->left && cur->right) {
             Node* replacement = cur->right;
             while (replacement->left) {
                 replacement = replacement->left;
             }
-
+            
+            ++prev_del;
             cur->val = replacement->val;
-            cur->right = erase(cur->right, replacement->val);
+            cur->right = erase(cur->right, replacement->val, prev_del);
+            --prev_del;
+            
+            if (prev_del == 0) {
+                save_snapshot(3, UI::OPERATION::ERASE);
+            }
         }
         else {
             Node *replacement = cur;
             cur = cur->left ? cur->left : cur->right;
             delete replacement;
         }
+
+
     }
-    else if (cur->val > x) {
-        cur->left = erase(cur->left, x);
-    }
-    else {
-        cur->right = erase(cur->right, x);
+    else { 
+        if (prev_del == 0) {
+            save_snapshot(5, UI::OPERATION::ERASE);
+        }
+        
+        if (cur->val > x) {
+            cur->left = erase(cur->left, x, prev_del);
+        }
+        else {
+            if (prev_del == 0) {
+                save_snapshot(6, UI::OPERATION::ERASE);
+            }
+
+            cur->right = erase(cur->right, x, prev_del);
+        }
     }
 
     if (cur == nullptr) {
         return nullptr;
     }
+
+    if (prev_del == 0) {
+        save_snapshot(7, UI::OPERATION::ERASE);
+    }
+
+    cur->highlighted = false;
 
     cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
     int balance = get_balance_factor(cur);
@@ -227,12 +264,26 @@ AVL_Tree::Node* AVL_Tree::erase(Node *cur, int x) {
         }
     }
 
+    if (prev_del == 0) {
+        save_snapshot(7, UI::OPERATION::ERASE);
+    }
+
     return cur;
 }
 
 void AVL_Tree::erase(int x) {
-    root = erase(root, x);
-    recalculate_position();
+    if (root) {
+        int prev_del = false;
+        root = erase(root, x, prev_del);
+        if (prev_del == true) {
+            prev_del = false;
+            save_snapshot(3, UI::OPERATION::ERASE);
+        }
+    }
+    else {
+        save_snapshot(0, UI::OPERATION::ERASE);
+    }
+    save_snapshot(-1, UI::OPERATION::NONE);
 }
 
 void AVL_Tree::clear(Node *cur) {

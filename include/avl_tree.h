@@ -110,7 +110,7 @@ public:
      */
     Node* find(int x);
 
-    Node* erase(Node *cur, int x);
+    Node* erase(Node *&cur, int x, int &prev_del);
 
     /**
      * @brief Delete the node which contains the value `x`
