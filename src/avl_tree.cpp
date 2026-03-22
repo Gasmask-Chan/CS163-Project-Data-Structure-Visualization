@@ -172,7 +172,7 @@ AVL_Tree::Node* AVL_Tree::find(int x) {
     return find(root, x);
 }
 
-AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del) {
+AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del, bool &is_del) {
     if (prev_del == 0) {
         save_snapshot(0, UI::OPERATION::ERASE);
     }
@@ -187,11 +187,13 @@ AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del) {
     }
 
     if (cur->val == x) {
+        is_del = true;
+
         if (prev_del == 0) {
             save_snapshot(2, UI::OPERATION::ERASE);
         }
         
-        
+        bool is_replace = true;
         if (cur->left && cur->right) {
             Node* replacement = cur->right;
             while (replacement->left) {
@@ -200,20 +202,24 @@ AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del) {
             
             ++prev_del;
             cur->val = replacement->val;
-            cur->right = erase(cur->right, replacement->val, prev_del);
+            cur->right = erase(cur->right, replacement->val, prev_del, is_del);
             --prev_del;
             
-            if (prev_del == 0) {
-                save_snapshot(3, UI::OPERATION::ERASE);
-            }
         }
         else {
             Node *replacement = cur;
             cur = cur->left ? cur->left : cur->right;
+            
+            if (cur == nullptr) {
+                is_replace = false;
+            }
+
             delete replacement;
         }
 
-
+        if (prev_del == 0 && is_replace) {
+            save_snapshot(3, UI::OPERATION::ERASE);
+        }
     }
     else { 
         if (prev_del == 0) {
@@ -221,14 +227,22 @@ AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del) {
         }
         
         if (cur->val > x) {
-            cur->left = erase(cur->left, x, prev_del);
+            cur->left = erase(cur->left, x, prev_del, is_del);
+
+            if (prev_del == 0) {
+                save_snapshot(5, UI::OPERATION::ERASE);
+            }
         }
         else {
             if (prev_del == 0) {
                 save_snapshot(6, UI::OPERATION::ERASE);
             }
 
-            cur->right = erase(cur->right, x, prev_del);
+            cur->right = erase(cur->right, x, prev_del, is_del);
+
+            if (prev_del == 0) {
+                save_snapshot(6, UI::OPERATION::ERASE);
+            }
         }
     }
 
@@ -271,10 +285,11 @@ AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del) {
     return cur;
 }
 
-void AVL_Tree::erase(int x) {
+bool AVL_Tree::erase(int x) {
+    bool is_del = false;
     if (root) {
-        int prev_del = false;
-        root = erase(root, x, prev_del);
+        int prev_del = 0;
+        root = erase(root, x, prev_del, is_del);
         if (prev_del == true) {
             prev_del = false;
             save_snapshot(3, UI::OPERATION::ERASE);
@@ -284,6 +299,7 @@ void AVL_Tree::erase(int x) {
         save_snapshot(0, UI::OPERATION::ERASE);
     }
     save_snapshot(-1, UI::OPERATION::NONE);
+    return is_del;
 }
 
 void AVL_Tree::clear(Node *cur) {

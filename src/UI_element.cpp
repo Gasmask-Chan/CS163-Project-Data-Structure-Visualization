@@ -7,7 +7,7 @@ namespace UI {
         return CheckCollisionPointRec(GetMousePosition(), button) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
     }
 
-    void draw_button(Rectangle &button, const char *text, Color background_color, Color text_color, int font_size) {
+    void draw_button(Rectangle button, const char *text, Color background_color, Color text_color, int font_size) {
         DrawRectangle(button.x, button.y, button.width, button.height, background_color);
         DrawRectangleLinesEx(button, 1, BLACK);
         Vector2 text_size = MeasureTextEx(GetFontDefault(), text, font_size, 2);
@@ -31,6 +31,10 @@ namespace UI {
         this->start_pos = start_pos;
     }
 
+    void Code_Highlight::set_code_name(char *code_name) {
+        this->code_name = code_name;
+    }
+
     void Code_Highlight::set_highlighted_line(int index) {
         this->highlighted_line = index;
     }
@@ -43,6 +47,7 @@ namespace UI {
     }
 
     void Code_Highlight::draw_code() {
+        draw_button({start_pos.x - 94, start_pos.y - 37, 94, 37}, code_name, Fade(YELLOW, 0.8f), BLACK);
         DrawRectangle(start_pos.x - width, start_pos.y, width, height, WHITE);
 
         for (int i = 0; i < (int)source_code.size(); i++) {

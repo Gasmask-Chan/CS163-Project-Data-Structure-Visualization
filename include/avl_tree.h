@@ -110,7 +110,7 @@ public:
      */
     Node* find(int x);
 
-    Node* erase(Node *&cur, int x, int &prev_del);
+    Node* erase(Node *&cur, int x, int &prev_del, bool &is_del);
 
     /**
      * @brief Delete the node which contains the value `x`
@@ -120,7 +120,7 @@ public:
      * @param x 
      * @return void
      */
-    void erase(int x);
+    bool erase(int x);
 
     /**
      * @brief Clear the entire AVL tree

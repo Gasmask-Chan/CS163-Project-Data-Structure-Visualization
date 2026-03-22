@@ -23,7 +23,7 @@ namespace UI {
      * @param background_color 
      * @param text_color 
      */
-    void draw_button(Rectangle &button, const char *text, Color background_color, Color text_color, int font_size = 20);
+    void draw_button(Rectangle button, const char *text, Color background_color, Color text_color, int font_size = 20);
 
     void draw_node(int pos_x, int pos_y, float radius, bool highlight, const char *text, int font_size = 20);
 
@@ -48,6 +48,8 @@ namespace UI {
         std::vector<std::string> source_code;
         int highlighted_line = -1;
 
+        char *code_name;
+
     public:
         /**
          * @brief Set the position of the top right corner of the source code box
@@ -55,6 +57,13 @@ namespace UI {
          * @param start_pos 
          */
         void set_start_pos(Vector2 start_pos);
+
+        /**
+         * @brief Set the `code_name` object
+         * 
+         * @param code_name 
+         */
+        void set_code_name(char *code_name);
 
         /**
          * @brief Set the index of the highlighted line

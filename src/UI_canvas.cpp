@@ -77,6 +77,7 @@ namespace UI {
         current_operation = OPERATION::NONE;
 
         insert_highlight.set_start_pos({window_width, 296});
+        insert_highlight.set_code_name("INSERT");
         
         //insert highlight code
         insert_highlight.add("if (cur == nullptr) create_node(x);");
@@ -86,6 +87,7 @@ namespace UI {
         insert_highlight.add("balance_tree();");
 
         erase_highlight.set_start_pos({window_width, 296});
+        erase_highlight.set_code_name("ERASE");
 
         //erase highlight code
         erase_highlight.add("if (cur == nullptr) return;");
@@ -246,6 +248,10 @@ namespace UI {
             if (current_step > 0) {
                 sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
             }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
         }
     }
 
@@ -281,6 +287,10 @@ namespace UI {
             ++current_step;
             if (current_step > 0) {
                 sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
             }
         }
     }
@@ -346,25 +356,30 @@ namespace UI {
         text_string[0] = '\0';
 
         if (!val_to_insert.empty()) {
-            for (auto to_insert : val_to_insert) {
-                tree.insert(to_insert);
+            if (tree.erase(val_to_insert[0])) {
+                tree.insert(val_to_insert[1]);
             }
 
             is_playing = true;
-            current_operation = OPERATION::INSERT;
+            current_operation = OPERATION::ERASE;
 
             ++current_step;
             if (current_step > 0) {
                 sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
             }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
         }
     }
 
     void AVL_Canvas::skip() {
+        if (current_step < 0 || tree.history.empty()) return;
         int prev_speed = speed_multiplier;
 
         speed_multiplier = 5;
-        pause_timer = 0.0f;
+        is_playing = true;
         while (current_step + 1 < (int)tree.history.size()) {
             update_animation();
         }
@@ -455,9 +470,15 @@ namespace UI {
                 insert();
             }
             else if (is_clicked(update_button) && letter_count > 0) {
+                if (current_step != (int)tree.history.size() - 1) {
+                    skip();
+                }
                 update();
             }
             else if (is_clicked(erase_button) && letter_count > 0) {
+                if (current_step != (int)tree.history.size() - 1) {
+                    skip();
+                }
                 erase();
             }
         }
@@ -486,7 +507,7 @@ namespace UI {
         draw_button(find_button, "FIND", WHITE, is_playing ? GRAY : BLACK);
         draw_button(prev_button, "PREV", WHITE, is_playing ? GRAY : BLACK);
         draw_button(next_button, "NEXT", WHITE, is_playing ? GRAY : BLACK);
-        draw_button(skip_button, "SKIP", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(skip_button, "SKIP", WHITE, BLACK);
         draw_button(clear_button, "CLEAR", WHITE, is_playing ? GRAY : BLACK);
         draw_button(file_button, "FILE", WHITE, is_playing ? GRAY : BLACK);
         draw_button(exit_button, "EXIT", WHITE, BLACK);
