@@ -169,9 +169,9 @@ public:
     Node* get_copy();
 
     /**
-     * @brief Return a `std::vector<Node*>` contains tree nodes in order.
+     * @brief Return current tree root
      * 
-     * @return std::vector<Node*> 
+     * @return Node*
      */
     Node* get_root();
 

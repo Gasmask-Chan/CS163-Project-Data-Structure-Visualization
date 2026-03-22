@@ -1,12 +1,31 @@
 #ifndef HEAP_H
 #define HEAP_H
 
+#include "UI_config.h"
+#include "avl_tree.h"
+
 #include <vector>
 
 namespace Data_Structure {
 class Heap { //Max heap
+public:
+    struct Node {
+        int val, id;
+        float current_x, current_y;
+        float target_x, target_y;
+        bool highlighted;
+
+        /**
+         * @brief Construct a new `Node` object
+         * 
+         * @param val 
+         */
+        Node(int val = -1, int id = -1);
+    };
+
 private:
-    std::vector<int> arr;
+    int id_counter;
+    std::vector<Node> arr;
 
 public:
     /**
@@ -69,6 +88,54 @@ public:
      * @return void
      */
     void clear();
+
+    //========================UI========================
+    struct Snapshot_Data {
+        std::vector<Node> array;
+        int index; //Current code line
+        UI::OPERATION op;
+    };
+
+    const int vertical_gap = 80;
+
+    std::vector<Snapshot_Data> history;
+
+    /**
+     * @brief Return a copy of the current arr
+     * 
+     * @return std::vector<Node>
+     */
+    std::vector<Node> get_copy();
+
+    /**
+     * @brief Get the current height of the tree
+     * 
+     * @return int 
+     */
+    int get_tree_height();
+
+    /**
+     * @brief Save snapshot of the current tree to `history` vector
+     * 
+     * @param index
+     * @param op
+     */
+    void save_snapshot(int index, UI::OPERATION op);
+
+    /**
+     * @brief Return the maximum horizontal gap we need based on the tree's height
+     * 
+     * @return int 
+     */
+    int get_initial_gap();
+
+    void recalculate_position(int id, float x, float y, int gap);
+
+    /**
+     * @brief Recalculate postion of each node in tree
+     * 
+     */
+    void recalculate_position();
 };
 }
 

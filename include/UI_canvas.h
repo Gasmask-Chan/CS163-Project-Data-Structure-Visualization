@@ -27,6 +27,7 @@ namespace UI {
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
     const float time_between_steps = 1.0f;
+    const float ani_speed = 0.05f;
     
     class Canvas {
     protected:
@@ -118,7 +119,6 @@ namespace UI {
         //Animation
         
         int current_step;
-        float ani_speed;
         int speed_multiplier; //Instant mode = 5
         float pause_timer; //Pause time between each step
         bool is_playing;
@@ -139,7 +139,6 @@ namespace UI {
          * @brief Update the current position of all nodes in the tree rooted at `cur`
          * 
          * @param cur 
-         * @param parent_pos 
          * @return true 
          * @return false 
          */
@@ -148,8 +147,9 @@ namespace UI {
         /**
          * @brief Sync nodes position between two contiguous histories.
          * 
-         * @param old_root 
-         * @param new_root 
+         * @param new_root
+         * @param new_root_parent 
+         * @param old_root
          */
         void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root);
 
@@ -159,6 +159,130 @@ namespace UI {
          * @param cur 
          */
         void draw_tree(Data_Structure::AVL_Tree::Node* cur);
+
+        /**
+         * @brief Handle insert operation
+         * 
+         * By default insert values from the input text field
+         * 
+         */
+        void insert();
+
+        /**
+         * @brief Handle erase operation
+         * 
+         */
+        void erase();
+
+        /**
+         * @brief Handle next operation
+         * 
+         */
+        void next();
+    
+        /**
+         * @brief Handle back operation
+         * 
+         */
+        void prev();
+
+        /**
+         * @brief Handle clear operation
+         * 
+         */
+        void clear();
+
+        /**
+         * @brief Handle skip operation
+         * 
+         */
+        void skip();
+
+        /**
+         * @brief Handle update operation
+         * 
+         * Status: unfinished
+         */
+        void update();
+
+        /**
+         * @brief Handle find operation
+         * 
+         */
+        void find();
+
+        /**
+         * @brief Handle open file operation
+         * 
+         */
+        void open_file();
+    };
+
+    class Heap_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle input_text_field;
+        Rectangle insert_button;
+        Rectangle erase_button;
+        Rectangle find_button;
+        Rectangle prev_button;
+        Rectangle next_button;
+        Rectangle clear_button;
+        Rectangle file_button;
+        Rectangle exit_button;
+        Rectangle random_button;
+        Rectangle skip_button;
+        Rectangle speed_button;
+        Rectangle update_button;
+
+        Data_Structure::Heap heap;
+
+        //Input text field
+        char text_string[MAX_INPUT_INT_CHAR + 1];
+        int letter_count;
+        int frames_counter;
+
+        //Animation
+        
+        int current_step;
+        int speed_multiplier; //Instant mode = 5
+        float pause_timer; //Pause time between each step
+        bool is_playing;
+
+        //Code highlight
+        OPERATION current_operation;
+        Code_Highlight insert_highlight;
+        Code_Highlight erase_highlight;
+        Code_Highlight find_highlight;
+
+    public:
+        void setup() override;
+        void run() override;
+        void update_animation() override;
+
+        /**
+         * @brief Update the current position of all nodes in the tree rooted at `cur`
+         * 
+         * @param array
+         * @return true 
+         * @return false 
+         */
+        bool update_node_position(std::vector<Data_Structure::Heap::Node> &array);
+
+        /**
+         * @brief Sync nodes position between two contiguous histories.
+         * 
+         * @param new_array
+         * @param old_array
+         */
+        void sync_position(std::vector<Data_Structure::Heap::Node> &new_array, std::vector<Data_Structure::Heap::Node> &old_array);
+
+        /**
+         * @brief Draw the tree with root `cur`
+         * 
+         * @param cur 
+         */
+        void draw_tree(const std::vector<Data_Structure::Heap::Node> &array);
 
         /**
          * @brief Handle insert operation
