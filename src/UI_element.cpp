@@ -1,6 +1,7 @@
 #include "../include/UI_element.h"
 
 #include <random>
+#include <chrono>
 
 namespace UI {
     bool is_clicked(Rectangle button) {
@@ -22,7 +23,7 @@ namespace UI {
         DrawTextEx(main_font, text, {pos_x - text_size.x / 2, pos_y - text_size.y / 2}, font_size, 2, BLACK);
     }
 
-    std::mt19937 rng(727);
+    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
     int get_random_int(int l, int r) {
         return std::uniform_int_distribution<int>(l, r)(rng);
     }

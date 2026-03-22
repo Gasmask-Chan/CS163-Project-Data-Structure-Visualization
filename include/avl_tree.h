@@ -103,12 +103,24 @@ public:
     /**
      * @brief Return the node which contains the value `x`
      * 
+     * Use this function if you don't want to save snapshot during finding
+     * 
+     * @param cur 
+     * @param x 
+     * @return Node* 
+     */
+    Node* normal_find(Node *cur, int x);
+
+    /**
+     * @brief Return the node which contains the value `x`
+     * 
      * If no such node exists, a `nullptr` will be returned
      * 
      * @param x 
      * @return Node* 
      */
     Node* find(int x);
+
 
     Node* erase(Node *&cur, int x, int &prev_del, bool &is_del);
 

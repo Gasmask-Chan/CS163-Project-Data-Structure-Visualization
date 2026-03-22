@@ -26,7 +26,7 @@ namespace UI {
     const int MAX_INPUT_INT_CHAR = 100;
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
-    const float time_between_steps = 0.75f;
+    const float time_between_steps = 1.0f;
     
     class Canvas {
     protected:
@@ -127,6 +127,7 @@ namespace UI {
         OPERATION current_operation;
         Code_Highlight insert_highlight;
         Code_Highlight erase_highlight;
+        Code_Highlight find_highlight;
         
         public:
 
@@ -203,6 +204,12 @@ namespace UI {
          * Status: unfinished
          */
         void update();
+
+        /**
+         * @brief Handle find operation
+         * 
+         */
+        void find();
     };
 }
 

@@ -152,7 +152,7 @@ void AVL_Tree::insert(int x) {
     save_snapshot(-1, UI::OPERATION::NONE);
 }
 
-AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
+AVL_Tree::Node* AVL_Tree::normal_find(Node *cur, int x) {
     if (cur == nullptr) {
         return nullptr;
     }
@@ -161,15 +161,46 @@ AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
         return cur;
     }
     else if (cur->val > x) {
-        return find(cur->left, x);
+        return normal_find(cur->left, x);
     }
     else {
-        return find(cur->right, x);
+        return normal_find(cur->right, x);
     }
 }
 
+AVL_Tree::Node* AVL_Tree::find(Node *cur, int x) {
+    save_snapshot(0, UI::OPERATION::FIND);
+    if (cur == nullptr) {
+        return nullptr;
+    }
+    
+    cur->highlighted = true;
+    save_snapshot(1, UI::OPERATION::FIND);
+
+    Node* to_return;
+
+    if (cur->val == x) {
+        to_return = cur;
+    }
+    else {
+        save_snapshot(2, UI::OPERATION::FIND);
+        if (cur->val > x) {
+            to_return = find(cur->left, x);
+        }
+        else {
+            save_snapshot(3, UI::OPERATION::FIND);
+            to_return = find(cur->right, x);
+        }
+    }
+    cur->highlighted = false;
+
+    return to_return;
+}
+
 AVL_Tree::Node* AVL_Tree::find(int x) {
-    return find(root, x);
+    Node* res = find(root, x);
+    save_snapshot(-1, UI::OPERATION::NONE);
+    return res;
 }
 
 AVL_Tree::Node* AVL_Tree::erase(Node *&cur, int x, int &prev_del, bool &is_del) {

@@ -76,20 +76,21 @@ namespace UI {
         //Code highlight setup
         current_operation = OPERATION::NONE;
 
+        //insert highlight code
         insert_highlight.set_start_pos({window_width, 296});
         insert_highlight.set_code_name("INSERT");
-        
-        //insert highlight code
+
         insert_highlight.add("if (cur == nullptr) create_node(x);");
         insert_highlight.add("if (cur->val > x) go_left();");
         insert_highlight.add("else if (cur->val < x) go_right();");
         insert_highlight.add("else return;");
         insert_highlight.add("balance_tree();");
 
+        
+        //erase highlight code
         erase_highlight.set_start_pos({window_width, 296});
         erase_highlight.set_code_name("ERASE");
 
-        //erase highlight code
         erase_highlight.add("if (cur == nullptr) return;");
         erase_highlight.add("if (cur->val == x) {");
         erase_highlight.add("   erase(cur);");
@@ -98,6 +99,15 @@ namespace UI {
         erase_highlight.add("if (cur->val > x) go_left();");
         erase_highlight.add("else if (cur->val < x) go_right();");
         erase_highlight.add("balance_tree();");
+
+        //find highlight code
+        find_highlight.set_start_pos({window_width, 296});
+        find_highlight.set_code_name("FIND");
+
+        find_highlight.add("if (cur == nullptr) return;");
+        find_highlight.add("if (cur->val == x) return true;");
+        find_highlight.add("if (cur->val > x) go_left()");
+        find_highlight.add("else go_right();");
     }
 
     void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
@@ -150,7 +160,7 @@ namespace UI {
     void AVL_Canvas::sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root) {
         if (!new_root) return;
 
-        auto old_node = tree.find(old_root, new_root->val);
+        auto old_node = tree.normal_find(old_root, new_root->val);
 
         if (old_node) {
             std::cout << "SYNCING " << new_root->val << ": " << new_root->current_x << ' ' << new_root->current_y << " - " << old_node->target_x << ' ' << old_node->target_y << std::endl;
@@ -181,6 +191,9 @@ namespace UI {
         else if (current_operation == ERASE) {
             erase_highlight.set_highlighted_line(current_tree.index);
         }
+        else if (current_operation == FIND) {
+            find_highlight.set_highlighted_line(current_tree.index);
+        }
 
         std::cout << "====================================================" << std::endl;
         std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
@@ -209,6 +222,10 @@ namespace UI {
                     else if (current_operation == ERASE) {
                         erase_highlight.set_highlighted_line(-1);
                     }
+                    else if (current_operation == FIND) {
+                        find_highlight.set_highlighted_line(-1); 
+                    }
+
                     current_operation = OPERATION::NONE;
                 }
             }
@@ -321,6 +338,9 @@ namespace UI {
         else if (current_operation == ERASE) {
             erase_highlight.set_highlighted_line(tree.history[current_step].index);
         }
+        else if (current_operation == FIND) {
+            find_highlight.set_highlighted_line(tree.history[current_step].index);
+        }
     }
 
     void AVL_Canvas::prev() {
@@ -331,6 +351,9 @@ namespace UI {
         }
         else if (current_operation == ERASE) {
             erase_highlight.set_highlighted_line(tree.history[current_step].index);
+        }
+        else if (current_operation == FIND) {
+            find_highlight.set_highlighted_line(tree.history[current_step].index);
         }
     }
 
@@ -388,6 +411,46 @@ namespace UI {
         pause_timer = time_between_steps / speed_multiplier;
     }
 
+    void AVL_Canvas::find() {
+        std::vector<int> val_to_insert;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(text_string[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_insert.push_back(std::stoi(cur_num));
+        }
+
+        letter_count = 0;
+        text_string[0] = '\0';
+
+        if (!val_to_insert.empty()) {
+            for (auto to_insert : val_to_insert) {
+                tree.find(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::FIND;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
+        }
+    }
+
     void AVL_Canvas::run() {
         bool mouse_on_input_text_field = CheckCollisionPointRec(GetMousePosition(), input_text_field);
 
@@ -420,6 +483,7 @@ namespace UI {
         
         if (is_clicked(exit_button)) {
             *current_state = UI_State::MENU;
+            clear();
             return;
         }
         else if (!is_playing) { //No animation is running
@@ -480,6 +544,12 @@ namespace UI {
                     skip();
                 }
                 erase();
+            }
+            else if (is_clicked(find_button) && letter_count > 0) {
+                if (current_step != (int)tree.history.size() - 1) {
+                    skip();
+                }
+                find();
             }
         }
 
@@ -552,6 +622,9 @@ namespace UI {
         }
         else if (current_operation == ERASE) {
             erase_highlight.draw_code();
+        }
+        else if (current_operation == FIND) {
+            find_highlight.draw_code();
         }
 
         EndDrawing();
