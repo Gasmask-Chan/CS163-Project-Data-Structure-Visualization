@@ -32,7 +32,7 @@ namespace UI {
         this->start_pos = start_pos;
     }
 
-    void Code_Highlight::set_code_name(char *code_name) {
+    void Code_Highlight::set_code_name(const char *code_name) {
         this->code_name = code_name;
     }
 

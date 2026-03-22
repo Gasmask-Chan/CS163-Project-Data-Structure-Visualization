@@ -1,5 +1,7 @@
 #include "../include/UI_canvas.h"
 
+#include <fstream>
+
 namespace UI {
     void Canvas::set_current_state(UI_State *current_state) {
         this->current_state = current_state;
@@ -451,6 +453,34 @@ namespace UI {
         }
     }
 
+    void AVL_Canvas::open_file() {
+        const char *filter[1] = {"*.txt"};
+        const char *file_path = tinyfd_openFileDialog("Select input file", "", 1, filter, "Text files (*.txt)", 0);
+        if (file_path != nullptr) { 
+            std::ifstream file(file_path);
+
+            if (file.is_open()) {
+                letter_count = 0;
+                text_string[letter_count] = '\0';
+
+                char c;
+                while (file.get(c) && letter_count < MAX_INPUT_INT_CHAR - 1) {
+                    if ((((c > '0' || (c == '0' && letter_count > 0 && text_string[letter_count - 1] != ' ')) && c <= '9')) || c == ' ') {
+                        text_string[letter_count] = c;
+                        ++letter_count;
+                    }
+                    else if (c == '\n') {
+                        text_string[letter_count] = ' ';
+                        ++letter_count;
+                    }
+                }
+                
+                text_string[letter_count] = '\0';
+                file.close();
+            }
+        }
+    }
+
     void AVL_Canvas::run() {
         bool mouse_on_input_text_field = CheckCollisionPointRec(GetMousePosition(), input_text_field);
 
@@ -551,6 +581,9 @@ namespace UI {
                 }
                 find();
             }
+            else if (is_clicked(file_button)) {
+                open_file();
+            }
         }
 
         if (is_clicked(skip_button)) {
@@ -610,6 +643,9 @@ namespace UI {
         }
 
         EndScissorMode();
+
+        DrawText("MOUSE WHEEL TO ZOOM IN-OUT", 9, 15, 20, GREEN);
+        DrawText("PRESS R TO RESET ZOOM", 9, 45, 20, PURPLE);
 
         if (mouse_on_input_text_field && !is_playing && letter_count >= MAX_INPUT_INT_CHAR) {
             DrawText("MAXIMUM INPUT REACHED", 198, 607, 23, RED);

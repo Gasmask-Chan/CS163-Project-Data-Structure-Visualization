@@ -48,7 +48,7 @@ namespace UI {
         std::vector<std::string> source_code;
         int highlighted_line = -1;
 
-        char *code_name;
+        const char *code_name;
 
     public:
         /**
@@ -63,7 +63,7 @@ namespace UI {
          * 
          * @param code_name 
          */
-        void set_code_name(char *code_name);
+        void set_code_name(const char *code_name);
 
         /**
          * @brief Set the index of the highlighted line

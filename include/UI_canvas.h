@@ -23,7 +23,7 @@ enum UI_State {
 };
 
 namespace UI {
-    const int MAX_INPUT_INT_CHAR = 100;
+    const int MAX_INPUT_INT_CHAR = 101;
     const Color main_background_color = {255, 255, 212, 255};
     const float node_radius = 30.0f;
     const float time_between_steps = 1.0f;
@@ -210,6 +210,12 @@ namespace UI {
          * 
          */
         void find();
+
+        /**
+         * @brief Handle open file operation
+         * 
+         */
+        void open_file();
     };
 }
 

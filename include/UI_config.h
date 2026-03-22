@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include "../lib/tinyfiledialogs.h" //For loading data from external file
 
 #include <iostream> //For debugging
 
