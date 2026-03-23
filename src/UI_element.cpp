@@ -49,7 +49,7 @@ namespace UI {
 
     void Code_Highlight::draw_code() {
         draw_button({start_pos.x - 94, start_pos.y - 37, 94, 37}, code_name, Fade(YELLOW, 0.8f), BLACK);
-        DrawRectangle(start_pos.x - width, start_pos.y, width, height, WHITE);
+        DrawRectangle(start_pos.x - width, start_pos.y, width, height * source_code.size(), WHITE);
 
         for (int i = 0; i < (int)source_code.size(); i++) {
             auto &cur_line = source_code[i];

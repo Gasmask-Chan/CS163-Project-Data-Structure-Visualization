@@ -136,7 +136,7 @@ namespace UI {
 
         bool is_moving = false;
 
-        std::cout << "ANIMATION UPDATING " << cur->val << ": " << cur->current_x << ' ' << cur->current_y << " - " << cur->target_x << ' ' << cur->target_y << std::endl;
+        // std::cout << "ANIMATION UPDATING " << cur->val << ": " << cur->current_x << ' ' << cur->current_y << " - " << cur->target_x << ' ' << cur->target_y << std::endl;
 
         float distance = Vector2Distance((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y});
 
@@ -167,7 +167,7 @@ namespace UI {
         auto old_node = tree.normal_find(old_root, new_root->val);
 
         if (old_node) {
-            std::cout << "SYNCING " << new_root->val << ": " << new_root->current_x << ' ' << new_root->current_y << " - " << old_node->target_x << ' ' << old_node->target_y << std::endl;
+            // std::cout << "SYNCING " << new_root->val << ": " << new_root->current_x << ' ' << new_root->current_y << " - " << old_node->target_x << ' ' << old_node->target_y << std::endl;
             new_root->current_x = old_node->current_x;
             new_root->current_y = old_node->current_y;
         }
@@ -199,10 +199,10 @@ namespace UI {
             find_highlight.set_highlighted_line(current_tree.index);
         }
 
-        std::cout << "====================================================" << std::endl;
-        std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
-                  << " | Timer " << pause_timer 
-                  << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
+        // std::cout << "====================================================" << std::endl;
+        // std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
+        //           << " | Timer " << pause_timer 
+        //           << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
 
         if (is_animating) {
             pause_timer = time_between_steps / speed_multiplier;
@@ -403,6 +403,21 @@ namespace UI {
 
     void AVL_Canvas::skip() {
         if (current_step < 0 || tree.history.empty()) return;
+        if (!is_playing) {
+            current_step = (int)tree.history.size() - 1;
+            current_operation = tree.history[current_step].op; 
+            if (current_operation == INSERT) {
+                insert_highlight.set_highlighted_line(tree.history[current_step].index);
+            }
+            else if (current_operation == ERASE) {
+                erase_highlight.set_highlighted_line(tree.history[current_step].index);
+            }
+            else if (current_operation == FIND) {
+                find_highlight.set_highlighted_line(tree.history[current_step].index);
+            }
+            return;
+        }
+
         int prev_speed = speed_multiplier;
 
         speed_multiplier = 5;
@@ -736,7 +751,7 @@ namespace UI {
 
             if (distance > 1.0f) {
                 Vector2 new_pos = Vector2Lerp((Vector2){cur.current_x, cur.current_y}, (Vector2){cur.target_x, cur.target_y}, ani_speed * speed_multiplier);
-                std::cout << "NEW POSITION " << cur.val << ": " << cur.current_x << ' ' << cur.current_y << " - " << new_pos.x << ' ' << new_pos.y << std::endl;
+                // std::cout << "NEW POSITION " << cur.val << ": " << cur.current_x << ' ' << cur.current_y << " - " << new_pos.x << ' ' << new_pos.y << std::endl;
 
                 cur.current_x = new_pos.x;
                 cur.current_y = new_pos.y;
