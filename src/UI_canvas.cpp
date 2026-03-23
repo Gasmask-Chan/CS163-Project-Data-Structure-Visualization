@@ -844,9 +844,9 @@ namespace UI {
 
             draw_node(cur.current_x, cur.current_y, node_radius, cur.highlighted, std::to_string(cur.val).c_str());
 
-            const char *id_label = std::to_string(i).c_str();
-            auto text_size = MeasureText(id_label, 20);
-            DrawText(id_label, cur.current_x - (text_size >> 1), cur.current_y + 37, 25, BLUE);
+            std::string id_label = std::to_string(i);
+            auto text_size = MeasureText(id_label.c_str(), 20);
+            DrawText(id_label.c_str(), cur.current_x - (text_size >> 1), cur.current_y + 37, 25, BLUE);
         }
     }
 
@@ -997,7 +997,7 @@ namespace UI {
             heap.update(val_to_insert[0], val_to_insert[1]); 
 
             is_playing = true;
-            current_operation = OPERATION::ERASE;
+            current_operation = OPERATION::UPDATE;
 
             ++current_step;
             if (current_step > 0) {
