@@ -81,37 +81,37 @@ namespace UI {
         current_operation = OPERATION::NONE;
 
         //insert highlight code
-        insert_highlight.set_start_pos({window_width, 296});
-        insert_highlight.set_code_name("INSERT");
+        highlighter[OPERATION::INSERT].set_start_pos({window_width, 296});
+        highlighter[OPERATION::INSERT].set_code_name("INSERT");
 
-        insert_highlight.add("if (cur == nullptr) create_node(x);");
-        insert_highlight.add("if (cur->val > x) go_left();");
-        insert_highlight.add("else if (cur->val < x) go_right();");
-        insert_highlight.add("else return;");
-        insert_highlight.add("balance_tree();");
+        highlighter[OPERATION::INSERT].add("if (cur == nullptr) create_node(x);");
+        highlighter[OPERATION::INSERT].add("if (cur->val > x) go_left();");
+        highlighter[OPERATION::INSERT].add("else if (cur->val < x) go_right();");
+        highlighter[OPERATION::INSERT].add("else return;");
+        highlighter[OPERATION::INSERT].add("balance_tree();");
 
         
         //erase highlight code
-        erase_highlight.set_start_pos({window_width, 296});
-        erase_highlight.set_code_name("ERASE");
+        highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
+        highlighter[OPERATION::ERASE].set_code_name("ERASE");
 
-        erase_highlight.add("if (cur == nullptr) return;");
-        erase_highlight.add("if (cur->val == x) {");
-        erase_highlight.add("   erase(cur);");
-        erase_highlight.add("   replace_node();");
-        erase_highlight.add("}");
-        erase_highlight.add("if (cur->val > x) go_left();");
-        erase_highlight.add("else if (cur->val < x) go_right();");
-        erase_highlight.add("balance_tree();");
+        highlighter[OPERATION::ERASE].add("if (cur == nullptr) return;");
+        highlighter[OPERATION::ERASE].add("if (cur->val == x) {");
+        highlighter[OPERATION::ERASE].add("   erase(cur);");
+        highlighter[OPERATION::ERASE].add("   replace_node();");
+        highlighter[OPERATION::ERASE].add("}");
+        highlighter[OPERATION::ERASE].add("if (cur->val > x) go_left();");
+        highlighter[OPERATION::ERASE].add("else if (cur->val < x) go_right();");
+        highlighter[OPERATION::ERASE].add("balance_tree();");
 
         //find highlight code
-        find_highlight.set_start_pos({window_width, 296});
-        find_highlight.set_code_name("FIND");
+        highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
+        highlighter[OPERATION::FIND].set_code_name("FIND");
 
-        find_highlight.add("if (cur == nullptr) return;");
-        find_highlight.add("if (cur->val == x) return true;");
-        find_highlight.add("if (cur->val > x) go_left()");
-        find_highlight.add("else go_right();");
+        highlighter[OPERATION::FIND].add("if (cur == nullptr) return;");
+        highlighter[OPERATION::FIND].add("if (cur->val == x) return true;");
+        highlighter[OPERATION::FIND].add("if (cur->val > x) go_left()");
+        highlighter[OPERATION::FIND].add("else go_right();");
     }
 
     void AVL_Canvas::draw_tree(Data_Structure::AVL_Tree::Node* cur) {
@@ -189,14 +189,8 @@ namespace UI {
 
         bool is_animating = update_node_position(current_tree.tree_root);
 
-        if (current_operation == INSERT) {
-            insert_highlight.set_highlighted_line(current_tree.index);
-        }
-        else if (current_operation == ERASE) {
-            erase_highlight.set_highlighted_line(current_tree.index);
-        }
-        else if (current_operation == FIND) {
-            find_highlight.set_highlighted_line(current_tree.index);
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(current_tree.index);
         }
 
         // std::cout << "====================================================" << std::endl;
@@ -220,14 +214,8 @@ namespace UI {
                 }
                 else {
                     is_playing = false;
-                    if (current_operation == INSERT) {
-                        insert_highlight.set_highlighted_line(-1);
-                    }
-                    else if (current_operation == ERASE) {
-                        erase_highlight.set_highlighted_line(-1);
-                    }
-                    else if (current_operation == FIND) {
-                        find_highlight.set_highlighted_line(-1); 
+                    if (current_operation != NONE) {
+                        highlighter[current_operation].set_highlighted_line(-1);
                     }
 
                     current_operation = OPERATION::NONE;
@@ -336,28 +324,18 @@ namespace UI {
     void AVL_Canvas::next() {
         ++current_step;
         current_operation = tree.history[current_step].op;
-        if (current_operation == INSERT) {
-            insert_highlight.set_highlighted_line(tree.history[current_step].index);
-        }
-        else if (current_operation == ERASE) {
-            erase_highlight.set_highlighted_line(tree.history[current_step].index);
-        }
-        else if (current_operation == FIND) {
-            find_highlight.set_highlighted_line(tree.history[current_step].index);
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(tree.history[current_step].index);
         }
     }
 
     void AVL_Canvas::prev() {
         --current_step;
-        current_operation = tree.history[current_step].op; 
-        if (current_operation == INSERT) {
-            insert_highlight.set_highlighted_line(tree.history[current_step].index);
-        }
-        else if (current_operation == ERASE) {
-            erase_highlight.set_highlighted_line(tree.history[current_step].index);
-        }
-        else if (current_operation == FIND) {
-            find_highlight.set_highlighted_line(tree.history[current_step].index);
+        current_operation = tree.history[current_step].op;
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(tree.history[current_step].index);
         }
     }
 
@@ -382,7 +360,7 @@ namespace UI {
         letter_count = 0;
         text_string[0] = '\0';
 
-        if (!val_to_insert.empty()) {
+        if (val_to_insert.size() == 2) {
             if (tree.erase(val_to_insert[0])) {
                 tree.insert(val_to_insert[1]);
             }
@@ -406,15 +384,11 @@ namespace UI {
         if (!is_playing) {
             current_step = (int)tree.history.size() - 1;
             current_operation = tree.history[current_step].op; 
-            if (current_operation == INSERT) {
-                insert_highlight.set_highlighted_line(tree.history[current_step].index);
+
+            if (current_operation != NONE) {
+                highlighter[current_operation].set_highlighted_line(tree.history[current_step].index);
             }
-            else if (current_operation == ERASE) {
-                erase_highlight.set_highlighted_line(tree.history[current_step].index);
-            }
-            else if (current_operation == FIND) {
-                find_highlight.set_highlighted_line(tree.history[current_step].index);
-            }
+
             return;
         }
 
@@ -670,14 +644,8 @@ namespace UI {
         }
 
         //Code highlight drawing
-        if (current_operation == INSERT) {
-            insert_highlight.draw_code();
-        }
-        else if (current_operation == ERASE) {
-            erase_highlight.draw_code();
-        }
-        else if (current_operation == FIND) {
-            find_highlight.draw_code();
+        if (current_operation != NONE) {
+            highlighter[current_operation].draw_code();
         }
 
         EndDrawing();
@@ -715,33 +683,64 @@ namespace UI {
         current_operation = OPERATION::NONE;
 
         //insert highlight code
-        insert_highlight.set_start_pos({window_width, 296});
-        insert_highlight.set_code_name("INSERT");
+        highlighter[OPERATION::INSERT].set_start_pos({window_width, 296});
+        highlighter[OPERATION::INSERT].set_code_name("INSERT");
 
-        insert_highlight.add("arr.add(x);");
-        insert_highlight.add("id = arr.size() - 1;");
-        insert_highlight.add("while (id > 0 && arr[parent(id)] < arr[id]) {");
-        insert_highlight.add("  swap(arr[parent(id)], arr[id]);");
-        insert_highlight.add("  id = parent(id);");
-        insert_highlight.add("}");
+        highlighter[OPERATION::INSERT].add("arr.add(x);");
+        highlighter[OPERATION::INSERT].add("id = arr.size() - 1;");
+        highlighter[OPERATION::INSERT].add("while (id > 0 && arr[parent(id)] < arr[id]) {");
+        highlighter[OPERATION::INSERT].add("  swap(arr[parent(id)], arr[id]);");
+        highlighter[OPERATION::INSERT].add("  id = parent(id);");
+        highlighter[OPERATION::INSERT].add("}");
         
         //erase highlight code
-        erase_highlight.set_start_pos({window_width, 296});
-        erase_highlight.set_code_name("ERASE");
+        highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
+        highlighter[OPERATION::ERASE].set_code_name("POP");
 
+        highlighter[OPERATION::ERASE].add("swap(arr[0], arr[arr.size() - 1]);");
+        highlighter[OPERATION::ERASE].add("arr.delete_back();");
+        highlighter[OPERATION::ERASE].add("heapify(0);");
+
+        //heapify highlight code
+        highlighter[OPERATION::HEAPIFY].set_start_pos({window_width, 296});
+        highlighter[OPERATION::HEAPIFY].set_code_name("HEAPIFY");
+
+        highlighter[OPERATION::HEAPIFY].add("max_id = get_max();");
+        highlighter[OPERATION::HEAPIFY].add("if (max_id != current_id) {");
+        highlighter[OPERATION::HEAPIFY].add("  swap(arr[current_id], arr[max_id]);");
+        highlighter[OPERATION::HEAPIFY].add("  heapify(max_id);");
+        highlighter[OPERATION::HEAPIFY].add("}");
+
+        //update hightlight code
+        highlighter[OPERATION::UPDATE].set_start_pos({window_width, 296});
+        highlighter[OPERATION::UPDATE].set_code_name("UPDATE");
         
+        highlighter[OPERATION::UPDATE].add("int old_val = arr[id]");
+        highlighter[OPERATION::UPDATE].add("arr[id] = new_val");
+        highlighter[OPERATION::UPDATE].add("if (old_val > new_val) {");
+        highlighter[OPERATION::UPDATE].add("  heapify(id);");
+        highlighter[OPERATION::UPDATE].add("}");
+        highlighter[OPERATION::UPDATE].add("else if (old_val < new_val) {");
+        highlighter[OPERATION::UPDATE].add("  while (id > 0 && arr[parent(id)] < arr[id]) {");
+        highlighter[OPERATION::UPDATE].add("     swap(arr[parent(id)], arr[id]);");
+        highlighter[OPERATION::UPDATE].add("     id = parent(id);");
+        highlighter[OPERATION::UPDATE].add("  }");
+        highlighter[OPERATION::UPDATE].add("}");
 
         //find highlight code
-        find_highlight.set_start_pos({window_width, 296});
-        find_highlight.set_code_name("FIND");
+        highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
+        highlighter[OPERATION::FIND].set_code_name("FIND");
 
-
+        highlighter[OPERATION::FIND].add("for (int i = 0; i < arr.size(); i++) {");
+        highlighter[OPERATION::FIND].add("  if (arr[i] == val) return i;");
+        highlighter[OPERATION::FIND].add("}");
+        highlighter[OPERATION::FIND].add("return -1;");
     }
     
     bool Heap_Canvas::update_node_position(std::vector<Data_Structure::Heap::Node> &array) {
         bool is_moving = false;
         for (auto &cur : array) {
-            std::cout << "ANIMATION UPDATING " << cur.val << ": " << cur.current_x << ' ' << cur.current_y << " - " << cur.target_x << ' ' << cur.target_y << std::endl;
+            // std::cout << "ANIMATION UPDATING " << cur.val << ": " << cur.current_x << ' ' << cur.current_y << " - " << cur.target_x << ' ' << cur.target_y << std::endl;
 
             float distance = Vector2Distance((Vector2){cur.current_x, cur.current_y}, (Vector2){cur.target_x, cur.target_y});
 
@@ -794,20 +793,14 @@ namespace UI {
 
         bool is_animating = update_node_position(current_tree.array);
 
-        if (current_operation == INSERT) {
-            insert_highlight.set_highlighted_line(current_tree.index);
-        }
-        else if (current_operation == ERASE) {
-            erase_highlight.set_highlighted_line(current_tree.index);
-        }
-        else if (current_operation == FIND) {
-            find_highlight.set_highlighted_line(current_tree.index);
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(current_tree.index);
         }
 
-        std::cout << "====================================================" << std::endl;
-        std::cout << "Script " << current_step + 1 << " / " << heap.history.size() 
-                  << " | Timer " << pause_timer 
-                  << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
+        // std::cout << "====================================================" << std::endl;
+        // std::cout << "Script " << current_step + 1 << " / " << heap.history.size() 
+        //           << " | Timer " << pause_timer 
+        //           << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
 
         if (is_animating) {
             pause_timer = time_between_steps / speed_multiplier;
@@ -825,14 +818,8 @@ namespace UI {
                 }
                 else {
                     is_playing = false;
-                    if (current_operation == INSERT) {
-                        insert_highlight.set_highlighted_line(-1);
-                    }
-                    else if (current_operation == ERASE) {
-                        erase_highlight.set_highlighted_line(-1);
-                    }
-                    else if (current_operation == FIND) {
-                        find_highlight.set_highlighted_line(-1); 
+                    if (current_operation != NONE) {
+                        highlighter[current_operation].set_highlighted_line(-1);
                     }
 
                     current_operation = OPERATION::NONE;
@@ -856,6 +843,10 @@ namespace UI {
             }
 
             draw_node(cur.current_x, cur.current_y, node_radius, cur.highlighted, std::to_string(cur.val).c_str());
+
+            const char *id_label = std::to_string(i).c_str();
+            auto text_size = MeasureText(id_label, 20);
+            DrawText(id_label, cur.current_x - (text_size >> 1), cur.current_y + 37, 25, BLUE);
         }
     }
 
@@ -900,35 +891,191 @@ namespace UI {
     }
 
     void Heap_Canvas::erase() {
+        if (heap.size() == 0) return;
 
+        heap.pop();
+
+        is_playing = true;
+        current_operation = OPERATION::ERASE;
+
+        ++current_step;
+        if (current_step > 0) {
+            sync_position(heap.history[current_step].array, heap.history[current_step - 1].array);
+        }
+
+        if (speed_multiplier == 5) { //Instant mode is on
+            skip();
+        }
     }
 
     void Heap_Canvas::next() {
+        ++current_step;
+        current_operation = heap.history[current_step].op;
 
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(heap.history[current_step].index);
+        }
     }
 
     void Heap_Canvas::prev() {
+         --current_step;
+        current_operation = heap.history[current_step].op;
 
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(heap.history[current_step].index);
+        }
     }
 
     void Heap_Canvas::clear() {
+        heap.clear();
 
+        //Animation
+        current_step = -1;
+        pause_timer = time_between_steps / speed_multiplier;
+        is_playing = false;
+
+        //Input text field
+        text_string[0] = '\0';
+        letter_count = 0;
+        frames_counter = 0;
+
+        //Code highlight
+        current_operation = OPERATION::NONE;
     }
 
     void Heap_Canvas::skip() {
+        if (current_step < 0 || heap.history.empty()) return;
+        if (!is_playing) {
+            current_step = (int)heap.history.size() - 1;
+            current_operation = heap.history[current_step].op; 
 
+            if (current_operation != NONE) {
+                highlighter[current_operation].set_highlighted_line(heap.history[current_step].index);
+            }
+
+            return;
+        }
+
+        int prev_speed = speed_multiplier;
+
+        speed_multiplier = 5;
+        is_playing = true;
+        while (current_step + 1 < (int)heap.history.size()) {
+            update_animation();
+        }
+
+        speed_multiplier = prev_speed;
+        pause_timer = time_between_steps / speed_multiplier;
     }
 
     void Heap_Canvas::update() {
+        std::vector<int> val_to_insert;
+        std::string cur_num = "";
 
+        for (int i = 0; i < letter_count && val_to_insert.size() < 2; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(text_string[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty() && val_to_insert.size() < 2) {
+            val_to_insert.push_back(std::stoi(cur_num));
+        }
+
+        letter_count = 0;
+        text_string[0] = '\0';
+
+        if (val_to_insert.size() == 2) {
+            if (val_to_insert[0] >= heap.size()) {
+                return;
+            } 
+
+            heap.update(val_to_insert[0], val_to_insert[1]); 
+
+            is_playing = true;
+            current_operation = OPERATION::ERASE;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(heap.history[current_step].array, heap.history[current_step - 1].array);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
+        }
     }
 
     void Heap_Canvas::find() {
+        std::vector<int> val_to_insert;
+        std::string cur_num = "";
 
+        for (int i = 0; i < letter_count; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(text_string[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_insert.push_back(std::stoi(cur_num));
+        }
+
+        letter_count = 0;
+        text_string[0] = '\0';
+
+        if (!val_to_insert.empty()) {
+            for (auto to_insert : val_to_insert) {
+                heap.find(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::FIND;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(heap.history[current_step].array, heap.history[current_step - 1].array);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
+        }
     }
 
     void Heap_Canvas::open_file() {
+        const char *filter[1] = {"*.txt"};
+        const char *file_path = tinyfd_openFileDialog("Select input file", "", 1, filter, "Text files (*.txt)", 0);
+        if (file_path != nullptr) { 
+            std::ifstream file(file_path);
 
+            if (file.is_open()) {
+                letter_count = 0;
+                text_string[letter_count] = '\0';
+
+                char c;
+                while (file.get(c) && letter_count < MAX_INPUT_INT_CHAR - 1) {
+                    if (('0' <= c && c <= '9') || c == ' ') {
+                        text_string[letter_count] = c;
+                        ++letter_count;
+                    }
+                    else if (c == '\n') {
+                        text_string[letter_count] = ' ';
+                        ++letter_count;
+                    }
+                }
+                
+                text_string[letter_count] = '\0';
+                file.close();
+            }
+        }
     }
 
     void Heap_Canvas::run() {
@@ -941,7 +1088,7 @@ namespace UI {
             int key = GetCharPressed();
 
             while (key > 0) {
-                if (((((key > '0' || (key == '0' && letter_count > 0 && text_string[letter_count - 1] != ' ')) && key <= '9')) || key == ' ') && letter_count < MAX_INPUT_INT_CHAR) {
+                if ((('0' <= key && key <= '9') || key == ' ') && letter_count < MAX_INPUT_INT_CHAR) {
                     text_string[letter_count] = static_cast<char>(key);
                     text_string[letter_count + 1] = '\0';
                     ++letter_count;
@@ -1019,7 +1166,7 @@ namespace UI {
                 }
                 update();
             }
-            else if (is_clicked(erase_button) && letter_count > 0) {
+            else if (is_clicked(erase_button)) {
                 if (current_step != (int)heap.history.size() - 1) {
                     skip();
                 }
@@ -1056,7 +1203,7 @@ namespace UI {
         //Buttons
         draw_button(input_text_field, "", WHITE, WHITE);
         draw_button(insert_button, "INSERT", WHITE, is_playing ? GRAY : BLACK);
-        draw_button(erase_button, "ERASE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(erase_button, "POP", WHITE, is_playing ? GRAY : BLACK);
         draw_button(find_button, "FIND", WHITE, is_playing ? GRAY : BLACK);
         draw_button(prev_button, "PREV", WHITE, is_playing ? GRAY : BLACK);
         draw_button(next_button, "NEXT", WHITE, is_playing ? GRAY : BLACK);
@@ -1103,14 +1250,8 @@ namespace UI {
         }
 
         //Code highlight drawing
-        if (current_operation == INSERT) {
-            insert_highlight.draw_code();
-        }
-        else if (current_operation == ERASE) {
-            erase_highlight.draw_code();
-        }
-        else if (current_operation == FIND) {
-            find_highlight.draw_code();
+        if (current_operation != NONE) {
+            highlighter[current_operation].draw_code();
         }
 
         EndDrawing();

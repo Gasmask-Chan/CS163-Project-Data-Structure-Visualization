@@ -89,6 +89,24 @@ public:
      */
     void clear();
 
+    /**
+     * @brief Change the value at the id-th index to new_val
+     * 
+     * @param id 
+     * @param new_val 
+     */
+    void update(int id, int new_val);
+
+    /**
+     * @brief Return the index of the element that has the value equal to `val`
+     * 
+     * If no such index exists, the function will return `-1`
+     * 
+     * @param val 
+     * @return int 
+     */
+    int find(int val);
+
     //========================UI========================
     struct Snapshot_Data {
         std::vector<Node> array;

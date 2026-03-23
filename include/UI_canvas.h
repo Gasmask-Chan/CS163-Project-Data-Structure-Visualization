@@ -125,9 +125,7 @@ namespace UI {
 
         //Code highlight
         OPERATION current_operation;
-        Code_Highlight insert_highlight;
-        Code_Highlight erase_highlight;
-        Code_Highlight find_highlight;
+        Code_Highlight highlighter[OPERATION::NONE];
         
         public:
 
@@ -251,9 +249,8 @@ namespace UI {
 
         //Code highlight
         OPERATION current_operation;
-        Code_Highlight insert_highlight;
-        Code_Highlight erase_highlight;
-        Code_Highlight find_highlight;
+        Code_Highlight highlighter[OPERATION::NONE];
+
 
     public:
         void setup() override;

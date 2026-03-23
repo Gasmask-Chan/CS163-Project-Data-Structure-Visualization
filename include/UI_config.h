@@ -12,6 +12,8 @@ namespace UI {
         INSERT,
         ERASE,
         FIND,
+        HEAPIFY,
+        UPDATE,
         NONE
     };
     
