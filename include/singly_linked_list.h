@@ -84,12 +84,12 @@ public:
         UI::OPERATION op;
     };
 
-    const Vector2 start_pos = {168, 125};
-    const float x_distance = 25.0f;
+    const Vector2 start_pos = {168, 150};
+    const float x_distance = 87.0f;
 
     std::vector<Snapshot_Data> history;
 
-    Node* get_copy(Node* cur, Node* &pHead, Node* &pTail);
+    Node* clone_node(Node* cur, Node* &pTail);
     
     /**
      * @brief Return the Head and the Tail of a new copy of the current Linked List

@@ -355,6 +355,8 @@ namespace UI {
         Rectangle skip_button;
         Rectangle speed_button;
         Rectangle update_button;
+        Rectangle head_button;
+        Rectangle tail_button;
 
         Data_Structure::Singly_Linked_List linked_list;
 
@@ -373,6 +375,9 @@ namespace UI {
         //Code highlight
         OPERATION current_operation;
         Code_Highlight highlighter[OPERATION::NONE];
+
+        //Pop up
+        bool is_popup_open;
 
     public:
         void setup() override;
@@ -394,22 +399,24 @@ namespace UI {
          * @param new_pHead
          * @param old_pHead
          */
-        void sync_position(Data_Structure::Singly_Linked_List::Node* &new_pHead, const Data_Structure::Singly_Linked_List::Node* &old_pHead);
+        void sync_position(Data_Structure::Singly_Linked_List::Node* &new_pHead, Data_Structure::Singly_Linked_List::Node* &old_pHead);
 
         /**
          * @brief Draw the tree with root `cur`
          * 
          * @param cur 
          */
-        void draw_tree();
+        void draw_tree(Data_Structure::Singly_Linked_List::Node* pHead);
 
         /**
          * @brief Handle insert operation
          * 
          * By default insert values from the input text field
          * 
+         * @param insert_at_the_end
+         * 
          */
-        void insert();
+        void insert(bool insert_at_the_end);
 
         /**
          * @brief Handle erase operation

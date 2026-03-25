@@ -20,51 +20,117 @@ Singly_Linked_List::~Singly_Linked_List() {
 }
 
 void Singly_Linked_List::insert(int x, bool insert_at_the_end) {
+    save_snapshot(0, UI::OPERATION::INSERT);
     if (pHead == nullptr) {
         pHead = new Node(x, id_counter++);
         pTail = pHead;
-        pHead->pNext = pTail;
+        pHead->pNext = nullptr;
+
+        pHead->highlighted = true;
+        save_snapshot(0, UI::OPERATION::INSERT);
+        pHead->highlighted = false;
+
+        save_snapshot(-1, UI::OPERATION::NONE);
         return;
     }
 
+    save_snapshot(1, UI::OPERATION::INSERT);
     if (insert_at_the_end) {
         pTail->pNext = new Node(x, id_counter++);
         pTail = pTail->pNext;
+
+        pTail->highlighted = true;
+        save_snapshot(1, UI::OPERATION::INSERT);
+        pTail->highlighted = false;
     }
     else {
+        save_snapshot(2, UI::OPERATION::INSERT);
         Node *new_node = new Node(x, id_counter++);
-        new_node->pNext = pHead->pNext;
+        new_node->pNext = pHead;
         pHead = new_node;
+
+        pHead->highlighted = true;
+        save_snapshot(0, UI::OPERATION::INSERT);
+        pHead->highlighted = false;
     }
+
+    save_snapshot(-1, UI::OPERATION::NONE);
 }
 
 Singly_Linked_List::Node* Singly_Linked_List::find(int x) {
+    save_snapshot(0, UI::OPERATION::FIND);
+    save_snapshot(1, UI::OPERATION::FIND);
+
     for (Node *cur = pHead; cur != nullptr; cur = cur->pNext) {
+        cur->highlighted = true;
+        save_snapshot(2, UI::OPERATION::FIND);
+        
         if (cur->val == x) {
             return cur;
         }
+        
+        cur->highlighted = false;
+        save_snapshot(3, UI::OPERATION::FIND);
+        save_snapshot(1, UI::OPERATION::FIND);
     }
+
+    save_snapshot(5, UI::OPERATION::FIND);
+    save_snapshot(-1, UI::OPERATION::FIND);
     return nullptr;
 }
 
 void Singly_Linked_List::erase(int x) {
-    if (pHead != nullptr && pHead->val == x) {
+    save_snapshot(0, UI::OPERATION::ERASE);
+    if (pHead == nullptr) return;
+
+    save_snapshot(1, UI::OPERATION::ERASE);
+
+    pHead->highlighted = true;
+    save_snapshot(2, UI::OPERATION::ERASE);
+    save_snapshot(3, UI::OPERATION::ERASE);
+
+    if (pHead->val == x) {
         Node *to_delete = pHead;
         pHead = pHead->pNext;
         delete to_delete;
+
+        if (pHead == nullptr) {
+            pTail = nullptr;
+        }
+
+        save_snapshot(3, UI::OPERATION::ERASE);
+        save_snapshot(-1, UI::OPERATION::NONE);
         return;
     }
 
+    pHead->highlighted = false;
+
     for (Node *cur = pHead; cur != nullptr; cur = cur->pNext) {
-        if (cur->pNext != nullptr && cur->pNext->val == x) {
-            Node *to_delete = cur->pNext;
-            cur->pNext = to_delete->pNext;
-            if (to_delete == pTail) {
-                pTail = cur;
+        save_snapshot(2, UI::OPERATION::ERASE);
+
+        if (cur->pNext != nullptr) {
+            cur->pNext->highlighted = true;
+            save_snapshot(3, UI::OPERATION::ERASE);
+
+            if (cur->pNext->val == x) {
+                Node *to_delete = cur->pNext;
+                cur->pNext = to_delete->pNext;
+                if (to_delete == pTail) {
+                    pTail = cur;
+                }
+                delete to_delete;
+
+                save_snapshot(3, UI::OPERATION::ERASE);
+
+                break;
             }
-            delete to_delete;
+
+            cur->pNext->highlighted = false;
+            save_snapshot(4, UI::OPERATION::ERASE);
         }
     }
+
+    save_snapshot(-1, UI::OPERATION::NONE);
 }
 
 void Singly_Linked_List::clear() {
@@ -74,12 +140,22 @@ void Singly_Linked_List::clear() {
         delete to_delete;
     }
     pHead = pTail = nullptr;
+    
+    for (auto &snap : history) {
+        for (Node *cur = snap.pHead; cur != nullptr;) {
+            Node *to_delete = cur;
+            cur = cur->pNext;
+            delete to_delete;
+        }
+    }
+
+    history.clear();
 }
 
 //===========================UI===========================
 
-Singly_Linked_List::Node* Singly_Linked_List::get_copy(Node* cur, Node* &pHead, Node* &pTail) {
-    if (!cur) return;
+Singly_Linked_List::Node* Singly_Linked_List::clone_node(Node* cur, Node* &pTail) {
+    if (!cur) return nullptr;
 
     Node* new_node = new Node(cur->val, cur->id);
 
@@ -88,13 +164,8 @@ Singly_Linked_List::Node* Singly_Linked_List::get_copy(Node* cur, Node* &pHead, 
     new_node->current_y = cur->current_y;
     new_node->target_x = cur->target_x;
     new_node->target_y = cur->target_y;
-
     
-    new_node->pNext = get_copy(cur->pNext, pHead, pTail);
-    
-    if (pHead == nullptr) {
-        pHead = new_node;
-    }
+    new_node->pNext = clone_node(cur->pNext, pTail);
 
     if (cur->pNext == nullptr) {
         pTail = new_node;
@@ -105,12 +176,12 @@ Singly_Linked_List::Node* Singly_Linked_List::get_copy(Node* cur, Node* &pHead, 
 
 void Singly_Linked_List::get_copy(Node* &pHead, Node* &pTail) {
     pHead = pTail = nullptr;
-    get_copy(this->pHead, pHead, pTail);
+    pHead = clone_node(this->pHead, pTail);
 }
 
 void Singly_Linked_List::save_snapshot(int index, UI::OPERATION op) {
     recalculate_position();
-    Node* pHead, *pTail;
+    Node *pHead, *pTail;
     get_copy(pHead, pTail);
     history.push_back({pHead, pTail, index, op});
 }
