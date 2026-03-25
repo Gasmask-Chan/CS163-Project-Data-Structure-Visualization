@@ -1257,5 +1257,154 @@ namespace UI {
         EndDrawing();
     }
 
-    
+    //=================================Linked List==============================================================
+
+    void LinkedList_Canvas::setup() {
+        //Buttons setup
+        input_text_field = {21, 653, 168, 45};
+        insert_button = {198, 653, 100, 45};
+        erase_button = {309, 653, 100, 45};
+        find_button = {420, 653, 100, 45};
+        prev_button = {531, 653, 100, 45};
+        next_button = {642, 653, 100, 45};
+        skip_button = {753, 654, 100, 45};
+        clear_button = {864, 653, 100, 45};
+        file_button = {975, 653, 100, 45};
+        exit_button = {1086, 653, 100, 45};
+        random_button = {21, 599, 126, 45};
+        speed_button = {21, 491, 143, 45};
+        update_button = {21, 545, 126, 45};
+        
+        //Input text field setup
+        text_string[0] = '\0';
+        letter_count = 0;
+        frames_counter = 0;
+        
+        //Animation setup
+        current_step = -1;
+        speed_multiplier = 1;
+        pause_timer = time_between_steps;
+        is_playing = false;
+
+        //Code highlight setup
+        current_operation = OPERATION::NONE;
+
+        //insert highlight code
+        highlighter[OPERATION::INSERT].set_start_pos({window_width, 296});
+        highlighter[OPERATION::INSERT].set_code_name("INSERT");
+
+
+        
+        //erase highlight code
+        highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
+        highlighter[OPERATION::ERASE].set_code_name("ERASE");
+
+
+        //find highlight code
+        highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
+        highlighter[OPERATION::FIND].set_code_name("FIND");
+    }
+
+    bool LinkedList_Canvas::update_node_position(Data_Structure::Singly_Linked_List::Node* &pHead) {
+        bool is_moving = false;
+        auto cur = pHead;
+        while (cur != nullptr) {
+            // std::cout << "ANIMATION UPDATING " << cur.val << ": " << cur.current_x << ' ' << cur.current_y << " - " << cur.target_x << ' ' << cur.target_y << std::endl;
+
+            float distance = Vector2Distance((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y});
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                distance = 0.0f;
+            }
+
+            if (distance > 1.0f) {
+                Vector2 new_pos = Vector2Lerp((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y}, ani_speed * speed_multiplier);
+                // std::cout << "NEW POSITION " << cur->val << ": " << cur->current_x << ' ' << cur->current_y << " - " << new_pos->x << ' ' << new_pos->y << std::endl;
+
+                cur->current_x = new_pos.x;
+                cur->current_y = new_pos.y;
+                is_moving = true;
+            } 
+            else {
+                cur->current_x = cur->target_x;
+                cur->current_y = cur->target_y;
+            }
+
+            cur = cur->pNext;
+        }
+        return is_moving;
+    }
+
+    void LinkedList_Canvas::sync_position(Data_Structure::Singly_Linked_List::Node* &new_pHead, const Data_Structure::Singly_Linked_List::Node* &old_pHead) {
+        Data_Structure::Singly_Linked_List::Node* pre = nullptr;
+        for (auto i = new_pHead; i; i = i->pNext) {
+            bool found = false;
+            for (auto j = old_pHead; j; j = j->pNext) {
+                if (i->id == j->id) {
+                    found = true;
+                    i->current_x = j->current_x;
+                    i->current_y = j->current_y;
+                    break;
+                }
+            }
+
+            if (!found) {
+                if (pre) {
+                    i->current_x = pre->current_x;
+                    i->current_y = pre->current_y;
+                }
+            }
+
+            pre = i;
+        }
+    }
+
+    void LinkedList_Canvas::update_animation() {
+
+    }
+
+    void LinkedList_Canvas::draw_tree() {
+
+    }
+
+    void LinkedList_Canvas::insert() {
+
+    }
+
+    void LinkedList_Canvas::erase() {
+
+    }
+
+    void LinkedList_Canvas::next() {
+
+    }
+
+    void LinkedList_Canvas::prev() {
+
+    }
+
+    void LinkedList_Canvas::clear() {
+
+    }
+
+    void LinkedList_Canvas::skip() {
+
+    }
+
+    void LinkedList_Canvas::update() {
+
+    }
+
+    void LinkedList_Canvas::find() {
+
+    }
+
+   void LinkedList_Canvas::open_file() {
+
+   } 
+
+    void LinkedList_Canvas::run() {
+
+    } 
+   
 }

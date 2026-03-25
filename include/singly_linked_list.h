@@ -1,12 +1,19 @@
 #ifndef SINGLY_LINKED_LIST_H
 #define SINGLY_LINKED_LIST_H
 
+#include "UI_config.h"
+
+#include <vector>
+
 namespace Data_Structure {
 
 class Singly_Linked_List {
-private:
+public:
     struct Node {
-        int val;
+        int val, id;
+        bool highlighted;
+        float current_x, current_y;
+        float target_x, target_y;
         Node* pNext;
         
         /**
@@ -14,9 +21,11 @@ private:
          * 
          * @param val 
          */
-        Node(int val = -1);
+        Node(int val = -1, int id = -1);
     };
 
+private:
+    int id_counter;
     Node *pHead, *pTail;
 
 public:  
@@ -67,6 +76,44 @@ public:
      * @return void 
      */
     void clear();
+
+    //========================UI========================
+    struct Snapshot_Data {
+        Node *pHead, *pTail;
+        int index; //Current code line
+        UI::OPERATION op;
+    };
+
+    const Vector2 start_pos = {168, 125};
+    const float x_distance = 25.0f;
+
+    std::vector<Snapshot_Data> history;
+
+    Node* get_copy(Node* cur, Node* &pHead, Node* &pTail);
+    
+    /**
+     * @brief Return the Head and the Tail of a new copy of the current Linked List
+     *
+     * @param pHead
+     * @param pTail
+     *
+     */
+    void get_copy(Node* &pHead, Node* &pTail);
+    
+
+    /**
+     * @brief Save snapshot of the current Linked List to `history` vector
+     * 
+     * @param index
+     * @param op
+     */
+    void save_snapshot(int index, UI::OPERATION op);
+
+    /**
+     * @brief Recalculate postion of each node in the Linked List
+     * 
+     */
+    void recalculate_position();
 };
 }
 

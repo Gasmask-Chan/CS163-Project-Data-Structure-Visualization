@@ -338,6 +338,128 @@ namespace UI {
          */
         void open_file();
     };
+
+    class LinkedList_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle input_text_field;
+        Rectangle insert_button;
+        Rectangle erase_button;
+        Rectangle find_button;
+        Rectangle prev_button;
+        Rectangle next_button;
+        Rectangle clear_button;
+        Rectangle file_button;
+        Rectangle exit_button;
+        Rectangle random_button;
+        Rectangle skip_button;
+        Rectangle speed_button;
+        Rectangle update_button;
+
+        Data_Structure::Singly_Linked_List linked_list;
+
+        //Input text field
+        char text_string[MAX_INPUT_INT_CHAR + 1];
+        int letter_count;
+        int frames_counter;
+
+        //Animation
+        
+        int current_step;
+        int speed_multiplier; //Instant mode = 5
+        float pause_timer; //Pause time between each step
+        bool is_playing;
+
+        //Code highlight
+        OPERATION current_operation;
+        Code_Highlight highlighter[OPERATION::NONE];
+
+    public:
+        void setup() override;
+        void run() override;
+        void update_animation() override;
+
+        /**
+         * @brief Update the current position of all nodes in the Linked List
+         * 
+         * @param pHead
+         * @return true 
+         * @return false 
+         */
+        bool update_node_position(Data_Structure::Singly_Linked_List::Node* &pHead);
+
+        /**
+         * @brief Sync nodes position between two contiguous histories.
+         * 
+         * @param new_pHead
+         * @param old_pHead
+         */
+        void sync_position(Data_Structure::Singly_Linked_List::Node* &new_pHead, const Data_Structure::Singly_Linked_List::Node* &old_pHead);
+
+        /**
+         * @brief Draw the tree with root `cur`
+         * 
+         * @param cur 
+         */
+        void draw_tree();
+
+        /**
+         * @brief Handle insert operation
+         * 
+         * By default insert values from the input text field
+         * 
+         */
+        void insert();
+
+        /**
+         * @brief Handle erase operation
+         * 
+         */
+        void erase();
+
+        /**
+         * @brief Handle next operation
+         * 
+         */
+        void next();
+    
+        /**
+         * @brief Handle back operation
+         * 
+         */
+        void prev();
+
+        /**
+         * @brief Handle clear operation
+         * 
+         */
+        void clear();
+
+        /**
+         * @brief Handle skip operation
+         * 
+         */
+        void skip();
+
+        /**
+         * @brief Handle update operation
+         * 
+         * Status: unfinished
+         */
+        void update();
+
+        /**
+         * @brief Handle find operation
+         * 
+         */
+        void find();
+
+        /**
+         * @brief Handle open file operation
+         * 
+         */
+        void open_file();
+    };
 }
 
 #endif
