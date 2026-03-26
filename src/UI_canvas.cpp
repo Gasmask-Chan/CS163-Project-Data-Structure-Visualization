@@ -1391,10 +1391,10 @@ namespace UI {
             highlighter[current_operation].set_highlighted_line(current_tree.index);
         }
 
-        std::cout << "====================================================" << std::endl;
-        std::cout << "Script " << current_step + 1 << " / " << linked_list.history.size() 
-                  << " | Timer " << pause_timer 
-                  << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
+        // std::cout << "====================================================" << std::endl;
+        // std::cout << "Script " << current_step + 1 << " / " << linked_list.history.size() 
+                //   << " | Timer " << pause_timer 
+                //   << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
 
         if (is_animating) {
             pause_timer = time_between_steps / speed_multiplier;

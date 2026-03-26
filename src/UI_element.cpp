@@ -41,7 +41,7 @@ namespace UI {
     }
 
     void Code_Highlight::add(const std::string &new_line) {
-        Vector2 text_size = MeasureTextEx(code_font, new_line.c_str(), font_size, 2);
+        Vector2 text_size = MeasureTextEx(code_font, new_line.c_str(), font_size, 0.5f);
         height = std::max(height, text_size.y + 2 * v_padding);
         width = std::max(width, h_left_padding + text_size.x + h_right_padding);
         source_code.push_back(new_line);
@@ -49,16 +49,20 @@ namespace UI {
 
     void Code_Highlight::draw_code() {
         draw_button({start_pos.x - 120, start_pos.y - 40, 120, 40}, code_name, Fade(YELLOW, 0.8f), BLACK);
-        DrawRectangle(start_pos.x - width, start_pos.y, width, height * source_code.size(), WHITE);
+        DrawRectangle(start_pos.x - width, start_pos.y, width, height * source_code.size(), (Color){218, 235, 255, 255});
+        DrawRectangleLinesEx({start_pos.x - width - 2.0f, start_pos.y - 2.0f, width + 2.0f, height * source_code.size() + 4.0f}, 3.0f, DARKPURPLE);
 
         for (int i = 0; i < (int)source_code.size(); i++) {
             auto &cur_line = source_code[i];
             Vector2 pos = {start_pos.x - width, start_pos.y + i * height};
 
-            DrawRectangle(pos.x, pos.y, width, height, i == highlighted_line ? Fade(RED, 0.7f) : WHITE);
-            DrawRectangleLinesEx({pos.x, pos.y, width, height}, 1.0f, BLACK);
+            if (i == highlighted_line) {
+                DrawRectangle(pos.x, pos.y, width, height, Fade(BLUE, 0.7f));
+            }
+
+            // DrawRectangleLinesEx({pos.x, pos.y, width, height}, 1.0f, BLACK);
             
-            DrawTextEx(code_font, cur_line.c_str(), {pos.x + h_left_padding, pos.y + v_padding}, font_size, 2, BLACK);
+            DrawTextEx(code_font, cur_line.c_str(), {pos.x + h_left_padding, pos.y + v_padding}, font_size, 0.75f, i == highlighted_line ? WHITE : BLACK);
         }
     }
 }
