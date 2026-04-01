@@ -2365,6 +2365,26 @@ namespace UI {
         }
 
         EndDrawing();
-    } 
+    }
 
+    //=================================Trie==============================================================
+    void Trie_Canvas::setup() {
+
+    }
+
+    void Trie_Canvas::sync_position() {
+        
+    }
+
+    bool Trie_Canvas::update_node_position() {
+
+    }
+
+    void Trie_Canvas::update_animation() {
+
+    }
+
+    void Trie_Canvas::run() {
+
+    }
 }

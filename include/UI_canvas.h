@@ -25,7 +25,6 @@ enum UI_State {
 namespace UI {
     const int MAX_INPUT_INT_CHAR = 101;
     const Color main_background_color = {255, 255, 212, 255};
-    const float node_radius = 30.0f;
     const float time_between_steps = 1.0f;
     const float ani_speed = 0.05f;
     
@@ -447,6 +446,139 @@ namespace UI {
          * 
          */
         void insert(bool insert_at_the_end);
+
+        /**
+         * @brief Handle erase operation
+         * 
+         */
+        void erase();
+
+        /**
+         * @brief Handle next operation
+         * 
+         */
+        void next();
+    
+        /**
+         * @brief Handle back operation
+         * 
+         */
+        void prev();
+
+        /**
+         * @brief Handle clear operation
+         * 
+         */
+        void clear();
+
+        /**
+         * @brief Handle skip operation
+         * 
+         */
+        void skip();
+
+        /**
+         * @brief Handle update operation
+         * 
+         * Status: unfinished
+         */
+        void update();
+
+        /**
+         * @brief Handle find operation
+         * 
+         */
+        void find();
+
+        /**
+         * @brief Handle open file operation
+         * 
+         */
+        void open_file();
+    };
+
+    class Trie_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle input_text_field_1; //For Insert, Erase and Find
+        Rectangle input_text_field_2; //For update old_val
+        Rectangle input_text_field_3; //For update new_val
+        Rectangle insert_button;
+        Rectangle erase_button;
+        Rectangle find_button;
+        Rectangle prev_button;
+        Rectangle next_button;
+        Rectangle clear_button;
+        Rectangle file_button;
+        Rectangle exit_button;
+        Rectangle random_button;
+        Rectangle skip_button;
+        Rectangle speed_button;
+        Rectangle update_button;
+
+        Data_Structure::AVL_Tree tree;
+
+        //Input text field
+        char text_string_1[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_1;
+        int frames_counter_1;
+
+        char text_string_2[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_2;
+        int frames_counter_2;
+
+        char text_string_3[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_3;
+        int frames_counter_3;
+
+        //Animation
+        
+        int current_step;
+        int speed_multiplier; //Instant mode = 5
+        float pause_timer; //Pause time between each step
+        bool is_playing;
+
+        //Code highlight
+        OPERATION current_operation;
+        Code_Highlight highlighter[OPERATION::NONE];
+        
+    public:
+        void setup() override;
+        void run() override;
+        void update_animation() override;
+
+        /**
+         * @brief Update the current position of all nodes in the tree rooted at `cur`
+         * 
+         * @param cur 
+         * @return true 
+         * @return false 
+         */
+        bool update_node_position();
+
+        /**
+         * @brief Sync nodes position between two contiguous histories.
+         * 
+         * @param new_root
+         * @param new_root_parent 
+         * @param old_root
+         */
+        void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root);
+
+        /**
+         * @brief Draw the tree with root `cur`
+         * 
+         * @param cur 
+         */
+        void draw_tree(Data_Structure::AVL_Tree::Node* cur);
+
+        /**
+         * @brief Handle insert operation
+         * 
+         * By default insert values from the input text field
+         * 
+         */
+        void insert();
 
         /**
          * @brief Handle erase operation

@@ -1,15 +1,21 @@
 #ifndef TRIE_H
 #define TRIE_H
 
+#include "UI_config.h"
 #include <string>
+#include <vector>
 
 namespace Data_Structure {
 class Trie {
-private:
+public:
     struct Node {
         int cnt; //Number of strings go through this node
         int exist; //Number of strings end at this node
         Node *child[26];
+
+        float current_x, current_y;
+        float target_x, target_y;
+        float tree_width;
 
         /**
          * @brief Construct a new Node object
@@ -17,7 +23,8 @@ private:
          */
         Node();
     };
-    
+
+private:
     Node *root;
 
 public:
@@ -94,7 +101,49 @@ public:
      * @return false 
      */
     bool check_valid_input(std::string str);
+
+    //========================UI========================
+    struct Snapshot_Data {
+        Node* tree_root;
+        int index; //Current code line
+        UI::OPERATION op;
+    };
+
+    const float vertical_gap = 80.0f;
+    const float horizontal_gap = 10.0f;
+
+    std::vector<Snapshot_Data> history;
+
+    Node* get_copy(Node* cur);
+
+    /**
+     * @brief Return the root of a new copy of the current tree
+     * 
+     * @return Node* 
+     */
+    Node* get_copy();
+
+    /**
+     * @brief Calculate the maximum horizontal gap we need for each node in the tree
+     * 
+     * @return void 
+     */
+    void cal_initial_gap(Node* cur);
+
+    /**
+     * @brief Save snapshot of the current tree to `history` vector
+     * 
+     * @param index
+     * @param op
+     */
+    void save_snapshot(int index, UI::OPERATION op);
+
+    void recalculate_position(Node* cur, float x, float y);
+
+    /**
+     * @brief Recalculate postion of each node in tree
+     * 
+     */
+    void recalculate_position();
 };
 }
-
-#endif

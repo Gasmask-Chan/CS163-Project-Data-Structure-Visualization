@@ -4,6 +4,8 @@ using namespace Data_Structure;
 
 Trie::Node::Node() {
     cnt = exist = 0;
+    current_x = current_y = target_x = target_y = 0;
+    tree_width = 0;
     for (int i = 0; i < 26; i++) {
         child[i] = nullptr;
     }
@@ -103,3 +105,85 @@ bool Trie::check_valid_input(std::string str) {
     }
     return true;
 }
+
+//===========================UI===========================
+
+Trie::Node* Trie::get_copy(Node *cur) {
+    if (!cur) return nullptr;
+
+    Node* new_node = new Node();
+    new_node->cnt = cur->cnt;
+    new_node->exist = cur->exist;
+    new_node->current_x = cur->current_x;
+    new_node->current_y = cur->current_y;
+    new_node->target_x = cur->target_x;
+    new_node->target_y = cur->target_y;
+    
+    for (int i = 0; i < 26; i++) {
+        new_node->child[i] = get_copy(cur->child[i]);
+    }
+
+    return new_node;
+}
+
+Trie::Node* Trie::get_copy() {
+    return get_copy(root);
+}
+
+void Trie::cal_initial_gap(Node* cur) {
+    if (!cur) return;
+    bool first_child = true;
+    bool is_leaf = true;
+
+    cur->tree_width = 0.0f;
+
+    for (int i = 0; i < 26; i++) {
+        if (cur->child[i]) {
+            is_leaf = false;
+
+            if (first_child) {
+                first_child = false;
+            }
+            else {
+                cur->tree_width += horizontal_gap;
+            }
+
+            cal_initial_gap(cur->child[i]);
+            cur->tree_width += cur->child[i]->tree_width;
+        }
+    }
+
+    if (is_leaf) {
+        cur->tree_width = UI::node_radius;
+    }
+}
+
+
+void Trie::save_snapshot(int index, UI::OPERATION op) {
+    recalculate_position();
+    history.push_back({get_copy(), index, op});
+}
+
+void Trie::recalculate_position(Node* cur, float x, float y) {
+    if (!cur) return;
+    
+    cur->target_x = x;
+    cur->target_y = y;
+
+    float width = cur->tree_width;
+
+    for (int i = 0; i < 26; i++) {
+        if (cur->child[i]) {
+            recalculate_position(cur->child[i], x - (width / 2), y + vertical_gap);
+            width -= cur->child[i]->tree_width;
+        }
+    }
+}
+
+void Trie::recalculate_position() {
+    cal_initial_gap(root);
+    recalculate_position(root, UI::window_width / 2.0, 38);
+}
+
+
+

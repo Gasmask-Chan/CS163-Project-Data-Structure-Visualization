@@ -16,7 +16,8 @@ namespace UI {
         UPDATE,
         NONE
     };
-    
+   
+    const float node_radius = 30.0f;
     const int window_height = 720;
     const int window_width = 1280;
     extern Font main_font;
