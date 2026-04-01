@@ -229,7 +229,9 @@ namespace UI {
     class Heap_Canvas : public Canvas {
     private:
         //Buttons
-        Rectangle input_text_field;
+        Rectangle input_text_field_1; //For Insert, Erase and Find
+        Rectangle input_text_field_2; //For update old_val
+        Rectangle input_text_field_3; //For update new_val
         Rectangle insert_button;
         Rectangle erase_button;
         Rectangle find_button;
@@ -246,9 +248,17 @@ namespace UI {
         Data_Structure::Heap heap;
 
         //Input text field
-        char text_string[MAX_INPUT_INT_CHAR + 1];
-        int letter_count;
-        int frames_counter;
+        char text_string_1[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_1;
+        int frames_counter_1;
+
+        char text_string_2[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_2;
+        int frames_counter_2;
+
+        char text_string_3[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_3;
+        int frames_counter_3;
 
         //Animation
         
@@ -352,7 +362,9 @@ namespace UI {
     class LinkedList_Canvas : public Canvas {
     private:
         //Buttons
-        Rectangle input_text_field;
+        Rectangle input_text_field_1; //For Insert, Erase and Find
+        Rectangle input_text_field_2; //For update old_val
+        Rectangle input_text_field_3; //For update new_val
         Rectangle insert_button;
         Rectangle erase_button;
         Rectangle find_button;
@@ -371,9 +383,17 @@ namespace UI {
         Data_Structure::Singly_Linked_List linked_list;
 
         //Input text field
-        char text_string[MAX_INPUT_INT_CHAR + 1];
-        int letter_count;
-        int frames_counter;
+        char text_string_1[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_1;
+        int frames_counter_1;
+
+        char text_string_2[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_2;
+        int frames_counter_2;
+
+        char text_string_3[MAX_INPUT_INT_CHAR + 1];
+        int letter_count_3;
+        int frames_counter_3;
 
         //Animation
         
