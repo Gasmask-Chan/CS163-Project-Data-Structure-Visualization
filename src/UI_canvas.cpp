@@ -52,7 +52,9 @@ namespace UI {
 
     void AVL_Canvas::setup() {
         //Buttons setup
-        input_text_field = {21, 653, 168, 45};
+        input_text_field_1 = {21, 653, 168, 45};
+        input_text_field_2 = {21, 595, 80, 45};
+        input_text_field_3 = {107, 595, 80, 45};
         insert_button = {198, 653, 100, 45};
         erase_button = {309, 653, 100, 45};
         find_button = {420, 653, 100, 45};
@@ -62,15 +64,23 @@ namespace UI {
         clear_button = {864, 653, 100, 45};
         file_button = {975, 653, 100, 45};
         exit_button = {1086, 653, 100, 45};
-        random_button = {21, 599, 126, 45};
-        speed_button = {21, 491, 143, 45};
-        update_button = {21, 545, 126, 45};
+        random_button = {334, 595, 126, 45};
+        speed_button = {471, 595, 143, 45};
+        update_button = {197, 595, 126, 45};
         
         //Input text field setup
-        text_string[0] = '\0';
-        letter_count = 0;
-        frames_counter = 0;
+        text_string_1[0] = '\0';
+        letter_count_1 = 0;
+        frames_counter_1 = 0;
+
+        text_string_2[0] = '\0';
+        letter_count_2 = 0;
+        frames_counter_2 = 0;
         
+        text_string_3[0] = '\0';
+        letter_count_3 = 0;
+        frames_counter_3 = 0;
+
         //Animation setup
         current_step = -1;
         speed_multiplier = 1;
@@ -228,9 +238,9 @@ namespace UI {
         std::vector<int> val_to_insert;
         std::string cur_num = "";
 
-        for (int i = 0; i < letter_count; i++) {
-            if (text_string[i] != ' ') {
-                cur_num.push_back(text_string[i]);
+        for (int i = 0; i < letter_count_1; i++) {
+            if (text_string_1[i] != ' ') {
+                cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
                 val_to_insert.push_back(std::stoi(cur_num));
@@ -242,8 +252,8 @@ namespace UI {
             val_to_insert.push_back(std::stoi(cur_num));
         }
 
-        letter_count = 0;
-        text_string[0] = '\0';
+        letter_count_1 = 0;
+        text_string_1[0] = '\0';
 
         if (!val_to_insert.empty()) {
             for (auto to_insert : val_to_insert) {
@@ -262,15 +272,18 @@ namespace UI {
                 skip();
             }
         }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
     }
 
     void AVL_Canvas::erase() {
         std::vector<int> val_to_erase;
         std::string cur_num = "";
 
-        for (int i = 0; i < letter_count; i++) {
-            if (text_string[i] != ' ') {
-                cur_num.push_back(text_string[i]);
+        for (int i = 0; i < letter_count_1; i++) {
+            if (text_string_1[i] != ' ') {
+                cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
                 val_to_erase.push_back(std::stoi(cur_num));
@@ -282,8 +295,8 @@ namespace UI {
             val_to_erase.push_back(std::stoi(cur_num));
         }
 
-        letter_count = 0;
-        text_string[0] = '\0';
+        letter_count_1 = 0;
+        text_string_1[0] = '\0';
 
         if (!val_to_erase.empty()) {
             for (auto to_insert : val_to_erase) {
@@ -302,6 +315,9 @@ namespace UI {
                 skip();
             }
         }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
     }
 
     void AVL_Canvas::clear() {
@@ -313,9 +329,17 @@ namespace UI {
         is_playing = false;
 
         //Input text field
-        text_string[0] = '\0';
-        letter_count = 0;
-        frames_counter = 0;
+        text_string_1[0] = '\0';
+        letter_count_1 = 0;
+        frames_counter_1 = 0;
+
+        text_string_2[0] = '\0';
+        letter_count_2 = 0;
+        frames_counter_2 = 0;
+        
+        text_string_3[0] = '\0';
+        letter_count_3 = 0;
+        frames_counter_3 = 0;
 
         //Code highlight
         current_operation = OPERATION::NONE;
@@ -340,42 +364,71 @@ namespace UI {
     }
 
     void AVL_Canvas::update() {
-        std::vector<int> val_to_insert;
+        std::vector<int> old_val;
         std::string cur_num = "";
 
-        for (int i = 0; i < letter_count && val_to_insert.size() < 2; i++) {
-            if (text_string[i] != ' ') {
-                cur_num.push_back(text_string[i]);
+        for (int i = 0; i < letter_count_2 && old_val.size() < 1; i++) {
+            if (text_string_2[i] != ' ') {
+                cur_num.push_back(text_string_2[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                old_val.push_back(std::stoi(cur_num));
                 cur_num = "";
             }
         }
 
-        if (!cur_num.empty() && val_to_insert.size() < 2) {
-            val_to_insert.push_back(std::stoi(cur_num));
+        if (!cur_num.empty() && old_val.size() < 1) {
+            old_val.push_back(std::stoi(cur_num));
         }
 
-        letter_count = 0;
-        text_string[0] = '\0';
-
-        if (val_to_insert.size() == 2) {
-            if (tree.erase(val_to_insert[0])) {
-                tree.insert(val_to_insert[1]);
+        
+        if (old_val.size() != 1) {
+            tinyfd_messageBox("ERROR", "Please type in the old value of the data you want to update!", "ok", "error", 1);
+            return;
+        }
+    
+        std::vector<int> new_val;
+        cur_num = "";
+        
+        for (int i = 0; i < letter_count_3 && new_val.size() < 1; i++) {
+            if (text_string_3[i] != ' ') {
+                cur_num.push_back(text_string_3[i]);
             }
-
-            is_playing = true;
-            current_operation = OPERATION::ERASE;
-
-            ++current_step;
-            if (current_step > 0) {
-                sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
+            else if (!cur_num.empty()) {
+                new_val.push_back(std::stoi(cur_num));
+                cur_num = "";
             }
+        }
+        
+        if (!cur_num.empty() && new_val.size() < 1) {
+            new_val.push_back(std::stoi(cur_num));
+        }
+        
+        if (new_val.size() != 1) {
+            tinyfd_messageBox("ERROR", "Please type in the new value of the data you want to update!", "ok", "error", 1);
+            return;
+        }
+        
+        letter_count_2 = 0;
+        text_string_2[0] = '\0';
 
-            if (speed_multiplier == 5) { //Instant mode is on
-                skip();
-            }
+        letter_count_3 = 0;
+        text_string_3[0] = '\0';
+
+        if (tree.erase(old_val[0])) {
+            tree.insert(new_val[0]);
+        }
+
+        is_playing = true;
+        current_operation = OPERATION::ERASE;
+
+        ++current_step;
+        if (current_step > 0) {
+            sync_position(tree.history[current_step].tree_root, nullptr, tree.history[current_step - 1].tree_root);
+        }
+
+        if (speed_multiplier == 5) { //Instant mode is on
+            skip();
         }
     }
 
@@ -408,9 +461,9 @@ namespace UI {
         std::vector<int> val_to_insert;
         std::string cur_num = "";
 
-        for (int i = 0; i < letter_count; i++) {
-            if (text_string[i] != ' ') {
-                cur_num.push_back(text_string[i]);
+        for (int i = 0; i < letter_count_1; i++) {
+            if (text_string_1[i] != ' ') {
+                cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
                 val_to_insert.push_back(std::stoi(cur_num));
@@ -422,8 +475,8 @@ namespace UI {
             val_to_insert.push_back(std::stoi(cur_num));
         }
 
-        letter_count = 0;
-        text_string[0] = '\0';
+        letter_count_1 = 0;
+        text_string_1[0] = '\0';
 
         if (!val_to_insert.empty()) {
             for (auto to_insert : val_to_insert) {
@@ -442,6 +495,9 @@ namespace UI {
                 skip();
             }
         }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
     }
 
     void AVL_Canvas::open_file() {
@@ -451,55 +507,103 @@ namespace UI {
             std::ifstream file(file_path);
 
             if (file.is_open()) {
-                letter_count = 0;
-                text_string[letter_count] = '\0';
+                letter_count_1 = 0;
+                text_string_1[letter_count_1] = '\0';
 
                 char c;
-                while (file.get(c) && letter_count < MAX_INPUT_INT_CHAR - 1) {
-                    if ((((c > '0' || (c == '0' && letter_count > 0 && text_string[letter_count - 1] != ' ')) && c <= '9')) || c == ' ') {
-                        text_string[letter_count] = c;
-                        ++letter_count;
+                while (file.get(c) && letter_count_1 < MAX_INPUT_INT_CHAR - 1) {
+                    if ((('0' <= c && c <= '9')) || c == ' ') {
+                        text_string_1[letter_count_1] = c;
+                        ++letter_count_1;
                     }
                     else if (c == '\n') {
-                        text_string[letter_count] = ' ';
-                        ++letter_count;
+                        text_string_1[letter_count_1] = ' ';
+                        ++letter_count_1;
                     }
                 }
                 
-                text_string[letter_count] = '\0';
+                text_string_1[letter_count_1] = '\0';
                 file.close();
             }
         }
     }
 
     void AVL_Canvas::run() {
-        bool mouse_on_input_text_field = CheckCollisionPointRec(GetMousePosition(), input_text_field);
+        bool mouse_on_itf_1 = CheckCollisionPointRec(GetMousePosition(), input_text_field_1);
+        bool mouse_on_itf_2 = CheckCollisionPointRec(GetMousePosition(), input_text_field_2);
+        bool mouse_on_itf_3 = CheckCollisionPointRec(GetMousePosition(), input_text_field_3);
 
-        if (mouse_on_input_text_field && !is_playing) {
-            ++frames_counter;
+        if (mouse_on_itf_1 && !is_playing) {
+            ++frames_counter_1;
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
 
             int key = GetCharPressed();
 
             while (key > 0) {
-                if (((((key > '0' || (key == '0' && letter_count > 0 && text_string[letter_count - 1] != ' ')) && key <= '9')) || key == ' ') && letter_count < MAX_INPUT_INT_CHAR) {
-                    text_string[letter_count] = static_cast<char>(key);
-                    text_string[letter_count + 1] = '\0';
-                    ++letter_count;
+                if ((('0' <= key && key <= '9') || key == ' ') && letter_count_1 < MAX_INPUT_INT_CHAR) {
+                    text_string_1[letter_count_1] = static_cast<char>(key);
+                    text_string_1[letter_count_1 + 1] = '\0';
+                    ++letter_count_1;
                 }
 
                 key = GetCharPressed();
             }
 
             if (IsKeyPressed(KEY_BACKSPACE)) {
-                --letter_count;
-                if (letter_count < 0) letter_count = 0;
-                text_string[letter_count] = '\0';
+                --letter_count_1;
+                if (letter_count_1 < 0) letter_count_1 = 0;
+                text_string_1[letter_count_1] = '\0';
+            }
+        }
+        else if (mouse_on_itf_2 && !is_playing) {
+            ++frames_counter_2;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((('0' <= key && key <= '9') || key == ' ') && letter_count_2 < MAX_INPUT_INT_CHAR) {
+                    text_string_2[letter_count_2] = static_cast<char>(key);
+                    text_string_2[letter_count_2 + 1] = '\0';
+                    ++letter_count_2;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                --letter_count_2;
+                if (letter_count_2 < 0) letter_count_2 = 0;
+                text_string_2[letter_count_2] = '\0';
+            }
+        }
+        else if (mouse_on_itf_3 && !is_playing) {
+            ++frames_counter_3;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((('0' <= key && key <= '9') || key == ' ') && letter_count_3 < MAX_INPUT_INT_CHAR) {
+                    text_string_3[letter_count_3] = static_cast<char>(key);
+                    text_string_3[letter_count_3 + 1] = '\0';
+                    ++letter_count_3;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                --letter_count_3;
+                if (letter_count_3 < 0) letter_count_3 = 0;
+                text_string_3[letter_count_3] = '\0';
             }
         }
         else {
             SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-            frames_counter = 0;
+            frames_counter_1 = 0;
+            frames_counter_2 = 0;
+            frames_counter_3 = 0;
         }
         
         if (is_clicked(exit_button)) {
@@ -508,7 +612,7 @@ namespace UI {
             return;
         }
         else if (!is_playing) { //No animation is running
-            if (is_clicked(insert_button) && letter_count > 0) {
+            if (is_clicked(insert_button)) {
                 if (current_step != (int)tree.history.size() - 1) {
                     skip();
                 }
@@ -548,25 +652,25 @@ namespace UI {
                 for (int i = 0; i < 10; i++) {
                     std::string cur_str = std::to_string(get_random_int(1, 100));
                     for (const auto &c : cur_str) {
-                        text_string[letter_count++] = c;
+                        text_string_1[letter_count_1++] = c;
                     }
-                    text_string[letter_count++] = ' ';
+                    text_string_1[letter_count_1++] = ' ';
                 }
                 insert();
             }
-            else if (is_clicked(update_button) && letter_count > 0) {
+            else if (is_clicked(update_button)) {
                 if (current_step != (int)tree.history.size() - 1) {
                     skip();
                 }
                 update();
             }
-            else if (is_clicked(erase_button) && letter_count > 0) {
+            else if (is_clicked(erase_button)) {
                 if (current_step != (int)tree.history.size() - 1) {
                     skip();
                 }
                 erase();
             }
-            else if (is_clicked(find_button) && letter_count > 0) {
+            else if (is_clicked(find_button)) {
                 if (current_step != (int)tree.history.size() - 1) {
                     skip();
                 }
@@ -595,7 +699,9 @@ namespace UI {
         EndMode2D();
 
         //Buttons
-        draw_button(input_text_field, "", WHITE, WHITE);
+        draw_button(input_text_field_1, "", WHITE, WHITE);
+        draw_button(input_text_field_2, "", WHITE, WHITE);
+        draw_button(input_text_field_3, "", WHITE, WHITE);
         draw_button(insert_button, "INSERT", WHITE, is_playing ? GRAY : BLACK);
         draw_button(erase_button, "ERASE", WHITE, is_playing ? GRAY : BLACK);
         draw_button(find_button, "FIND", WHITE, is_playing ? GRAY : BLACK);
@@ -614,32 +720,77 @@ namespace UI {
 
         //Input text field drawing
 
-        int text_width = MeasureText(text_string, 20);
-        int text_start_x = input_text_field.x + 10;
+        { //Scope for one time use
+        int text_width = MeasureText(text_string_1, 20);
+        int text_start_x = input_text_field_1.x + 10;
 
-        if (text_width > input_text_field.width - 2 * 10) {
-            text_start_x -= text_width - (input_text_field.width - 2 * 10);
+        if (text_width > input_text_field_1.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field_1.width - 2 * 10);
         }
 
-        BeginScissorMode(input_text_field.x, input_text_field.y, input_text_field.width, input_text_field.height);
+        BeginScissorMode(input_text_field_1.x, input_text_field_1.y, input_text_field_1.width, input_text_field_1.height);
 
-        DrawText(text_string, text_start_x, input_text_field.y + 13, 20, BLACK);
+        DrawText(text_string_1, text_start_x, input_text_field_1.y + 13, 20, is_playing ? GRAY : BLACK);
 
-        if (mouse_on_input_text_field && !is_playing) {
-            if (letter_count < MAX_INPUT_INT_CHAR) {
-                if (((frames_counter / 20) & 1) == 0) {
-                    DrawText("_", text_start_x + text_width + 2, input_text_field.y + 15, 20, BLACK);
+        if (mouse_on_itf_1 && !is_playing) {
+            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+                if (((frames_counter_1 / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field_1.y + 15, 20, BLACK);
                 }
             }
         }
-
         EndScissorMode();
+        }
+
+        { //Scope for one time use
+        int text_width = MeasureText(text_string_2, 20);
+        int text_start_x = input_text_field_2.x + 10;
+
+        if (text_width > input_text_field_2.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field_2.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field_2.x, input_text_field_2.y, input_text_field_2.width, input_text_field_2.height);
+
+        DrawText(text_string_2, text_start_x, input_text_field_2.y + 13, 20, is_playing ? GRAY : BLACK);
+
+        if (mouse_on_itf_2 && !is_playing) {
+            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+                if (((frames_counter_2 / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field_2.y + 15, 20, BLACK);
+                }
+            }
+        }
+        EndScissorMode();
+        }
+
+        { //Scope for one time use
+        int text_width = MeasureText(text_string_3, 20);
+        int text_start_x = input_text_field_3.x + 10;
+
+        if (text_width > input_text_field_3.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field_3.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field_3.x, input_text_field_3.y, input_text_field_3.width, input_text_field_3.height);
+
+        DrawText(text_string_3, text_start_x, input_text_field_3.y + 13, 20, is_playing ? GRAY : BLACK);
+
+        if (mouse_on_itf_3 && !is_playing) {
+            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+                if (((frames_counter_3 / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field_3.y + 15, 20, BLACK);
+                }
+            }
+        }
+        EndScissorMode();
+        }
 
         DrawText("MOUSE WHEEL TO ZOOM IN-OUT", 9, 15, 20, GREEN);
         DrawText("PRESS R TO RESET ZOOM", 9, 45, 20, PURPLE);
 
-        if (mouse_on_input_text_field && !is_playing && letter_count >= MAX_INPUT_INT_CHAR) {
-            DrawText("MAXIMUM INPUT REACHED", 198, 607, 23, RED);
+        if (!is_playing && ((mouse_on_itf_1 && letter_count_1 >= MAX_INPUT_INT_CHAR) || (mouse_on_itf_2 && letter_count_2 >= MAX_INPUT_INT_CHAR) || (mouse_on_itf_3 && letter_count_3 >= MAX_INPUT_INT_CHAR))) {
+            DrawText("MAXIMUM INPUT REACHED", 21, 540, 23, RED);
         
         }
 
