@@ -22,9 +22,13 @@ Trie::~Trie() {
 
 void Trie::insert(std::string str) {
     save_snapshot(0, UI::OPERATION::INSERT);
-    if (raw_find(str)) return; //Only store unique string
+    if (raw_find(str)) {
+        save_snapshot(-1, UI::OPERATION::NONE);
+        return; //Only store unique string
+    }
 
     Node *cur = root;
+    cur->highlighted = true;
     save_snapshot(1, UI::OPERATION::INSERT);
     save_snapshot(2, UI::OPERATION::INSERT);
     
@@ -74,19 +78,35 @@ Trie::Node* Trie::find(std::string str) {
     if (!root) return nullptr;
 
     Node *cur = root;
+    cur->highlighted = true;
+    save_snapshot(0, UI::OPERATION::FIND);
+    save_snapshot(1, UI::OPERATION::FIND);
+
     for (char &tmp : str) {
         int c = tmp - 'A';
+        save_snapshot(2, UI::OPERATION::FIND);
         if (cur->child[c] == nullptr) { //No such string exists
+            save_snapshot(3, UI::OPERATION::FIND);
+            cur->highlighted = false;
+            save_snapshot(-1, UI::OPERATION::NONE);
             return nullptr;
         }
 
+        cur->highlighted = false;
         cur = cur->child[c];
+        cur->highlighted = true;
+        save_snapshot(4, UI::OPERATION::FIND);
+        save_snapshot(1, UI::OPERATION::FIND);
     }
 
+    save_snapshot(6, UI::OPERATION::FIND);
     if (cur->exist == 0) { //No string ends here
+        save_snapshot(-1, UI::OPERATION::NONE);
         return nullptr;
     }
 
+    save_snapshot(7, UI::OPERATION::FIND);
+    save_snapshot(-1, UI::OPERATION::NONE);
     return cur;
 }
 
@@ -127,6 +147,7 @@ bool Trie::erase(std::string str) {
         save_snapshot(-1, UI::OPERATION::NONE);
         return true;
     }
+    save_snapshot(-1, UI::OPERATION::NONE);
     return false;
 }
 
@@ -219,7 +240,6 @@ void Trie::cal_initial_gap(Node* cur) {
     }
 }
 
-
 void Trie::save_snapshot(int index, UI::OPERATION op) {
     recalculate_position();
     history.push_back({get_copy(), index, op});
@@ -244,6 +264,3 @@ void Trie::recalculate_position() {
     cal_initial_gap(root);
     recalculate_position(root, (UI::window_width / 2.0) - (root->tree_width / 2.0), 38);
 }
-
-
-

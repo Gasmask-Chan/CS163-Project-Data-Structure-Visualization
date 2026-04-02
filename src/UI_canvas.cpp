@@ -620,7 +620,7 @@ namespace UI {
                 }
                 insert();
             }
-            else if (is_clicked(prev_button) && current_step >= 0) {
+            else if (is_clicked(prev_button) && current_step > 0) {
                 prev();
             }
             else if (is_clicked(next_button) && current_step + 1 < (int)tree.history.size()) {
@@ -757,7 +757,7 @@ namespace UI {
         DrawText(text_string_2, text_start_x, input_text_field_2.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_2 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_2 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_2 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_2.y + 15, 20, BLACK);
                 }
@@ -779,7 +779,7 @@ namespace UI {
         DrawText(text_string_3, text_start_x, input_text_field_3.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_3 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_3 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_3 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_3.y + 15, 20, BLACK);
                 }
@@ -1379,7 +1379,7 @@ namespace UI {
                 }
                 insert();
             }
-            else if (is_clicked(prev_button) && current_step >= 0) {
+            else if (is_clicked(prev_button) && current_step > 0) {
                 prev();
             }
             else if (is_clicked(next_button) && current_step + 1 < (int)heap.history.size()) {
@@ -1516,7 +1516,7 @@ namespace UI {
         DrawText(text_string_2, text_start_x, input_text_field_2.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_2 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_2 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_2 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_2.y + 15, 20, BLACK);
                 }
@@ -1538,7 +1538,7 @@ namespace UI {
         DrawText(text_string_3, text_start_x, input_text_field_3.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_3 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_3 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_3 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_3.y + 15, 20, BLACK);
                 }
@@ -2176,7 +2176,7 @@ namespace UI {
                     is_popup_open = false;
                 }
             }
-            else if (is_clicked(prev_button) && current_step >= 0) {
+            else if (is_clicked(prev_button) && current_step > 0) {
                 prev();
             }
             else if (is_clicked(next_button) && current_step + 1 < (int)linked_list.history.size()) {
@@ -2320,7 +2320,7 @@ namespace UI {
         DrawText(text_string_2, text_start_x, input_text_field_2.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_2 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_2 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_2 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_2.y + 15, 20, BLACK);
                 }
@@ -2342,7 +2342,7 @@ namespace UI {
         DrawText(text_string_3, text_start_x, input_text_field_3.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_3 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_3 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_3 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_3.y + 15, 20, BLACK);
                 }
@@ -2423,7 +2423,7 @@ namespace UI {
         highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
         highlighter[OPERATION::ERASE].set_code_name("ERASE");
 
-        highlighter[OPERATION::ERASE].add("if (find(str) == true) return;");
+        highlighter[OPERATION::ERASE].add("if (find(str) == false) return;");
         highlighter[OPERATION::ERASE].add("for (char c : str)");
         highlighter[OPERATION::ERASE].add("  go_to(cur->child[c]);");
         highlighter[OPERATION::ERASE].add("delete(cur);");
@@ -2432,7 +2432,14 @@ namespace UI {
         highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
         highlighter[OPERATION::FIND].set_code_name("FIND");
 
-        
+        highlighter[OPERATION::FIND].add("cur = root;");
+        highlighter[OPERATION::FIND].add("for (char c : str) {");
+        highlighter[OPERATION::FIND].add("  if (cur->child[c] == nullptr)");
+        highlighter[OPERATION::FIND].add("    return false;");
+        highlighter[OPERATION::FIND].add("  cur = cur->child[c];");
+        highlighter[OPERATION::FIND].add("}");
+        highlighter[OPERATION::FIND].add("if (cur->string_end_here == 0) return false;");
+        highlighter[OPERATION::FIND].add("return true");
     }
 
     void Trie_Canvas::sync_position(Data_Structure::Trie::Node* new_root, Data_Structure::Trie::Node* new_root_parent , Data_Structure::Trie::Node* old_root) {
@@ -2449,7 +2456,8 @@ namespace UI {
 
         for (int i = 0; i < 26; i++) {
             if (new_root->child[i]) {
-                sync_position(new_root->child[i], new_root, old_root->child[i]);
+                auto next_old = old_root ? old_root->child[i] : nullptr;
+                sync_position(new_root->child[i], new_root, next_old);
             }
         }
     }
@@ -2534,6 +2542,7 @@ namespace UI {
 
         for (int i = 0; i < 26; i++) {
             if (cur->child[i]) {
+
                 DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->child[i]->current_x, cur->child[i]->current_y}, 3.0f, (cur->highlighted && cur->child[i]->highlighted) ? RED : BLACK);
 
                 char c = 'A';
@@ -2544,7 +2553,7 @@ namespace UI {
             }
         }
         
-        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label.c_str());
+        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label.c_str(), 20, cur->exist ? (Color){251, 255, 140, 255} : WHITE);
     }
 
     void Trie_Canvas::insert() {
@@ -2953,7 +2962,7 @@ namespace UI {
                 }
                 insert();
             }
-            else if (is_clicked(prev_button) && current_step >= 0) {
+            else if (is_clicked(prev_button) && current_step > 0) {
                 prev();
             }
             else if (is_clicked(next_button) && current_step + 1 < (int)trie.history.size()) {
@@ -3027,7 +3036,7 @@ namespace UI {
         BeginMode2D(*camera);
 
         if (current_step >= 0) {
-            draw_tree(trie.history[current_step].tree_root, "");
+            draw_tree(trie.history[current_step].tree_root, "ROOT");
         }
 
         EndMode2D();
@@ -3089,7 +3098,7 @@ namespace UI {
         DrawText(text_string_2, text_start_x, input_text_field_2.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_2 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_2 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_2 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_2.y + 15, 20, BLACK);
                 }
@@ -3111,7 +3120,7 @@ namespace UI {
         DrawText(text_string_3, text_start_x, input_text_field_3.y + 13, 20, is_playing ? GRAY : BLACK);
 
         if (mouse_on_itf_3 && !is_playing) {
-            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+            if (letter_count_3 < MAX_INPUT_INT_CHAR) {
                 if (((frames_counter_3 / 20) & 1) == 0) {
                     DrawText("_", text_start_x + text_width + 2, input_text_field_3.y + 15, 20, BLACK);
                 }

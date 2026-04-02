@@ -15,8 +15,8 @@ namespace UI {
         DrawTextEx(GetFontDefault(), text, (Vector2){button.x + (button.width - text_size.x) / 2, button.y + (button.height - text_size.y) / 2}, font_size, 2, text_color);
     }
 
-    void draw_node(int pos_x, int pos_y, float radius, bool highlight, const char *text, int font_size) {
-        DrawCircle(pos_x, pos_y, radius, WHITE);
+    void draw_node(int pos_x, int pos_y, float radius, bool highlight, const char *text, int font_size, Color node_color) {
+        DrawCircle(pos_x, pos_y, radius, node_color);
         DrawCircleLines(pos_x, pos_y, radius, highlight ? RED : BLACK);
         Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
         DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 4, 0, 360, 36, highlight ? RED : BLACK);
