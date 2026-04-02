@@ -516,7 +516,7 @@ namespace UI {
         Rectangle speed_button;
         Rectangle update_button;
 
-        Data_Structure::AVL_Tree tree;
+        Data_Structure::Trie trie;
 
         //Input text field
         char text_string_1[MAX_INPUT_INT_CHAR + 1];
@@ -554,7 +554,7 @@ namespace UI {
          * @return true 
          * @return false 
          */
-        bool update_node_position();
+        bool update_node_position(Data_Structure::Trie::Node* cur);
 
         /**
          * @brief Sync nodes position between two contiguous histories.
@@ -563,14 +563,14 @@ namespace UI {
          * @param new_root_parent 
          * @param old_root
          */
-        void sync_position(Data_Structure::AVL_Tree::Node* new_root, Data_Structure::AVL_Tree::Node* new_root_parent, Data_Structure::AVL_Tree::Node* &old_root);
+        void sync_position(Data_Structure::Trie::Node* new_root, Data_Structure::Trie::Node* new_root_parent, Data_Structure::Trie::Node* old_root);
 
         /**
          * @brief Draw the tree with root `cur`
          * 
          * @param cur 
          */
-        void draw_tree(Data_Structure::AVL_Tree::Node* cur);
+        void draw_tree(Data_Structure::Trie::Node* cur, std::string label);
 
         /**
          * @brief Handle insert operation

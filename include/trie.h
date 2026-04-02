@@ -16,6 +16,7 @@ public:
         float current_x, current_y;
         float target_x, target_y;
         float tree_width;
+        bool highlighted;
 
         /**
          * @brief Construct a new Node object
@@ -57,9 +58,20 @@ public:
     Node* find(std::string);
 
     /**
+     * @brief Return the node which the string ended at
+     * 
+     * If no such node exists, a 'nullptr' will be returned
+     * 
+     * Use this function if you don't want it to save snapshot
+     * 
+     * @return Node* 
+     */
+    Node* raw_find(std::string);
+
+    /**
      * @brief Erase the string from the trie
      * 
-     * If the string initially is not in trie, the function will do nothing
+     * If the string is not in trie initially, the function will do nothing
      * 
      * @param cur 
      * @param pos
@@ -72,12 +84,15 @@ public:
     /**
      * @brief Erase the string from the trie
      * 
-     * If the string is not in trie initiallys, the function will do nothing
+     * If the string is not in trie initially, the function will do nothing
      * 
+     * Return `true` if 
      * 
      * @param str 
+     * 
+     * @return bool
      */
-    void erase(std::string str);
+    bool erase(std::string str);
 
     /**
      * @brief Clear the entire trie
@@ -110,7 +125,7 @@ public:
     };
 
     const float vertical_gap = 80.0f;
-    const float horizontal_gap = 10.0f;
+    const float horizontal_gap = 25.0f;
 
     std::vector<Snapshot_Data> history;
 
@@ -147,3 +162,5 @@ public:
     void recalculate_position();
 };
 }
+
+#endif

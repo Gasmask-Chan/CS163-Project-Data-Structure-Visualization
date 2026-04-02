@@ -99,7 +99,6 @@ namespace UI {
         highlighter[OPERATION::INSERT].add("else if (cur->val < x) go_right();");
         highlighter[OPERATION::INSERT].add("else return;");
         highlighter[OPERATION::INSERT].add("balance_tree();");
-
         
         //erase highlight code
         highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
@@ -2369,22 +2368,770 @@ namespace UI {
 
     //=================================Trie==============================================================
     void Trie_Canvas::setup() {
+        //Buttons setup
+        input_text_field_1 = {21, 653, 168, 45};
+        input_text_field_2 = {21, 595, 80, 45};
+        input_text_field_3 = {107, 595, 80, 45};
+        insert_button = {198, 653, 100, 45};
+        erase_button = {309, 653, 100, 45};
+        find_button = {420, 653, 100, 45};
+        prev_button = {531, 653, 100, 45};
+        next_button = {642, 653, 100, 45};
+        skip_button = {753, 654, 100, 45};
+        clear_button = {864, 653, 100, 45};
+        file_button = {975, 653, 100, 45};
+        exit_button = {1086, 653, 100, 45};
+        random_button = {334, 595, 126, 45};
+        speed_button = {471, 595, 143, 45};
+        update_button = {197, 595, 126, 45};
+        
+        //Input text field setup
+        text_string_1[0] = '\0';
+        letter_count_1 = 0;
+        frames_counter_1 = 0;
 
-    }
+        text_string_2[0] = '\0';
+        letter_count_2 = 0;
+        frames_counter_2 = 0;
+        
+        text_string_3[0] = '\0';
+        letter_count_3 = 0;
+        frames_counter_3 = 0;
 
-    void Trie_Canvas::sync_position() {
+        //Animation setup
+        current_step = -1;
+        speed_multiplier = 1;
+        pause_timer = time_between_steps;
+        is_playing = false;
+
+        //Code highlight setup
+        current_operation = OPERATION::NONE;
+
+        //insert highlight code
+        highlighter[OPERATION::INSERT].set_start_pos({window_width, 296});
+        highlighter[OPERATION::INSERT].set_code_name("INSERT");
+
+        highlighter[OPERATION::INSERT].add("if (find(str) == true) return;");
+        highlighter[OPERATION::INSERT].add("cur = root;");
+        highlighter[OPERATION::INSERT].add("for (char c : str) {");
+        highlighter[OPERATION::INSERT].add("  if (cur->child[c] == nullptr)");
+        highlighter[OPERATION::INSERT].add("    cur->child[c] = new Node();");
+        highlighter[OPERATION::INSERT].add("  cur = cur->child[c];");
+        highlighter[OPERATION::INSERT].add("}");
+        
+        //erase highlight code
+        highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
+        highlighter[OPERATION::ERASE].set_code_name("ERASE");
+
+        highlighter[OPERATION::ERASE].add("if (find(str) == true) return;");
+        highlighter[OPERATION::ERASE].add("for (char c : str)");
+        highlighter[OPERATION::ERASE].add("  go_to(cur->child[c]);");
+        highlighter[OPERATION::ERASE].add("delete(cur);");
+
+        //find highlight code
+        highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
+        highlighter[OPERATION::FIND].set_code_name("FIND");
+
         
     }
 
-    bool Trie_Canvas::update_node_position() {
+    void Trie_Canvas::sync_position(Data_Structure::Trie::Node* new_root, Data_Structure::Trie::Node* new_root_parent , Data_Structure::Trie::Node* old_root) {
+        if (!new_root) return;
 
+        if (old_root) {
+            new_root->current_x = old_root->current_x;
+            new_root->current_y = old_root->current_y;
+        }
+        else if (new_root_parent) {
+            new_root->current_x = new_root_parent->current_x;
+            new_root->current_y = new_root_parent->current_y;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (new_root->child[i]) {
+                sync_position(new_root->child[i], new_root, old_root->child[i]);
+            }
+        }
+    }
+
+    bool Trie_Canvas::update_node_position(Data_Structure::Trie::Node* cur) {
+        if (!cur) return false;
+
+        bool is_moving = false;
+
+        // std::cout << "ANIMATION UPDATING " << cur->val << ": " << cur->current_x << ' ' << cur->current_y << " - " << cur->target_x << ' ' << cur->target_y << std::endl;
+
+        float distance = Vector2Distance((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y});
+
+        if (speed_multiplier == 5) { //Instant mode is on
+            distance = 0.0f;
+        }
+
+        if (distance > 1.0f) {
+            Vector2 new_pos = Vector2Lerp((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->target_x, cur->target_y}, ani_speed * speed_multiplier);
+            cur->current_x = new_pos.x;
+            cur->current_y = new_pos.y;
+            is_moving = true;
+        } 
+        else {
+            cur->current_x = cur->target_x;
+            cur->current_y = cur->target_y;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (cur->child[i]) {
+                is_moving |= update_node_position(cur->child[i]);
+            }
+        }
+
+        return is_moving;
     }
 
     void Trie_Canvas::update_animation() {
+        if (trie.history.empty() || !is_playing || current_step < 0) return;
 
+        auto current_tree = trie.history[current_step];
+
+        bool is_animating = update_node_position(current_tree.tree_root);
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(current_tree.index);
+        }
+
+        // std::cout << "====================================================" << std::endl;
+        // std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
+        //           << " | Timer " << pause_timer 
+        //           << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
+
+        if (is_animating) {
+            pause_timer = time_between_steps / speed_multiplier;
+        }
+        else {
+            pause_timer -= GetFrameTime();
+
+            if (pause_timer <= 0.0f || speed_multiplier == 5) {
+                pause_timer = time_between_steps / speed_multiplier;
+
+                if (current_step + 1 < (int)trie.history.size()) {
+                    sync_position(trie.history[current_step + 1].tree_root, nullptr, trie.history[current_step].tree_root);
+                    ++current_step;
+                    current_operation = trie.history[current_step].op;
+                }
+                else {
+                    is_playing = false;
+                    if (current_operation != NONE) {
+                        highlighter[current_operation].set_highlighted_line(-1);
+                    }
+
+                    current_operation = OPERATION::NONE;
+                }
+            }
+        }
+    }
+
+    void Trie_Canvas::draw_tree(Data_Structure::Trie::Node* cur, std::string label) {
+        if (!cur) return;
+
+        for (int i = 0; i < 26; i++) {
+            if (cur->child[i]) {
+                DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->child[i]->current_x, cur->child[i]->current_y}, 3.0f, (cur->highlighted && cur->child[i]->highlighted) ? RED : BLACK);
+
+                char c = 'A';
+                c += i;
+                std::string new_label = "";
+                new_label += c;
+                draw_tree(cur->child[i], new_label);
+            }
+        }
+        
+        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label.c_str());
+    }
+
+    void Trie_Canvas::insert() {
+        std::vector<std::string> val_to_insert;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count_1; i++) {
+            if (text_string_1[i] != ' ') {
+                cur_num.push_back(text_string_1[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(cur_num);
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_insert.push_back(cur_num);
+        }
+
+        letter_count_1 = 0;
+        text_string_1[0] = '\0';
+
+        if (!val_to_insert.empty()) {
+            for (auto to_insert : val_to_insert) {
+                trie.insert(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::INSERT;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(trie.history[current_step].tree_root, nullptr, trie.history[current_step - 1].tree_root);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
+        }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
+    }
+
+    void Trie_Canvas::erase() {
+        std::vector<std::string> val_to_erase;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count_1; i++) {
+            if (text_string_1[i] != ' ') {
+                cur_num.push_back(text_string_1[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_erase.push_back(cur_num);
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_erase.push_back(cur_num);
+        }
+
+        letter_count_1 = 0;
+        text_string_1[0] = '\0';
+
+        if (!val_to_erase.empty()) {
+            for (auto to_insert : val_to_erase) {
+                trie.erase(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::ERASE;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(trie.history[current_step].tree_root, nullptr, trie.history[current_step - 1].tree_root);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
+        }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
+    }
+
+    void Trie_Canvas::clear() {
+        trie.clear();
+
+        //Animation
+        current_step = -1;
+        pause_timer = time_between_steps / speed_multiplier;
+        is_playing = false;
+
+        //Input text field
+        text_string_1[0] = '\0';
+        letter_count_1 = 0;
+        frames_counter_1 = 0;
+
+        text_string_2[0] = '\0';
+        letter_count_2 = 0;
+        frames_counter_2 = 0;
+        
+        text_string_3[0] = '\0';
+        letter_count_3 = 0;
+        frames_counter_3 = 0;
+
+        //Code highlight
+        current_operation = OPERATION::NONE;
+    }
+
+    void Trie_Canvas::next() {
+        ++current_step;
+        current_operation = trie.history[current_step].op;
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(trie.history[current_step].index);
+        }
+    }
+
+    void Trie_Canvas::prev() {
+        --current_step;
+        current_operation = trie.history[current_step].op;
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(trie.history[current_step].index);
+        }
+    }
+
+    void Trie_Canvas::update() {
+        std::vector<std::string> old_val;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count_2 && old_val.size() < 1; i++) {
+            if (text_string_2[i] != ' ') {
+                cur_num.push_back(text_string_2[i]);
+            }
+            else if (!cur_num.empty()) {
+                old_val.push_back(cur_num);
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty() && old_val.size() < 1) {
+            old_val.push_back(cur_num);
+        }
+
+        
+        if (old_val.size() != 1) {
+            tinyfd_messageBox("ERROR", "Please type in the old value of the data you want to update!", "ok", "error", 1);
+            return;
+        }
+    
+        std::vector<std::string> new_val;
+        cur_num = "";
+        
+        for (int i = 0; i < letter_count_3 && new_val.size() < 1; i++) {
+            if (text_string_3[i] != ' ') {
+                cur_num.push_back(text_string_3[i]);
+            }
+            else if (!cur_num.empty()) {
+                new_val.push_back(cur_num);
+                cur_num = "";
+            }
+        }
+        
+        if (!cur_num.empty() && new_val.size() < 1) {
+            new_val.push_back(cur_num);
+        }
+        
+        if (new_val.size() != 1) {
+            tinyfd_messageBox("ERROR", "Please type in the new value of the data you want to update!", "ok", "error", 1);
+            return;
+        }
+        
+        letter_count_2 = 0;
+        text_string_2[0] = '\0';
+
+        letter_count_3 = 0;
+        text_string_3[0] = '\0';
+
+        if (trie.erase(old_val[0])) {
+            trie.insert(new_val[0]);
+        }
+
+        is_playing = true;
+        current_operation = OPERATION::ERASE;
+
+        ++current_step;
+        if (current_step > 0) {
+            sync_position(trie.history[current_step].tree_root, nullptr, trie.history[current_step - 1].tree_root);
+        }
+
+        if (speed_multiplier == 5) { //Instant mode is on
+            skip();
+        }
+    }
+
+    void Trie_Canvas::skip() {
+        if (current_step < 0 || trie.history.empty()) return;
+        if (!is_playing) {
+            current_step = (int)trie.history.size() - 1;
+            current_operation = trie.history[current_step].op; 
+
+            if (current_operation != NONE) {
+                highlighter[current_operation].set_highlighted_line(trie.history[current_step].index);
+            }
+
+            return;
+        }
+
+        int prev_speed = speed_multiplier;
+
+        speed_multiplier = 5;
+        is_playing = true;
+        while (current_step + 1 < (int)trie.history.size()) {
+            update_animation();
+        }
+
+        speed_multiplier = prev_speed;
+        pause_timer = time_between_steps / speed_multiplier;
+    }
+
+    void Trie_Canvas::find() {
+        std::vector<std::string> val_to_insert;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count_1; i++) {
+            if (text_string_1[i] != ' ') {
+                cur_num.push_back(text_string_1[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(cur_num);
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_insert.push_back(cur_num);
+        }
+
+        letter_count_1 = 0;
+        text_string_1[0] = '\0';
+
+        if (!val_to_insert.empty()) {
+            for (auto to_insert : val_to_insert) {
+                trie.find(to_insert);
+            }
+
+            is_playing = true;
+            current_operation = OPERATION::FIND;
+
+            ++current_step;
+            if (current_step > 0) {
+                sync_position(trie.history[current_step].tree_root, nullptr, trie.history[current_step - 1].tree_root);
+            }
+
+            if (speed_multiplier == 5) { //Instant mode is on
+                skip();
+            }
+        }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
+    }
+
+    void Trie_Canvas::open_file() {
+        const char *filter[1] = {"*.txt"};
+        const char *file_path = tinyfd_openFileDialog("Select input file", "", 1, filter, "Text files (*.txt)", 0);
+        if (file_path != nullptr) { 
+            std::ifstream file(file_path);
+
+            if (file.is_open()) {
+                letter_count_1 = 0;
+                text_string_1[letter_count_1] = '\0';
+
+                char c;
+                while (file.get(c) && letter_count_1 < MAX_INPUT_INT_CHAR - 1) {
+                    if ((('a' <= c && c <= 'z')) || ('A' <= c && c <= 'Z') || c == ' ') {
+                        c = toupper(c);
+                        text_string_1[letter_count_1] = c;
+                        ++letter_count_1;
+                    }
+                    else if (c == '\n') {
+                        text_string_1[letter_count_1] = ' ';
+                        ++letter_count_1;
+                    }
+                }
+                
+                text_string_1[letter_count_1] = '\0';
+                file.close();
+            }
+            else {
+                tinyfd_messageBox("ERROR", "Failed to open the file. Please try again!", "ok", "error", 1);
+            }
+        }
     }
 
     void Trie_Canvas::run() {
+        bool mouse_on_itf_1 = CheckCollisionPointRec(GetMousePosition(), input_text_field_1);
+        bool mouse_on_itf_2 = CheckCollisionPointRec(GetMousePosition(), input_text_field_2);
+        bool mouse_on_itf_3 = CheckCollisionPointRec(GetMousePosition(), input_text_field_3);
 
+        if (mouse_on_itf_1 && !is_playing) {
+            ++frames_counter_1;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((('a' <= key && key <= 'z') || ('A' <= key && key <= 'Z') || key == ' ') && letter_count_1 < MAX_INPUT_INT_CHAR) {
+                    char c = static_cast<char>(key);
+
+                    if (c != ' ') {
+                        c = toupper(c);
+                    }
+
+                    text_string_1[letter_count_1] = c;
+                    text_string_1[letter_count_1 + 1] = '\0';
+                    ++letter_count_1;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                --letter_count_1;
+                if (letter_count_1 < 0) letter_count_1 = 0;
+                text_string_1[letter_count_1] = '\0';
+            }
+        }
+        else if (mouse_on_itf_2 && !is_playing) {
+            ++frames_counter_2;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((('a' <= key && key <= 'z') || ('A' <= key && key <= 'Z') || key == ' ') && letter_count_2 < MAX_INPUT_INT_CHAR) {
+                    char c = static_cast<char>(key);
+                    
+                    if (c != ' ') {
+                        c = toupper(c);
+                    }
+
+                    text_string_2[letter_count_2] = c;
+                    text_string_2[letter_count_2 + 1] = '\0';
+                    ++letter_count_2;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                --letter_count_2;
+                if (letter_count_2 < 0) letter_count_2 = 0;
+                text_string_2[letter_count_2] = '\0';
+            }
+        }
+        else if (mouse_on_itf_3 && !is_playing) {
+            ++frames_counter_3;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((('a' <= key && key <= 'z') || ('A' <= key && key <= 'Z') || key == ' ') && letter_count_3 < MAX_INPUT_INT_CHAR) {
+                    char c = static_cast<char>(key);
+                    
+                    if (c != ' ') {
+                        c = toupper(c);
+                    }
+
+                    text_string_3[letter_count_3] = c;
+                    text_string_3[letter_count_3 + 1] = '\0';
+                    ++letter_count_3;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                --letter_count_3;
+                if (letter_count_3 < 0) letter_count_3 = 0;
+                text_string_3[letter_count_3] = '\0';
+            }
+        }
+        else {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            frames_counter_1 = 0;
+            frames_counter_2 = 0;
+            frames_counter_3 = 0;
+        }
+        
+        if (is_clicked(exit_button)) {
+            *current_state = UI_State::MENU;
+            clear();
+            return;
+        }
+        else if (!is_playing) { //No animation is running
+            if (is_clicked(insert_button)) {
+                if (current_step != (int)trie.history.size() - 1) {
+                    skip();
+                }
+                insert();
+            }
+            else if (is_clicked(prev_button) && current_step >= 0) {
+                prev();
+            }
+            else if (is_clicked(next_button) && current_step + 1 < (int)trie.history.size()) {
+                next();
+            }
+            else if (is_clicked(clear_button)) {
+                clear();
+            }
+            else if (is_clicked(speed_button)) {
+                switch (speed_multiplier) {
+                case 1:
+                    speed_multiplier = 2;
+                    break;
+                case 2:
+                    speed_multiplier = 3;
+                    break;
+                case 3:
+                    speed_multiplier = 4;
+                    break;
+                case 4:
+                    speed_multiplier = 5;
+                    break;
+                
+                default:
+                    speed_multiplier = 1;
+                    break;
+                }
+            }
+            else if (is_clicked(random_button)) {
+                clear();
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        text_string_1[letter_count_1++] = static_cast<char>(get_random_int('A', 'Z'));
+                    }
+                    text_string_1[letter_count_1++] = ' ';
+                }
+                insert();
+            }
+            else if (is_clicked(update_button)) {
+                if (current_step != (int)trie.history.size() - 1) {
+                    skip();
+                }
+                update();
+            }
+            else if (is_clicked(erase_button)) {
+                if (current_step != (int)trie.history.size() - 1) {
+                    skip();
+                }
+                erase();
+            }
+            else if (is_clicked(find_button)) {
+                if (current_step != (int)trie.history.size() - 1) {
+                    skip();
+                }
+                find();
+            }
+            else if (is_clicked(file_button)) {
+                open_file();
+            }
+        }
+
+        if (is_clicked(skip_button)) {
+            skip();
+        }
+
+        update_animation();
+
+        BeginDrawing();
+        ClearBackground(main_background_color);
+
+        BeginMode2D(*camera);
+
+        if (current_step >= 0) {
+            draw_tree(trie.history[current_step].tree_root, "");
+        }
+
+        EndMode2D();
+
+        //Buttons
+        draw_button(input_text_field_1, "", WHITE, WHITE);
+        draw_button(input_text_field_2, "", WHITE, WHITE);
+        draw_button(input_text_field_3, "", WHITE, WHITE);
+        draw_button(insert_button, "INSERT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(erase_button, "ERASE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(find_button, "FIND", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(prev_button, "PREV", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(next_button, "NEXT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(skip_button, "SKIP", WHITE, BLACK);
+        draw_button(clear_button, "CLEAR", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(file_button, "FILE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(exit_button, "EXIT", WHITE, BLACK);
+        draw_button(random_button, "RANDOM", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(update_button, "UPDATE", WHITE, is_playing ? GRAY : BLACK);
+
+        std::string speed_text = "SPEED " + (speed_multiplier != 5 ? "x" + std::to_string(speed_multiplier) : "TA`Y");
+
+        draw_button(speed_button, speed_text.c_str(), WHITE, is_playing ? GRAY : BLACK);
+
+        //Input text field drawing
+
+        { //Scope for one time use
+        int text_width = MeasureText(text_string_1, 20);
+        int text_start_x = input_text_field_1.x + 10;
+
+        if (text_width > input_text_field_1.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field_1.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field_1.x, input_text_field_1.y, input_text_field_1.width, input_text_field_1.height);
+
+        DrawText(text_string_1, text_start_x, input_text_field_1.y + 13, 20, is_playing ? GRAY : BLACK);
+
+        if (mouse_on_itf_1 && !is_playing) {
+            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+                if (((frames_counter_1 / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field_1.y + 15, 20, BLACK);
+                }
+            }
+        }
+        EndScissorMode();
+        }
+
+        { //Scope for one time use
+        int text_width = MeasureText(text_string_2, 20);
+        int text_start_x = input_text_field_2.x + 10;
+
+        if (text_width > input_text_field_2.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field_2.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field_2.x, input_text_field_2.y, input_text_field_2.width, input_text_field_2.height);
+
+        DrawText(text_string_2, text_start_x, input_text_field_2.y + 13, 20, is_playing ? GRAY : BLACK);
+
+        if (mouse_on_itf_2 && !is_playing) {
+            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+                if (((frames_counter_2 / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field_2.y + 15, 20, BLACK);
+                }
+            }
+        }
+        EndScissorMode();
+        }
+
+        { //Scope for one time use
+        int text_width = MeasureText(text_string_3, 20);
+        int text_start_x = input_text_field_3.x + 10;
+
+        if (text_width > input_text_field_3.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field_3.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field_3.x, input_text_field_3.y, input_text_field_3.width, input_text_field_3.height);
+
+        DrawText(text_string_3, text_start_x, input_text_field_3.y + 13, 20, is_playing ? GRAY : BLACK);
+
+        if (mouse_on_itf_3 && !is_playing) {
+            if (letter_count_1 < MAX_INPUT_INT_CHAR) {
+                if (((frames_counter_3 / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field_3.y + 15, 20, BLACK);
+                }
+            }
+        }
+        EndScissorMode();
+        }
+
+        DrawText("MOUSE WHEEL TO ZOOM IN-OUT", 9, 15, 20, GREEN);
+        DrawText("PRESS R TO RESET ZOOM", 9, 45, 20, PURPLE);
+
+        if (!is_playing && ((mouse_on_itf_1 && letter_count_1 >= MAX_INPUT_INT_CHAR) || (mouse_on_itf_2 && letter_count_2 >= MAX_INPUT_INT_CHAR) || (mouse_on_itf_3 && letter_count_3 >= MAX_INPUT_INT_CHAR))) {
+            DrawText("MAXIMUM INPUT REACHED", 21, 540, 23, RED);
+        }
+
+        //Code highlight drawing
+        if (current_operation != NONE) {
+            highlighter[current_operation].draw_code();
+        }
+
+        EndDrawing();
     }
 }
