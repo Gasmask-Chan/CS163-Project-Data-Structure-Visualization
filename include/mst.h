@@ -1,7 +1,10 @@
 #ifndef MINIMUM_SPANNING_TREE_H
 #define MINIMUM_SPANNING_TREE_H
 
+#include "UI_config.h"
+
 #include <vector>
+#include <unordered_map>
 
 namespace Data_Structure {
 struct DSU {
@@ -13,6 +16,13 @@ struct DSU {
      * @param n 
      */
     DSU(int n = 0);
+
+    /**
+     * @brief Return the size of the current DSU
+     * 
+     * @return int 
+     */
+    int size();
 
     /**
      * @brief Destroy the DSU object
@@ -49,9 +59,23 @@ struct DSU {
 };
 
 class MST {
-private:
+public:
+    struct Node {
+        int id;
+        float current_x, current_y;
+        float target_x, target_y;
+        bool highlighted;
+
+        /**
+         * @brief Construct a new Node object
+         * 
+         * @param id 
+         */
+        Node(int id = -1);
+    };
+
     struct Edge {
-        int u, v, w;
+        int u, v, w; //u and v is the index of the node in the `nodes` vector
 
         /**
          * @brief Construct a new Edge object
@@ -65,16 +89,20 @@ private:
         bool operator < (Edge &other) const;
     };
 
+private:
+
     DSU dsu;
+    std::unordered_map<int, int> mp; //Use for node numbering
+    
+public:
+    std::vector<Node> nodes;
     std::vector<Edge> edges;
 
-public:
     /**
      * @brief Construct a new MST object
      * 
-     * @param n 
      */
-    MST(int n = 0);
+    MST();
 
     /**
      * @brief Destroy the MST object
@@ -90,6 +118,15 @@ public:
      * @return void
      */
     void insert(Edge edge);
+
+    /**
+     * @brief Get the mapping index of the given vertex
+     * 
+     * @param u 
+     * 
+     * @return int
+     */
+    int get_index(int u);
 
     /**
      * @brief Insert new edge to the MST
@@ -117,6 +154,24 @@ public:
      * @return void
      */
     void clear();
+
+    //========================UI========================
+    struct Snapshot_Data {
+        std::vector<Node> nodes;
+        std::vector<Edge> edges;
+        int index; //Current code line
+        UI::OPERATION op;
+    };
+
+    std::vector<Snapshot_Data> history;
+
+    /**
+     * @brief Save snapshot of the current graph to `history` vector
+     * 
+     * @param index
+     * @param op
+     */
+    void save_snapshot(int index, UI::OPERATION op);
 };
 }
 

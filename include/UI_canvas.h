@@ -136,7 +136,7 @@ namespace UI {
         OPERATION current_operation;
         Code_Highlight highlighter[OPERATION::NONE];
         
-        public:
+    public:
 
         void setup() override;
         void run() override;
@@ -622,6 +622,111 @@ namespace UI {
          * 
          */
         void find();
+
+        /**
+         * @brief Handle open file operation
+         * 
+         */
+        void open_file();
+    };
+
+    class MST_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle run_button;
+        Rectangle prev_button;
+        Rectangle next_button;
+        Rectangle clear_button;
+        Rectangle file_button;
+        Rectangle exit_button;
+        Rectangle random_button;
+        Rectangle skip_button;
+        Rectangle speed_button;
+        Rectangle edit_button;
+        Rectangle popup_bound;
+        Rectangle popup_text_input;
+        Rectangle popup_ok_button;
+        Rectangle popup_cancel_button;
+        Rectangle popup_clear_button;
+
+        Data_Structure::MST mst;
+
+        //Popup input text field
+        bool is_popup;
+        std::string text_string;
+        int frames_counter;
+        int cursor_pos;
+
+        //Animation
+        int current_step;
+        int speed_multiplier; //Instant mode = 5
+        float pause_timer; //Pause time between each step
+        bool is_playing;
+
+        // Node's arrangment using force-dirtect algorithm
+        int arrange_step;
+        float temperature;
+
+        //Code highlight
+        OPERATION current_operation;
+        Code_Highlight highlighter[OPERATION::NONE];
+
+    public:
+
+        void setup() override;
+        void run() override;
+        void update_animation() override;
+
+        /**
+         * @brief Draw the graph
+         * 
+         * @param nodes, edges
+         */
+        void draw_tree(const std::vector<Data_Structure::MST::Node> &nodes, const std::vector<Data_Structure::MST::Edge> &edges);
+
+        /**
+         * @brief Set up elements for node arrangement process
+         * 
+         */
+        void setup_arrangement();
+
+        /**
+         * @brief Run node arrangement process
+         * 
+         * This function will run only if the value of `arrange_step` is not exceed 100
+         * 
+         */
+        void run_arrangement();
+
+        /**
+         * @brief Apply the current graph using information from `text_string`
+         * 
+         */
+        void apply_new_graph();
+
+        /**
+         * @brief Handle next operation
+         * 
+         */
+        void next();
+
+        /**
+         * @brief Handle back operation
+         * 
+         */
+        void prev();
+
+        /**
+         * @brief Handle clear operation
+         * 
+         */
+        void clear();
+
+        /**
+         * @brief Handle skip operation
+         * 
+         */
+        void skip();
 
         /**
          * @brief Handle open file operation

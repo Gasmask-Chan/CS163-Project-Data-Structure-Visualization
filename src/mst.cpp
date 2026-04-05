@@ -12,6 +12,10 @@ DSU::~DSU() {
     clear();
 }
 
+int DSU::size() {
+    return (int)p.size();
+}
+
 int DSU::find(int u) {
     return p[u] < 0 ? u : p[u] = find(p[u]);
 }
@@ -32,13 +36,17 @@ void DSU::clear() {
     p.clear();
 }
 
+MST::Node::Node(int id) {
+    this->id = id;
+    current_x = current_y = target_x = target_y = 0;
+    highlighted = false;
+}
+
 bool MST::Edge::operator < (Edge &other) const {
     return w < other.w;
 }
 
-MST::MST(int n) {
-    dsu = DSU(n);
-}
+MST::MST() {}
 
 MST::~MST() {
     clear();
@@ -48,7 +56,23 @@ void MST::insert(Edge edge) {
     edges.push_back(edge);
 }
 
+int MST::get_index(int u) {
+    auto &index = mp[u];
+    if (index == 0) {
+        nodes.push_back(Node(u));
+        index = nodes.size();
+    }
+    return index - 1;
+}
+
 void MST::insert(int u, int v, int w) {
+    u = get_index(u);
+    v = get_index(v);
+
+    if ((int)nodes.size() > (int)dsu.size()) {
+        dsu = DSU(nodes.size());
+    }
+
     insert(Edge(u, v, w));
 }
 
@@ -66,7 +90,15 @@ std::vector<MST::Edge> MST::find_mst() {
 }
 
 void MST::clear() {
+    nodes.clear();
     edges.clear();
     dsu.clear();
+    mp.clear();
+    history.clear();
 }
 
+//===========================UI===========================
+
+void MST::save_snapshot(int index, UI::OPERATION op) {
+    history.push_back({nodes, edges, index, op});
+}

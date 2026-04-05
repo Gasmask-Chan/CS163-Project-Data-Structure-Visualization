@@ -23,6 +23,7 @@ namespace UI {
         canvas[UI_State::HEAP] = new Heap_Canvas();
         canvas[UI_State::LINKED_LIST] = new LinkedList_Canvas();
         canvas[UI_State::TRIE] = new Trie_Canvas();
+        canvas[UI_State::MST] = new MST_Canvas();
 
         for (int i = 0; i < static_cast<int>(UI_State::COUNT); i++) {
             if (canvas[i]) {
