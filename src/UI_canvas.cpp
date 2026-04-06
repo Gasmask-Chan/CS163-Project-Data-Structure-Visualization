@@ -3182,18 +3182,15 @@ namespace UI {
         //Code highlight setup
         current_operation = OPERATION::NONE;
 
-        //insert highlight code
-        highlighter[OPERATION::INSERT].set_start_pos({window_width, 296});
-        highlighter[OPERATION::INSERT].set_code_name("INSERT");
-        
-        //erase highlight code
-        highlighter[OPERATION::ERASE].set_start_pos({window_width, 296});
-        highlighter[OPERATION::ERASE].set_code_name("ERASE");
-
-
         //find highlight code
         highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
-        highlighter[OPERATION::FIND].set_code_name("FIND");
+        highlighter[OPERATION::FIND].set_code_name("KRUSKAL");
+
+        highlighter[OPERATION::FIND].add("sort(edges.begin(), edges.end());");
+        highlighter[OPERATION::FIND].add("for (edge e in edges) {");
+        highlighter[OPERATION::FIND].add("  if (connect e not create cycle)");
+        highlighter[OPERATION::FIND].add("    add e to MST;");
+        highlighter[OPERATION::FIND].add("}");
     }
 
     void MST_Canvas::setup_arrangement() {
@@ -3207,7 +3204,7 @@ namespace UI {
     }
 
     void MST_Canvas::run_arrangement() {
-        if (arrange_step >= 70) return;
+        if (temperature < 0.1f || arrange_step >= 60) return;
 
         auto &nodes = mst.nodes;
         int V = nodes.size();
@@ -3247,6 +3244,7 @@ namespace UI {
         }
 
         float damping = 0.15f;
+        float max_movement = 0.0f;
 
         //Limit max displacment to temperature
         for (int v = 0; v < V; v++) {
@@ -3255,6 +3253,8 @@ namespace UI {
 
             float dist = std::max(std::sqrt(ds[v].x * ds[v].x + ds[v].y * ds[v].y), 0.001f);
             float move_dist = std::min(dist, temperature);
+
+            max_movement = std::max(max_movement, move_dist);
 
             nodes[v].current_x += (ds[v].x / dist) * move_dist;
             nodes[v].current_y += (ds[v].y / dist) * move_dist;
@@ -3266,8 +3266,12 @@ namespace UI {
             nodes[v].target_y = nodes[v].current_y;
         }
 
-        ++arrange_step;
-        temperature *= 0.95f;
+        if (max_movement < 1.0f) {
+            temperature = 0.0f;
+        }
+        else {
+            temperature *= 0.95f;
+        }
     }
 
     void MST_Canvas::apply_new_graph() {
@@ -3288,8 +3292,15 @@ namespace UI {
     void MST_Canvas::draw_tree(const std::vector<Data_Structure::MST::Node> &nodes, const std::vector<Data_Structure::MST::Edge> &edges) {
         for (const auto &edge : edges) {
             int v = edge.v, u = edge.u, w = edge.w;
+            Color edge_color;
+            if (edge.status == 0) {
+                edge_color = nodes[v].highlighted && nodes[u].highlighted ? RED : BLACK;
+            }
+            else {
+                edge_color = edge.status == 1 ? ORANGE : Fade(BLACK, 0.2f);
+            }
 
-            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, 3.0f, (nodes[v].highlighted && nodes[u].highlighted) ? RED : BLACK);
+            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, 3.0f, edge_color);
 
             float mid_x = (nodes[v].current_x + nodes[u].current_x) / 2.0f;
             float mid_y = (nodes[v].current_y + nodes[u].current_y) / 2.0f;
@@ -3315,11 +3326,6 @@ namespace UI {
         if (current_operation != NONE) {
             highlighter[current_operation].set_highlighted_line(current_tree.index);
         }
-
-        // std::cout << "====================================================" << std::endl;
-        // std::cout << "Script " << current_step + 1 << " / " << tree.history.size() 
-        //           << " | Timer " << pause_timer 
-        //           << " | Is moving? " << (is_animating ? "Yes" : "No") << std::endl;
 
         pause_timer -= GetFrameTime();
 
@@ -3348,6 +3354,16 @@ namespace UI {
         if (current_operation != NONE) {
             highlighter[current_operation].set_highlighted_line(mst.history[current_step].index);
         }
+
+        //Sync position of nodes between two histories
+        for (auto &new_node : mst.history[current_step].nodes) {
+            for (const auto &old_node : mst.history[current_step - 1].nodes) {
+                if (new_node.id == old_node.id) {
+                    new_node.current_x = old_node.current_x;
+                    new_node.current_y = old_node.current_y;
+                }
+            }
+        }
     }
 
     void MST_Canvas::prev() {
@@ -3356,6 +3372,16 @@ namespace UI {
 
         if (current_operation != NONE) {
             highlighter[current_operation].set_highlighted_line(mst.history[current_step].index);
+        }
+
+        //Sync position of nodes between two histories
+        for (auto &new_node : mst.history[current_step].nodes) {
+            for (const auto &old_node : mst.history[current_step + 1].nodes) {
+                if (new_node.id == old_node.id) {
+                    new_node.current_x = old_node.current_x;
+                    new_node.current_y = old_node.current_y;
+                }
+            }
         }
     }
 
@@ -3440,10 +3466,13 @@ namespace UI {
             return;
         }
         else if (!is_playing) { //No animation is running
+            auto &nodes = current_step >= 0 ? mst.history[current_step].nodes : mst.nodes;
+
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !is_popup) {
-                for (int i = 0; i < (int)mst.nodes.size(); i++) {
-                    float dx = mouse_pos.x - mst.nodes[i].current_x;
-                    float dy = mouse_pos.y - mst.nodes[i].current_y;
+
+                for (int i = 0; i < (int)nodes.size(); i++) {
+                    float dx = mouse_pos.x - nodes[i].current_x;
+                    float dy = mouse_pos.y - nodes[i].current_y;
 
                     if (dx * dx + dy * dy <= node_radius * node_radius) {
                         mouse_target_node = i;
@@ -3453,14 +3482,12 @@ namespace UI {
             }
 
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && mouse_target_node != -1 && !is_popup) {
-                mst.nodes[mouse_target_node].current_x = mst.nodes[mouse_target_node].target_x = mouse_pos.x;
-                mst.nodes[mouse_target_node].current_y = mst.nodes[mouse_target_node].target_y = mouse_pos.y;
+                nodes[mouse_target_node].current_x = nodes[mouse_target_node].target_x = mouse_pos.x;
+                nodes[mouse_target_node].current_y = nodes[mouse_target_node].target_y = mouse_pos.y;
             }
 
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && mouse_target_node != -1 && !is_popup) {
                 mouse_target_node = -1;
-                arrange_step = 0;
-                temperature = window_width / 100.0f;
             }
 
             if (is_popup) {
@@ -3489,6 +3516,7 @@ namespace UI {
                 if (IsKeyPressed(KEY_LEFT) && cursor_pos > 0) {
                     --cursor_pos;
                 }
+
                 if (IsKeyPressed(KEY_RIGHT) && cursor_pos < (int)text_string.size()) {
                     ++cursor_pos;
                 }
@@ -3509,6 +3537,7 @@ namespace UI {
                 }
             }
             else if (is_clicked(edit_button)) {
+                skip();
                 is_popup = true;
                 frames_counter = 0;
 
@@ -3564,6 +3593,14 @@ namespace UI {
             }
             else if (is_clicked(file_button)) {
                 open_file();
+            }
+            else if (is_clicked(run_button) && !mst.edges.empty()) {
+                mst.reset();
+                mst.find_mst();
+                is_playing = true;
+                current_operation = FIND;
+                current_step = 0;
+                pause_timer = time_between_steps / speed_multiplier;
             }
         }
 

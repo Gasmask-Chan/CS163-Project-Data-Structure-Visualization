@@ -25,7 +25,7 @@ namespace UI {
      */
     void draw_button(Rectangle button, const char *text, Color background_color, Color text_color, int font_size = 20);
 
-    void draw_node(int pos_x, int pos_y, float radius, bool highlight, const char *text, int font_size = 20, Color node_color = WHITE);
+    void draw_node(int pos_x, int pos_y, float radius, int highlight, const char *text, int font_size = 20, Color node_color = WHITE);
 
     /**
      * @brief Get the random integer in range [l..r]

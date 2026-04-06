@@ -64,7 +64,7 @@ public:
         int id;
         float current_x, current_y;
         float target_x, target_y;
-        bool highlighted;
+        int highlighted; //0 = BLACK, 1 = RED, 2 = ORANGE
 
         /**
          * @brief Construct a new Node object
@@ -77,6 +77,8 @@ public:
     struct Edge {
         int u, v, w; //u and v is the index of the node in the `nodes` vector
 
+        int status; //0 = Neutral, 1 = Belongs to MST, 2 = Ignored
+
         /**
          * @brief Construct a new Edge object
          * 
@@ -84,7 +86,7 @@ public:
          * @param v 
          * @param w 
          */
-        Edge(int u = 0, int v = 0, int w = 0) : u(u), v(v), w(w) {}
+        Edge(int u = 0, int v = 0, int w = 0, int status = 0) : u(u), v(v), w(w), status(status) {}
 
         bool operator < (Edge &other) const;
     };
@@ -154,6 +156,12 @@ public:
      * @return void
      */
     void clear();
+
+    /**
+     * @brief Reset data to allow rerun
+     * 
+     */
+    void reset();
 
     //========================UI========================
     struct Snapshot_Data {

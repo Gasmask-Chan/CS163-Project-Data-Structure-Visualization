@@ -28,6 +28,7 @@ bool DSU::join(int u, int v) {
 
     if (p[u] > p[v]) std::swap(u, v);
     p[u] += p[v];
+    p[v] = u;
 
     return true;
 }
@@ -69,6 +70,13 @@ void MST::insert(int u, int v, int w) {
     u = get_index(u);
     v = get_index(v);
 
+    for (auto &edge :edges) {
+        if ((edge.u == u && edge.v == v) || (edge.u == v && edge.v == u)) {
+            edge.w = std::min(edge.w, w);
+            return;
+        }
+    }
+
     if ((int)nodes.size() > (int)dsu.size()) {
         dsu = DSU(nodes.size());
     }
@@ -77,15 +85,32 @@ void MST::insert(int u, int v, int w) {
 }
 
 std::vector<MST::Edge> MST::find_mst() {
+    save_snapshot(0, UI::OPERATION::FIND);
     std::sort(edges.begin(), edges.end());
 
     std::vector<Edge> res; 
-    for (auto &[u, v, w] : edges) {
-        if (dsu.join(u, v)) {
-            res.push_back(Edge(u, v, w));
+    save_snapshot(1, UI::OPERATION::FIND);
+    for (auto &e : edges) {
+        nodes[e.u].highlighted = nodes[e.v].highlighted = true;
+        save_snapshot(2, UI::OPERATION::FIND);
+        if (dsu.join(e.u, e.v)) {
+            e.status = 1;
+            save_snapshot(3, UI::OPERATION::FIND);
+            res.push_back(Edge(e.u, e.v, e.w));
         }
+        else {
+            e.status = 2;
+            save_snapshot(2, UI::OPERATION::FIND);
+        }
+        nodes[e.u].highlighted = nodes[e.v].highlighted = false; 
+        save_snapshot(1, UI::OPERATION::FIND);
     }
 
+    for (auto &node : nodes) {
+        node.highlighted = 2;
+    }
+
+    save_snapshot(-1, UI::OPERATION::NONE);
     return res;
 }
 
@@ -95,6 +120,19 @@ void MST::clear() {
     dsu.clear();
     mp.clear();
     history.clear();
+}
+
+void MST::reset() {
+    history.clear();
+    dsu = DSU(dsu.size());
+
+    for (auto &e : edges) {
+        e.status = 0;
+    } 
+
+    for (auto &node : nodes) {
+        node.highlighted = 0;
+    }
 }
 
 //===========================UI===========================

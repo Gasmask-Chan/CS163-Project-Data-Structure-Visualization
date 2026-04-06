@@ -15,11 +15,11 @@ namespace UI {
         DrawTextEx(GetFontDefault(), text, (Vector2){button.x + (button.width - text_size.x) / 2, button.y + (button.height - text_size.y) / 2}, font_size, 2, text_color);
     }
 
-    void draw_node(int pos_x, int pos_y, float radius, bool highlight, const char *text, int font_size, Color node_color) {
+    void draw_node(int pos_x, int pos_y, float radius, int highlight, const char *text, int font_size, Color node_color) {
         DrawCircle(pos_x, pos_y, radius, node_color);
-        DrawCircleLines(pos_x, pos_y, radius, highlight ? RED : BLACK);
+        DrawCircleLines(pos_x, pos_y, radius, highlight == 1 ? RED : highlight == 2 ? ORANGE : BLACK);
         Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
-        DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 4, 0, 360, 36, highlight ? RED : BLACK);
+        DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 4, 0, 360, 36, highlight == 1 ? RED : highlight == 2 ? ORANGE : BLACK);
         DrawTextEx(main_font, text, {pos_x - text_size.x / 2, pos_y - text_size.y / 2}, font_size, 2, BLACK);
     }
 
@@ -48,7 +48,8 @@ namespace UI {
     }
 
     void Code_Highlight::draw_code() {
-        draw_button({start_pos.x - 120, start_pos.y - 40, 120, 40}, code_name, Fade(YELLOW, 0.8f), BLACK);
+        int code_name_width = MeasureText(code_name, 20);
+        draw_button({start_pos.x - code_name_width - 10 * 2, start_pos.y - 40, code_name_width + 10.0f * 2, 40}, code_name, Fade(YELLOW, 0.8f), BLACK);
         DrawRectangle(start_pos.x - width, start_pos.y, width, height * source_code.size(), (Color){218, 235, 255, 255});
         DrawRectangleLinesEx({start_pos.x - width - 2.0f, start_pos.y - 2.0f, width + 2.0f, height * source_code.size() + 4.0f}, 3.0f, DARKPURPLE);
 
