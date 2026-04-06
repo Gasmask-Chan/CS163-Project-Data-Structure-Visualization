@@ -3171,6 +3171,7 @@ namespace UI {
         text_string = "";
         frames_counter = 0;
         cursor_pos = 0;
+        mouse_target_node = -1;
 
         //Animation setup
         current_step = -1;
@@ -3206,7 +3207,7 @@ namespace UI {
     }
 
     void MST_Canvas::run_arrangement() {
-        if (arrange_step >= 200) return;
+        if (arrange_step >= 70) return;
 
         auto &nodes = mst.nodes;
         int V = nodes.size();
@@ -3372,6 +3373,7 @@ namespace UI {
         text_string = "";
         frames_counter = 0;
         cursor_pos = 0;
+        mouse_target_node = -1;
 
         //Code highlight
         current_operation = OPERATION::NONE;
@@ -3430,12 +3432,37 @@ namespace UI {
     }
 
     void MST_Canvas::run() {
-        if (is_clicked(exit_button)) {
+        Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), *camera);
+
+        if (is_clicked(exit_button) && !is_popup) {
             *current_state = UI_State::MENU;
             clear();
             return;
         }
         else if (!is_playing) { //No animation is running
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !is_popup) {
+                for (int i = 0; i < (int)mst.nodes.size(); i++) {
+                    float dx = mouse_pos.x - mst.nodes[i].current_x;
+                    float dy = mouse_pos.y - mst.nodes[i].current_y;
+
+                    if (dx * dx + dy * dy <= node_radius * node_radius) {
+                        mouse_target_node = i;
+                        break;
+                    }
+                }
+            }
+
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && mouse_target_node != -1 && !is_popup) {
+                mst.nodes[mouse_target_node].current_x = mst.nodes[mouse_target_node].target_x = mouse_pos.x;
+                mst.nodes[mouse_target_node].current_y = mst.nodes[mouse_target_node].target_y = mouse_pos.y;
+            }
+
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && mouse_target_node != -1 && !is_popup) {
+                mouse_target_node = -1;
+                arrange_step = 0;
+                temperature = window_width / 100.0f;
+            }
+
             if (is_popup) {
                 ++frames_counter;
                 SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -3591,9 +3618,16 @@ namespace UI {
             
             std::string display_text = text_string;
             if (((frames_counter / 20) & 1) == 0) {
-                display_text.insert(cursor_pos, 1, '_'); 
+                if (display_text[cursor_pos] == ' ') {
+                    display_text[cursor_pos] = '_';
+                }
+                else {
+                    display_text.insert(cursor_pos, 1, '_');
+                }
             } else {
-                display_text.insert(cursor_pos, 1, ' '); 
+                if (display_text[cursor_pos] != ' ') {
+                    display_text.insert(cursor_pos, 1, ' ');
+                } 
             }
             
             int cur_line = 0;
@@ -3609,7 +3643,7 @@ namespace UI {
                 text_scroll_y = -cursor_y + max_height;
             }
 
-            DrawText(display_text.c_str(), popup_text_input.x + 10, popup_text_input.y + 10 + text_scroll_y, 20, BLACK);
+            DrawTextEx(code_font, display_text.c_str(), (Vector2){popup_text_input.x + 10, popup_text_input.y + 10 + text_scroll_y}, 20, 1, BLACK);
             
             EndScissorMode();
 

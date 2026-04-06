@@ -666,6 +666,7 @@ namespace UI {
         // Node's arrangment using force-dirtect algorithm
         int arrange_step;
         float temperature;
+        int mouse_target_node;
 
         //Code highlight
         OPERATION current_operation;
