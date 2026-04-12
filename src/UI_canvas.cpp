@@ -3699,4 +3699,669 @@ namespace UI {
 
         EndDrawing();
     }
+
+    void SP_Canvas::setup() {
+        //Buttons setup
+        input_text_field = {312, 595, 100, 45};
+        run_button = {312, 653, 100, 45};
+        prev_button = {423, 653, 100, 45};
+        next_button = {534, 653, 100, 45};
+        skip_button = {645, 653, 100, 45};
+        clear_button = {756, 653, 100, 45};
+        file_button = {867, 653, 100, 45};
+        exit_button = {978, 653, 100, 45};
+        random_button = {21, 653, 126, 45};
+        speed_button = {158, 653, 143, 45};
+        edit_button = {21, 595, 100, 45};
+        popup_bound = {390, 160, 500, 400};
+        popup_text_input = {popup_bound.x + 20, popup_bound.y + 50, 460, 280};
+        popup_ok_button = {popup_bound.x + 244, popup_bound.y + 345, 100, 40};
+        popup_cancel_button = {popup_bound.x + 360, popup_bound.y + 345, 120, 40};
+        popup_clear_button = {popup_bound.x + 20, popup_bound.y + 345, 120, 40};
+        
+        //Input text field setup
+        input_text_string[0] = '\0';
+        letter_count = 0;
+        input_frames_counter = 0;
+
+        //Popup input text field setup
+        is_popup = false;
+        text_string = "";
+        frames_counter = 0;
+        cursor_pos = 0;
+        mouse_target_node = -1;
+
+        //Animation setup
+        current_step = -1;
+        speed_multiplier = 1;
+        pause_timer = time_between_steps;
+        is_playing = false;
+
+        //Code highlight setup
+        current_operation = OPERATION::NONE;
+
+        //find highlight code
+        highlighter[OPERATION::FIND].set_start_pos({window_width, 296});
+        highlighter[OPERATION::FIND].set_code_name("DIJKSTRA");
+
+        highlighter[OPERATION::FIND].add("d[] = {INF}; Queue Q = {};");
+        highlighter[OPERATION::FIND].add("d[s] = 0; Q.push(s, d[s]);");
+        highlighter[OPERATION::FIND].add("while (!Q.empty()) {");
+        highlighter[OPERATION::FIND].add("  [u, w] = Q.top(); Q.pop();");
+        highlighter[OPERATION::FIND].add("  if (d[u] != w) continue;");
+        highlighter[OPERATION::FIND].add("  for ([v, c] : adj[u])");
+        highlighter[OPERATION::FIND].add("    if (d[u] + c < d[v])");
+        highlighter[OPERATION::FIND].add("      d[v] = d[u] + c;");
+        highlighter[OPERATION::FIND].add("      Q.push(v, d[v]);");
+        highlighter[OPERATION::FIND].add("}");
+    }
+
+    void SP_Canvas::setup_arrangement() {
+        arrange_step = 0;
+        temperature = window_width / 40.0f;
+
+        for (auto &node : sp.nodes) {
+            node.current_x = (window_width / 2.0f) + get_random_int(-200, 200);
+            node.current_y = (window_height / 2.0f) + get_random_int(-200, 200);
+        }
+    }
+
+    void SP_Canvas::run_arrangement() {
+        if (temperature < 0.1f || arrange_step >= 60) return;
+
+        auto &nodes = sp.nodes;
+        int V = nodes.size();
+        float area = static_cast<float>(window_width * window_height);
+        float k = 0.75f * std::sqrt(area / V);
+
+        std::vector<Vector2> ds(V, {0.0f, 0.0f}); //displacement
+
+        //Repulsive
+        for (int v = 0; v < V; v++) {
+            for (int u = 0; u < V; u++) {
+                if (u == v) continue;
+
+                float dx = nodes[v].current_x - nodes[u].current_x;
+                float dy = nodes[v].current_y - nodes[u].current_y;
+                float dist = std::max(std::sqrt(dx * dx + dy * dy), 0.001f);
+
+                float force = (k * k) / dist;
+                ds[v].x += (dx / dist) * force;
+                ds[v].y += (dy / dist) * force;
+            }
+        }
+
+        //Attractive
+        for (auto &edge : sp.edges) {
+            int v = edge.v, u = edge.u;
+
+            float dx = nodes[v].current_x - nodes[u].current_x;
+            float dy = nodes[v].current_y - nodes[u].current_y;
+            float dist = std::max(std::sqrt(dx * dx + dy * dy), 0.001f);
+
+            float force = (dist * dist) / k;
+            ds[v].x -= (dx / dist) * force;
+            ds[v].y -= (dy / dist) * force;
+            ds[u].x += (dx / dist) * force;
+            ds[u].y += (dy / dist) * force;
+        }
+
+        float damping = 0.15f;
+        float max_movement = 0.0f;
+
+        //Limit max displacment to temperature
+        for (int v = 0; v < V; v++) {
+            ds[v].x *= damping;
+            ds[v].y *= damping;
+
+            float dist = std::max(std::sqrt(ds[v].x * ds[v].x + ds[v].y * ds[v].y), 0.001f);
+            float move_dist = std::min(dist, temperature);
+
+            max_movement = std::max(max_movement, move_dist);
+
+            nodes[v].current_x += (ds[v].x / dist) * move_dist;
+            nodes[v].current_y += (ds[v].y / dist) * move_dist;
+
+            nodes[v].current_x = std::clamp(nodes[v].current_x, 30.0f, (float)window_width - 30.0f);
+            nodes[v].current_y = std::clamp(nodes[v].current_y, 30.0f, (float)window_height - 30.0f);
+
+            nodes[v].target_x = nodes[v].current_x;
+            nodes[v].target_y = nodes[v].current_y;
+        }
+
+        if (max_movement < 1.0f) {
+            temperature = 0.0f;
+        }
+        else {
+            temperature *= 0.95f;
+        }
+    }
+
+    void SP_Canvas::apply_new_graph() {
+        std::stringstream ss(text_string);
+        sp.clear();
+
+        int u, v, w;
+        while (ss >> u >> v >> w) {
+            sp.insert(u, v, w);
+        }
+
+        setup_arrangement();
+
+        current_step = -1;
+        is_playing = false;
+    }
+
+    void SP_Canvas::draw_tree(const std::vector<Data_Structure::Shortest_Path::Node> &nodes, const std::vector<Data_Structure::Shortest_Path::Edge> &edges, const std::vector<int> &dis) {
+        for (const auto &edge : edges) {
+            int v = edge.v, u = edge.u, w = edge.w;
+            Color edge_color;
+            if (edge.status == 0) {
+                edge_color = BLACK;
+            }
+            else {
+                edge_color = edge.status == 1 ? ORANGE : Fade(BLACK, 0.2f);
+            }
+
+            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, 3.0f, edge_color);
+
+            float mid_x = (nodes[v].current_x + nodes[u].current_x) / 2.0f;
+            float mid_y = (nodes[v].current_y + nodes[u].current_y) / 2.0f;
+
+            DrawCircle(mid_x, mid_y, 15.0f, main_background_color);
+
+            std::string to_text = std::to_string(w);
+            Vector2 text_size = MeasureTextEx(main_font, to_text.c_str(), 20, 1);
+            DrawTextEx(main_font, to_text.c_str(), (Vector2){mid_x - (text_size.x / 2.0f), mid_y - 10.0f}, 20, 1, BLUE);
+        }
+
+        int idx = 0;
+        for (const auto &node : nodes) {
+            std::string to_text = std::to_string(node.id);
+            draw_node(node.current_x, node.current_y, node_radius, node.highlighted, to_text.c_str());
+            
+            std::string id_label = std::to_string(dis[idx]);
+            auto text_size = MeasureText(id_label.c_str(), 20);
+            DrawText(id_label.c_str(), node.current_x - (text_size >> 1), node.current_y - node_radius - 37, 25, RED);
+
+            ++idx;
+        }
+    }
+
+    void SP_Canvas::update_animation() {
+        if (sp.history.empty() || !is_playing || current_step < 0) return;
+
+        auto current_tree = sp.history[current_step];
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(current_tree.index);
+        }
+
+        pause_timer -= GetFrameTime();
+
+        if (pause_timer <= 0.0f || speed_multiplier == 5) {
+            pause_timer = time_between_steps / speed_multiplier;
+
+            if (current_step + 1 < (int)sp.history.size()) {
+                ++current_step;
+                current_operation = sp.history[current_step].op;
+            }
+            else {
+                is_playing = false;
+                if (current_operation != NONE) {
+                    highlighter[current_operation].set_highlighted_line(-1);
+                }
+
+                current_operation = OPERATION::NONE;
+            }
+        }
+    }
+
+    void SP_Canvas::next() {
+        ++current_step;
+        current_operation = sp.history[current_step].op;
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(sp.history[current_step].index);
+        }
+
+        //Sync position of nodes between two histories
+        for (auto &new_node : sp.history[current_step].nodes) {
+            for (const auto &old_node : sp.history[current_step - 1].nodes) {
+                if (new_node.id == old_node.id) {
+                    new_node.current_x = old_node.current_x;
+                    new_node.current_y = old_node.current_y;
+                }
+            }
+        }
+    }
+
+    void SP_Canvas::prev() {
+        --current_step;
+        current_operation = sp.history[current_step].op;
+
+        if (current_operation != NONE) {
+            highlighter[current_operation].set_highlighted_line(sp.history[current_step].index);
+        }
+
+        //Sync position of nodes between two histories
+        for (auto &new_node : sp.history[current_step].nodes) {
+            for (const auto &old_node : sp.history[current_step + 1].nodes) {
+                if (new_node.id == old_node.id) {
+                    new_node.current_x = old_node.current_x;
+                    new_node.current_y = old_node.current_y;
+                }
+            }
+        }
+    }
+
+    void SP_Canvas::clear() {
+        sp.clear();
+        setup_arrangement();
+
+        //Animation
+        current_step = -1;
+        pause_timer = time_between_steps / speed_multiplier;
+        is_playing = false;
+
+        //Input text field
+        input_text_string[0] = '\0';
+        letter_count = 0;
+        input_frames_counter = 0;
+
+        //Popup input text field
+        is_popup = false;
+        text_string = "";
+        frames_counter = 0;
+        cursor_pos = 0;
+        mouse_target_node = -1;
+
+        //Code highlight
+        current_operation = OPERATION::NONE;
+    }
+
+    void SP_Canvas::skip() {
+        if (current_step < 0 || sp.history.empty()) return;
+        if (!is_playing) {
+            current_step = (int)sp.history.size() - 1;
+            current_operation = sp.history[current_step].op; 
+
+            if (current_operation != NONE) {
+                highlighter[current_operation].set_highlighted_line(sp.history[current_step].index);
+            }
+
+            return;
+        }
+
+        int prev_speed = speed_multiplier;
+
+        speed_multiplier = 5;
+        is_playing = true;
+        while (current_step + 1 < (int)sp.history.size()) {
+            update_animation();
+        }
+
+        speed_multiplier = prev_speed;
+        pause_timer = time_between_steps / speed_multiplier;
+    }
+
+    void SP_Canvas::open_file() {
+        const char *filter[1] = {"*.txt"};
+        const char *file_path = tinyfd_openFileDialog("Select input file", "", 1, filter, "Text files (*.txt)", 0);
+        if (file_path != nullptr) { 
+            std::ifstream file(file_path);
+
+            if (file.is_open()) {
+                is_popup = true;
+                text_string = "";
+                frames_counter = 0;
+                cursor_pos = 0;
+
+                char c;
+                while (file.get(c)) {
+                    if (('0' <= c && c <= '9') || c == ' ' || c == '\n') {
+                        text_string += c;
+                    }
+                }
+
+                file.close();
+            }
+            else {
+                tinyfd_messageBox("ERROR", "Failed to open the file. Please try again!", "ok", "error", 1);
+            }
+        }
+    }
+
+    void SP_Canvas::run_algo() {
+        std::vector<int> val_to_insert;
+        std::string cur_num = "";
+
+        for (int i = 0; i < letter_count && val_to_insert.size() < 1; i++) {
+            if (text_string[i] != ' ') {
+                cur_num.push_back(input_text_string[i]);
+            }
+            else if (!cur_num.empty()) {
+                val_to_insert.push_back(std::stoi(cur_num));
+                cur_num = "";
+            }
+        }
+
+        if (!cur_num.empty()) {
+            val_to_insert.push_back(std::stoi(cur_num));
+        }
+
+        letter_count = 0;
+        input_text_string[0] = '\0';
+
+        if (val_to_insert.size() == 1) {
+            sp.reset();
+            if (!sp.find_sp(val_to_insert[0])) {
+                tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+                return;
+            }
+
+            is_playing = true;
+            current_operation = FIND;
+            current_step = 0;
+            pause_timer = time_between_steps / speed_multiplier;
+        }
+        else {
+            tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
+        }
+    }
+
+    void SP_Canvas::run() {
+        bool mouse_on_itf = CheckCollisionPointRec(GetMousePosition(), input_text_field);
+        Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), *camera);
+
+        if (mouse_on_itf && !is_playing && !is_popup) {
+            ++input_frames_counter;
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+            int key = GetCharPressed();
+
+            while (key > 0) {
+                if ((('0' <= key && key <= '9') || key == ' ') && letter_count < MAX_INPUT_INT_CHAR) {
+                    input_text_string[letter_count] = static_cast<char>(key);
+                    input_text_string[letter_count + 1] = '\0';
+                    ++letter_count;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)) {
+                --letter_count;
+                if (letter_count < 0) letter_count = 0;
+                input_text_string[letter_count] = '\0';
+            }
+        }
+        else {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            input_frames_counter = 0;
+        }
+
+        if (is_clicked(exit_button) && !is_popup) {
+            *current_state = UI_State::MENU;
+            clear();
+            return;
+        }
+        else if (!is_playing) { //No animation is running
+            auto &nodes = current_step >= 0 ? sp.history[current_step].nodes : sp.nodes;
+
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !is_popup) {
+
+                for (int i = 0; i < (int)nodes.size(); i++) {
+                    float dx = mouse_pos.x - nodes[i].current_x;
+                    float dy = mouse_pos.y - nodes[i].current_y;
+
+                    if (dx * dx + dy * dy <= node_radius * node_radius) {
+                        mouse_target_node = i;
+                        break;
+                    }
+                }
+            }
+
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && mouse_target_node != -1 && !is_popup) {
+                nodes[mouse_target_node].current_x = nodes[mouse_target_node].target_x = mouse_pos.x;
+                nodes[mouse_target_node].current_y = nodes[mouse_target_node].target_y = mouse_pos.y;
+            }
+
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && mouse_target_node != -1 && !is_popup) {
+                mouse_target_node = -1;
+            }
+
+            if (is_popup) {
+                ++frames_counter;
+                SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+                int key = GetCharPressed();
+                while (key > 0) {
+                    if (('0' <= key && key <= '9') || key == ' ') {
+                        text_string.insert(cursor_pos, 1, (char)key);
+                        ++cursor_pos;
+                    }
+                    key = GetCharPressed();
+                }
+
+                if (IsKeyPressed(KEY_ENTER)) {
+                    text_string.insert(cursor_pos, 1, '\n');
+                    ++cursor_pos;
+                }
+
+                if (IsKeyPressed(KEY_BACKSPACE) && cursor_pos > 0) {
+                    text_string.erase(cursor_pos - 1, 1);
+                    --cursor_pos;
+                }
+
+                if (IsKeyPressed(KEY_LEFT) && cursor_pos > 0) {
+                    --cursor_pos;
+                }
+
+                if (IsKeyPressed(KEY_RIGHT) && cursor_pos < (int)text_string.size()) {
+                    ++cursor_pos;
+                }
+
+                if (is_clicked(popup_ok_button)) {
+                    apply_new_graph();
+                    is_popup = false;
+                    SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+                }
+                else if (is_clicked(popup_cancel_button)) {
+                    is_popup = false;
+                    SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+                }
+                else if (is_clicked(popup_clear_button)) {
+                    frames_counter = 0;
+                    cursor_pos = 0;
+                    text_string = "";
+                }
+            }
+            else if (is_clicked(edit_button)) {
+                skip();
+                is_popup = true;
+                frames_counter = 0;
+
+                text_string = "";
+                for (const auto &edge : sp.edges) {
+                    text_string += std::to_string(sp.nodes[edge.u].id) + " " + std::to_string(sp.nodes[edge.v].id) + " " + std::to_string(edge.w) + "\n";
+                }
+
+                cursor_pos = (int)text_string.size();
+            }
+            else if (is_clicked(prev_button) && current_step > 0) {
+                prev();
+            }
+            else if (is_clicked(next_button) && current_step + 1 < (int)sp.history.size()) {
+                next();
+            }
+            else if (is_clicked(clear_button)) {
+                clear();
+            }
+            else if (is_clicked(speed_button)) {
+                switch (speed_multiplier) {
+                case 1:
+                    speed_multiplier = 2;
+                    break;
+                case 2:
+                    speed_multiplier = 3;
+                    break;
+                case 3:
+                    speed_multiplier = 4;
+                    break;
+                case 4:
+                    speed_multiplier = 5;
+                    break;
+                
+                default:
+                    speed_multiplier = 1;
+                    break;
+                }
+            }
+            else if (is_clicked(random_button)) {
+                clear();
+
+                int N = 7;
+                for (int i = 0; i < 14; i++) {
+                    int u, v;
+                    do {
+                        u = get_random_int(0, N - 1), v = get_random_int(0, N - 1);
+                    } while (u == v);
+                    sp.insert(u, v, get_random_int(1, 100));
+                }
+
+                setup_arrangement();
+            }
+            else if (is_clicked(file_button)) {
+                open_file();
+            }
+            else if (is_clicked(run_button) && !sp.edges.empty()) {
+                run_algo();
+            }
+        }
+
+        if (is_clicked(skip_button)) {
+            skip();
+        }
+
+        update_animation();
+        run_arrangement();
+
+        BeginDrawing();
+        ClearBackground(main_background_color);
+
+        BeginMode2D(*camera);
+
+        if (current_step >= 0) {
+            draw_tree(sp.history[current_step].nodes, sp.history[current_step].edges, sp.history[current_step].dis);
+        }
+        else {
+            draw_tree(sp.nodes, sp.edges, sp.dis);
+        }
+
+        EndMode2D();
+
+        //Buttons
+        draw_button(input_text_field, "", WHITE, WHITE);
+        draw_button(prev_button, "PREV", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(next_button, "NEXT", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(skip_button, "SKIP", WHITE, BLACK);
+        draw_button(clear_button, "CLEAR", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(file_button, "FILE", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(exit_button, "EXIT", WHITE, BLACK);
+        draw_button(random_button, "RANDOM", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(run_button, "RUN", WHITE, is_playing ? GRAY : BLACK);
+        draw_button(edit_button, "EDIT", WHITE, is_playing ? GRAY : BLACK);
+
+        std::string speed_text = "SPEED " + (speed_multiplier != 5 ? "x" + std::to_string(speed_multiplier) : "TA`Y");
+
+        draw_button(speed_button, speed_text.c_str(), WHITE, is_playing ? GRAY : BLACK);
+
+        //Input text field drawing
+
+        { //Scope for one time use
+        int text_width = MeasureText(input_text_string, 20);
+        int text_start_x = input_text_field.x + 10;
+
+        if (text_width > input_text_field.width - 2 * 10) {
+            text_start_x -= text_width - (input_text_field.width - 2 * 10);
+        }
+
+        BeginScissorMode(input_text_field.x, input_text_field.y, input_text_field.width, input_text_field.height);
+
+        DrawText(input_text_string, text_start_x, input_text_field.y + 13, 20, is_playing ? GRAY : BLACK);
+
+        if (mouse_on_itf && !is_playing) {
+            if (letter_count < MAX_INPUT_INT_CHAR) {
+                if (((input_frames_counter / 20) & 1) == 0) {
+                    DrawText("_", text_start_x + text_width + 2, input_text_field.y + 15, 20, BLACK);
+                }
+            }
+        }
+        EndScissorMode();
+        }
+
+        if (!is_playing && mouse_on_itf && letter_count >= MAX_INPUT_INT_CHAR) {
+            DrawText("MAXIMUM INPUT REACHED", 436, 603, 23, RED);
+        }
+
+        //Popup input text field
+        if (is_popup) {
+            DrawRectangle(0, 0, window_width, window_height, Fade(BLACK, 0.5f));
+
+            DrawRectangleRec(popup_bound, (Color){203, 224, 250, 255});
+            DrawRectangleLinesEx(popup_bound, 3.0f, DARKGRAY);
+            DrawText("INPUT FORMAT: VERTEX VERTEX WEIGHT", popup_bound.x + 20, popup_bound.y + 15, 20, (Color){181, 29, 31, 255});
+
+            DrawRectangleRec(popup_text_input, WHITE);
+            DrawRectangleLinesEx(popup_text_input, 2.0f, BLACK);
+
+            BeginScissorMode(popup_text_input.x, popup_text_input.y, popup_text_input.width, popup_text_input.height);
+            
+            std::string display_text = text_string;
+            if (((frames_counter / 20) & 1) == 0) {
+                if (display_text[cursor_pos] == ' ') {
+                    display_text[cursor_pos] = '_';
+                }
+                else {
+                    display_text.insert(cursor_pos, 1, '_');
+                }
+            } else {
+                if (display_text[cursor_pos] != ' ') {
+                    display_text.insert(cursor_pos, 1, ' ');
+                } 
+            }
+            
+            int cur_line = 0;
+            for (int i = 0; i < cursor_pos; i++) {
+                if (text_string[i] == '\n') cur_line++;
+            }
+
+            float cursor_y = cur_line * 30.0f;
+            float text_scroll_y = 0.0f;
+            float max_height = popup_text_input.height - 50.0f; 
+            
+            if (cursor_y > max_height) {
+                text_scroll_y = -cursor_y + max_height;
+            }
+
+            DrawTextEx(code_font, display_text.c_str(), (Vector2){popup_text_input.x + 10, popup_text_input.y + 10 + text_scroll_y}, 20, 1, BLACK);
+            
+            EndScissorMode();
+
+            draw_button(popup_ok_button, "APPLY", (Color){254, 149, 93, 255}, BLACK);
+            draw_button(popup_cancel_button, "CANCEL", (Color){254, 149, 93, 255}, BLACK);
+            draw_button(popup_clear_button, "CLEAR", (Color){254, 149, 93, 255}, BLACK);
+        }
+
+        DrawText("MOUSE WHEEL TO ZOOM IN-OUT", 9, 15, 20, GREEN);
+        DrawText("PRESS R TO RESET ZOOM", 9, 45, 20, PURPLE);
+
+        //Code highlight drawing
+        if (current_operation != NONE) {
+            highlighter[current_operation].draw_code();
+        }
+
+        EndDrawing();
+    }
 }

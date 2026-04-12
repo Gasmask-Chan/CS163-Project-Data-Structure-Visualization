@@ -735,6 +735,125 @@ namespace UI {
          */
         void open_file();
     };
+
+    class SP_Canvas : public Canvas {
+    private:
+        //Buttons
+        Rectangle input_text_field;
+        Rectangle run_button;
+        Rectangle prev_button;
+        Rectangle next_button;
+        Rectangle clear_button;
+        Rectangle file_button;
+        Rectangle exit_button;
+        Rectangle random_button;
+        Rectangle skip_button;
+        Rectangle speed_button;
+        Rectangle edit_button;
+        Rectangle popup_bound;
+        Rectangle popup_text_input;
+        Rectangle popup_ok_button;
+        Rectangle popup_cancel_button;
+        Rectangle popup_clear_button;
+
+        Data_Structure::Shortest_Path sp;
+
+        //Input text field
+        char input_text_string[MAX_INPUT_INT_CHAR + 1];
+        int letter_count;
+        int input_frames_counter;
+
+        //Popup input text field
+        bool is_popup;
+        std::string text_string;
+        int frames_counter;
+        int cursor_pos;
+
+        //Animation
+        int current_step;
+        int speed_multiplier; //Instant mode = 5
+        float pause_timer; //Pause time between each step
+        bool is_playing;
+
+        // Node's arrangment using force-dirtect algorithm
+        int arrange_step;
+        float temperature;
+        int mouse_target_node;
+
+        //Code highlight
+        OPERATION current_operation;
+        Code_Highlight highlighter[OPERATION::NONE];
+
+    public:
+
+        void setup() override;
+        void run() override;
+        void update_animation() override;
+
+        /**
+         * @brief Draw the graph
+         * 
+         * @param nodes
+         * @param edges
+         */
+        void draw_tree(const std::vector<Data_Structure::Shortest_Path::Node> &nodes, const std::vector<Data_Structure::Shortest_Path::Edge> &edges, const std::vector<int> &dis);
+
+        /**
+         * @brief Set up elements for node arrangement process
+         * 
+         */
+        void setup_arrangement();
+
+        /**
+         * @brief Run node arrangement process
+         * 
+         * This function will run only if the value of `arrange_step` is not exceed 100
+         * 
+         */
+        void run_arrangement();
+
+        /**
+         * @brief Apply the current graph using information from `text_string`
+         * 
+         */
+        void apply_new_graph();
+
+        /**
+         * @brief Handle next operation
+         * 
+         */
+        void next();
+
+        /**
+         * @brief Handle back operation
+         * 
+         */
+        void prev();
+
+        /**
+         * @brief Handle clear operation
+         * 
+         */
+        void clear();
+
+        /**
+         * @brief Handle skip operation
+         * 
+         */
+        void skip();
+
+        /**
+         * @brief Handle open file operation
+         * 
+         */
+        void open_file();
+
+        /**
+         * @brief Handle run operation
+         * 
+         */
+        void run_algo();
+    };
 }
 
 #endif
