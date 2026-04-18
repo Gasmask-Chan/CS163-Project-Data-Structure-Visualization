@@ -176,16 +176,6 @@ void Trie::clear() {
 
     history.clear();
 }
-
-bool Trie::check_valid_input(std::string str) {
-    for (char &c : str) {
-        if (!isalpha(c)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 //===========================UI===========================
 
 Trie::Node* Trie::get_copy(Node *cur) {

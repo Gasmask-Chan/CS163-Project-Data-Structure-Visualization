@@ -70,8 +70,16 @@ namespace UI {
     }
 
     void Handler::run() {
+        auto pre_state = current_state;
         while (!WindowShouldClose()) {
             update_camera();
+
+            if (pre_state != current_state) { //Reset camera to default whenever switch to new canva
+                camera.zoom = 1.0f;
+                camera.target = camera.offset = {0, 0};
+            }
+
+            pre_state = current_state;
             canvas[static_cast<int>(current_state)]->run();
         }
 

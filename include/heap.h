@@ -67,7 +67,7 @@ public:
     /**
      * @brief Return the value of the max heap
      * 
-     * If the heap is empty, the program will be
+     * If the heap is empty, the program will be asserted
      * 
      * @return int 
      */
@@ -119,7 +119,7 @@ public:
     std::vector<Snapshot_Data> history;
 
     /**
-     * @brief Return a copy of the current arr
+     * @brief Return a copy of the current `arr` vector
      * 
      * @return std::vector<Node>
      */
@@ -133,7 +133,7 @@ public:
     int get_tree_height();
 
     /**
-     * @brief Save snapshot of the current tree to `history` vector
+     * @brief Save snapshot of the current tree to the `history` vector
      * 
      * @param index
      * @param op

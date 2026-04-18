@@ -78,10 +78,10 @@ public:
      * 
      * @param cur 
      * @param x 
-     * @param parent
+     * @param rotated
      * @return Node* 
      */
-    Node* insert(Node *cur, int x, Node *parent);
+    Node* insert(Node *cur, int x, bool &rotated);
 
     /**
      * @brief Insert new value `x` to the AVL tree

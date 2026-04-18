@@ -108,15 +108,6 @@ public:
      */
     void clear();
 
-    /**
-     * @brief Return true if the string is safe to use with the trie
-     * 
-     * @param str 
-     * @return true 
-     * @return false 
-     */
-    bool check_valid_input(std::string str);
-
     //========================UI========================
     struct Snapshot_Data {
         Node* tree_root;

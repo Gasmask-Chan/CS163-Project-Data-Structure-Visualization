@@ -25,6 +25,17 @@ namespace UI {
      */
     void draw_button(Rectangle button, const char *text, Color background_color, Color text_color, int font_size = 20);
 
+    /**
+     * @brief Draw graph node
+     * 
+     * @param pos_x 
+     * @param pos_y 
+     * @param radius 
+     * @param highlight 
+     * @param text 
+     * @param font_size 
+     * @param node_color 
+     */
     void draw_node(int pos_x, int pos_y, float radius, int highlight, const char *text, int font_size = 20, Color node_color = WHITE);
 
     /**

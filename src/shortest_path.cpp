@@ -91,6 +91,8 @@ bool Shortest_Path::find_sp(int s) {
             save_snapshot(5, UI::OPERATION::FIND);
         }
 
+        nodes[u].highlighted = false;
+
         save_snapshot(2, UI::OPERATION::FIND);
     }
 
@@ -103,6 +105,8 @@ void Shortest_Path::clear() {
     adj.clear();
     nodes.clear();
     edges.clear();
+    mp.clear();
+    history.clear();
 
     while (!q.empty()) {
         q.pop();

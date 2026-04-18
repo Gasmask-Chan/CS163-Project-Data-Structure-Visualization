@@ -62,7 +62,7 @@ AVL_Tree::Node* AVL_Tree::right_rotate(Node *cur) {
     return x;
 }
 
-AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
+AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, bool &rotated) {
     save_snapshot(0, UI::OPERATION::INSERT);
     if (cur == nullptr) {
         Node* new_node = new Node(x);
@@ -74,11 +74,18 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     save_snapshot(1, UI::OPERATION::INSERT);
 
     int pre_save = 1;
+    bool new_rotated = false;
 
     if (cur->val > x) {
         bool flag = cur->left == nullptr;
-        cur->left = insert(cur->left, x, cur);
+        cur->left = insert(cur->left, x, new_rotated);
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
+
+        if (new_rotated) {
+            cur->left->highlighted = true;
+            save_snapshot(4, UI::OPERATION::INSERT);
+            cur->left->highlighted = false;
+        }
 
         if (flag) {
             save_snapshot(0, UI::OPERATION::INSERT);
@@ -88,9 +95,16 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     else if (cur->val < x) {
         save_snapshot(2, UI::OPERATION::INSERT);
         pre_save = 2;
-        bool flag = cur->right == nullptr; cur->right = insert(cur->right, x, cur);
+        bool flag = cur->right == nullptr; 
+        cur->right = insert(cur->right, x, new_rotated);
         cur->height = std::max(get_height(cur->left), get_height(cur->right)) + 1;
         
+        if (new_rotated) {
+            cur->right->highlighted = true;
+            save_snapshot(4, UI::OPERATION::INSERT);
+            cur->right->highlighted = false;
+        }
+
         if (flag) {
             save_snapshot(0, UI::OPERATION::INSERT);
             cur->right->highlighted = false;
@@ -109,8 +123,8 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
     cur->highlighted = false;
     
     int balance = get_balance_factor(cur);
-    
-    bool rotated = abs(balance) <= 1;
+
+    rotated = abs(balance) > 1;
     
     if (balance > 1) {
         if (x < cur->left->val) { //LL
@@ -131,10 +145,6 @@ AVL_Tree::Node* AVL_Tree::insert(Node *cur, int x, Node *parent) {
         }
     }
     
-    if (rotated) {
-        save_snapshot(4, UI::OPERATION::INSERT);
-    }
-
     return cur;
 }
 
@@ -146,7 +156,13 @@ void AVL_Tree::insert(int x) {
         root->highlighted = false;
     }
     else {
-        root = insert(root, x, root);
+        bool rotated = false;
+        root = insert(root, x, rotated);
+        if (rotated) {
+            root->highlighted = true;
+            save_snapshot(4, UI::OPERATION::INSERT);
+        }
+
         root->highlighted = false;
     }
     save_snapshot(-1, UI::OPERATION::NONE);
@@ -321,8 +337,8 @@ bool AVL_Tree::erase(int x) {
     if (root) {
         int prev_del = 0;
         root = erase(root, x, prev_del, is_del);
-        if (prev_del == true) {
-            prev_del = false;
+        if (prev_del != 0) {
+            prev_del = 0;
             save_snapshot(3, UI::OPERATION::ERASE);
         }
     }

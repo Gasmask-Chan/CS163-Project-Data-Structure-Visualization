@@ -17,9 +17,8 @@ namespace UI {
 
     void draw_node(int pos_x, int pos_y, float radius, int highlight, const char *text, int font_size, Color node_color) {
         DrawCircle(pos_x, pos_y, radius, node_color);
-        DrawCircleLines(pos_x, pos_y, radius, highlight == 1 ? RED : highlight == 2 ? ORANGE : BLACK);
         Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
-        DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 4, 0, 360, 36, highlight == 1 ? RED : highlight == 2 ? ORANGE : BLACK);
+        DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 2, 0, 360, 36, highlight == 1 ? RED : highlight == 2 ? ORANGE : BLACK);
         DrawTextEx(main_font, text, {pos_x - text_size.x / 2, pos_y - text_size.y / 2}, font_size, 2, BLACK);
     }
 

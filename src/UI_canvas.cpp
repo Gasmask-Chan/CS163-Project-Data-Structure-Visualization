@@ -2054,7 +2054,7 @@ namespace UI {
 
                 char c;
                 while (file.get(c) && letter_count_1 < MAX_INPUT_INT_CHAR - 1) {
-                    if ((((c > '0' || (c == '0' && letter_count_1 > 0 && text_string_1[letter_count_1 - 1] != ' ')) && c <= '9')) || c == ' ') {
+                    if (('0' <= c && c <= '9') || c == ' ') {
                         text_string_1[letter_count_1] = c;
                         ++letter_count_1;
                     }
@@ -3208,6 +3208,7 @@ namespace UI {
 
         auto &nodes = mst.nodes;
         int V = nodes.size();
+        if (V == 0) return;
         float area = static_cast<float>(window_width * window_height);
         float k = 0.75f * std::sqrt(area / V);
 
@@ -3272,6 +3273,8 @@ namespace UI {
         else {
             temperature *= 0.95f;
         }
+
+        ++arrange_step;
     }
 
     void MST_Canvas::apply_new_graph() {
@@ -3771,6 +3774,7 @@ namespace UI {
 
         auto &nodes = sp.nodes;
         int V = nodes.size();
+        if (V == 0) return;
         float area = static_cast<float>(window_width * window_height);
         float k = 0.75f * std::sqrt(area / V);
 
@@ -3835,6 +3839,8 @@ namespace UI {
         else {
             temperature *= 0.95f;
         }
+
+        ++arrange_step;
     }
 
     void SP_Canvas::apply_new_graph() {
@@ -4037,7 +4043,7 @@ namespace UI {
         std::string cur_num = "";
 
         for (int i = 0; i < letter_count && val_to_insert.size() < 1; i++) {
-            if (text_string[i] != ' ') {
+            if (input_text_string[i] != ' ') {
                 cur_num.push_back(input_text_string[i]);
             }
             else if (!cur_num.empty()) {
