@@ -25,20 +25,27 @@ namespace UI {
         heap_button = {84, 467, 293, 74};
         mst_button = {500, 467, 293, 74};
         sp_button = {916, 467, 293, 74};
+        theme_button = {10, 10, 150, 45};
+        style_button = {170, 10, 150, 45};
     }
 
     void Menu_Canvas::run() {
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
         
-        DrawText("DATA STRUCTURE VISUALIZATION", 210, 116, 48, BLACK);
+        DrawText("DATA STRUCTURE VISUALIZATION", 210, 116, 48, UI_Theme::current_theme == UI_Theme::Color_Theme::LIGHT ? BLACK : WHITE);
         
-        draw_button(avl_tree_button, "AVL TREE", button_color, BLACK, 32);
-        draw_button(linked_list_button, "LINKED LIST", button_color, BLACK, 32);
-        draw_button(trie_button, "TRIE", button_color, BLACK, 32);
-        draw_button(heap_button, "HEAP", button_color, BLACK, 32);
-        draw_button(mst_button, "MST", button_color, BLACK, 32);
-        draw_button(sp_button, "SP", button_color, BLACK, 32);
+        draw_button(avl_tree_button, "AVL TREE", WHITE, BLACK, 32);
+        draw_button(linked_list_button, "LINKED LIST", WHITE, BLACK, 32);
+        draw_button(trie_button, "TRIE", WHITE, BLACK, 32);
+        draw_button(heap_button, "HEAP", WHITE, BLACK, 32);
+        draw_button(mst_button, "MST", WHITE, BLACK, 32);
+        draw_button(sp_button, "SP", WHITE, BLACK, 32);
+        draw_button(theme_button, "THEME", WHITE, BLACK);
+        draw_button(style_button, "STYLE", WHITE, BLACK);
+
+        if (is_clicked(theme_button)) UI_Theme::next_theme();
+        if (is_clicked(style_button)) UI_Theme::next_style();
 
         if (is_clicked(avl_tree_button)) *current_state = UI_State::AVL;
         if (is_clicked(linked_list_button)) *current_state = UI_State::LINKED_LIST;
@@ -129,17 +136,17 @@ namespace UI {
         if (!cur) return;
         
         if (cur->left) {
-            DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->left->current_x, cur->left->current_y}, 3.0f, (cur->highlighted && cur->left->highlighted) ? RED : BLACK);
+            DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->left->current_x, cur->left->current_y}, UI_Theme::edge_thickness, (cur->highlighted && cur->left->highlighted) ? RED : BLACK);
             draw_tree(cur->left);
         }
         
         if (cur->right) {
-            DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->right->current_x, cur->right->current_y}, 3.0f, (cur->highlighted && cur->right->highlighted) ? RED : BLACK);
+            DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->right->current_x, cur->right->current_y}, UI_Theme::edge_thickness, (cur->highlighted && cur->right->highlighted) ? RED : BLACK);
             draw_tree(cur->right);
         }
 
         std::string label = std::to_string(cur->val);
-        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label.c_str());
+        draw_node(cur->current_x, cur->current_y, cur->highlighted, label.c_str());
     }
 
     bool AVL_Canvas::update_node_position(Data_Structure::AVL_Tree::Node* cur) {
@@ -692,7 +699,7 @@ namespace UI {
         update_animation();
 
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
 
         BeginMode2D(*camera);
 
@@ -998,19 +1005,19 @@ namespace UI {
 
             if ((i << 1) + 1 < (int)array.size()) {
                 const auto &child = array[(i << 1) + 1];
-                DrawLineEx((Vector2){cur.current_x, cur.current_y}, (Vector2){child.current_x, child.current_y}, 3.0f, (cur.highlighted && child.highlighted) ? RED : BLACK);
+                DrawLineEx((Vector2){cur.current_x, cur.current_y}, (Vector2){child.current_x, child.current_y}, UI_Theme::edge_thickness, (cur.highlighted && child.highlighted) ? RED : BLACK);
             }
 
             if ((i << 1) + 2 < (int)array.size()) {
                 const auto &child = array[(i << 1) + 2];
-                DrawLineEx((Vector2){cur.current_x, cur.current_y}, (Vector2){child.current_x, child.current_y}, 3.0f, (cur.highlighted && child.highlighted) ? RED : BLACK);
+                DrawLineEx((Vector2){cur.current_x, cur.current_y}, (Vector2){child.current_x, child.current_y}, UI_Theme::edge_thickness, (cur.highlighted && child.highlighted) ? RED : BLACK);
             }
 
-            draw_node(cur.current_x, cur.current_y, node_radius, cur.highlighted, std::to_string(cur.val).c_str());
+            draw_node(cur.current_x, cur.current_y, cur.highlighted, std::to_string(cur.val).c_str());
 
             std::string id_label = std::to_string(i);
             auto text_size = MeasureText(id_label.c_str(), 20);
-            DrawText(id_label.c_str(), cur.current_x - (text_size >> 1), cur.current_y + 37, 25, BLUE);
+            DrawTextEx(main_font, id_label.c_str(), (Vector2){cur.current_x - (text_size >> 1), cur.current_y + 38}, 25, 1, BLUE);
         }
     }
 
@@ -1451,7 +1458,7 @@ namespace UI {
         update_animation();
 
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
 
         BeginMode2D(*camera);
 
@@ -1744,25 +1751,25 @@ namespace UI {
 
         while (pHead != nullptr) {
             if (pHead->pNext) {
-                DrawLineEx((Vector2){pHead->current_x, pHead->current_y}, (Vector2){pHead->pNext->current_x, pHead->pNext->current_y}, 3.0f, (pHead->highlighted && pHead->pNext->highlighted) ? RED : BLACK);
+                DrawLineEx((Vector2){pHead->current_x, pHead->current_y}, (Vector2){pHead->pNext->current_x, pHead->pNext->current_y}, UI_Theme::edge_thickness, (pHead->highlighted && pHead->pNext->highlighted) ? RED : BLACK);
 
                 float dx = pHead->pNext->current_x - pHead->current_x;
                 float dy = pHead->pNext->current_y - pHead->current_y;
                 float length = std::sqrt(dx * dx + dy * dy);
 
-                Vector2 end_pos = {pHead->pNext->current_x - node_radius * (dx / length), pHead->pNext->current_y - node_radius * (dy / length)};
+                Vector2 end_pos = {pHead->pNext->current_x - UI_Theme::node_radius * (dx / length), pHead->pNext->current_y - UI_Theme::node_radius * (dy / length)};
 
                 float angle = std::atan2(dy, dx);
 
                 //Left
-                DrawLineEx(end_pos, (Vector2){end_pos.x - 15 * std::cos(angle - PI / 6.0f), end_pos.y - 15 * std::sin(angle - PI / 6.0f)}, 3.0f, (pHead->highlighted && pHead->pNext->highlighted) ? RED : BLACK);
+                DrawLineEx(end_pos, (Vector2){end_pos.x - 15 * std::cos(angle - PI / 6.0f), end_pos.y - 15 * std::sin(angle - PI / 6.0f)}, UI_Theme::edge_thickness, (pHead->highlighted && pHead->pNext->highlighted) ? RED : BLACK);
 
                 //Right
-                DrawLineEx(end_pos, (Vector2){end_pos.x - 15 * std::cos(angle + PI / 6.0f), end_pos.y - 15 * std::sin(angle + PI / 6.0f)}, 3.0f, (pHead->highlighted && pHead->pNext->highlighted) ? RED : BLACK);
+                DrawLineEx(end_pos, (Vector2){end_pos.x - 15 * std::cos(angle + PI / 6.0f), end_pos.y - 15 * std::sin(angle + PI / 6.0f)}, UI_Theme::edge_thickness, (pHead->highlighted && pHead->pNext->highlighted) ? RED : BLACK);
             }
             
             std::string val_label = std::to_string(pHead->val);
-            draw_node(pHead->current_x, pHead->current_y, node_radius, pHead->highlighted, val_label.c_str());
+            draw_node(pHead->current_x, pHead->current_y, pHead->highlighted, val_label.c_str());
 
             pHead = pHead->pNext;
         }
@@ -2248,7 +2255,7 @@ namespace UI {
         update_animation();
 
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
 
         BeginMode2D(*camera);
 
@@ -2545,7 +2552,7 @@ namespace UI {
         for (int i = 0; i < 26; i++) {
             if (cur->child[i]) {
 
-                DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->child[i]->current_x, cur->child[i]->current_y}, 3.0f, (cur->highlighted && cur->child[i]->highlighted) ? RED : BLACK);
+                DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->child[i]->current_x, cur->child[i]->current_y}, UI_Theme::edge_thickness, (cur->highlighted && cur->child[i]->highlighted) ? RED : BLACK);
 
                 char c = 'A';
                 c += i;
@@ -2555,7 +2562,7 @@ namespace UI {
             }
         }
         
-        draw_node(cur->current_x, cur->current_y, node_radius, cur->highlighted, label.c_str(), 20, cur->exist ? (Color){251, 255, 140, 255} : WHITE);
+        draw_node(cur->current_x, cur->current_y, cur->highlighted, label.c_str(), 20, cur->exist ? BLUE : UI_Theme::node_fill);
     }
 
     void Trie_Canvas::insert() {
@@ -3033,7 +3040,7 @@ namespace UI {
         update_animation();
 
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
 
         BeginMode2D(*camera);
 
@@ -3303,21 +3310,35 @@ namespace UI {
                 edge_color = edge.status == 1 ? ORANGE : Fade(BLACK, 0.2f);
             }
 
-            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, 3.0f, edge_color);
+            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, UI_Theme::edge_thickness, edge_color);
 
             float mid_x = (nodes[v].current_x + nodes[u].current_x) / 2.0f;
             float mid_y = (nodes[v].current_y + nodes[u].current_y) / 2.0f;
 
-            DrawCircle(mid_x, mid_y, 15.0f, main_background_color);
+            float x1 = nodes[u].current_x;
+            float y1 = nodes[u].current_y;
+            float x2 = nodes[v].current_x;
+            float y2 = nodes[v].current_y;
+            
+            if (x1 > x2) {
+                std::swap(x1, x2);
+                std::swap(y1, y2);
+            }
 
+            float dx = x2 - x1;
+            float dy = y2 - y1;
+            float angle = std::atan2(dy, dx) * (180.0f / PI);
+            
             std::string to_text = std::to_string(w);
-            Vector2 text_size = MeasureTextEx(main_font, to_text.c_str(), 20, 1);
-            DrawTextEx(main_font, to_text.c_str(), (Vector2){mid_x - (text_size.x / 2.0f), mid_y - 10.0f}, 20, 1, BLUE);
+            Vector2 text_size = MeasureTextEx(main_font, to_text.c_str(), 23, 1);
+
+            Vector2 origin = {text_size.x / 2.0f, text_size.y / 2 + 12.0f};
+            DrawTextPro(main_font, to_text.c_str(), (Vector2){mid_x, mid_y}, origin, angle, 23, 1, BLUE);
         }
 
         for (const auto &node : nodes) {
             std::string to_text = std::to_string(node.id);
-            draw_node(node.current_x, node.current_y, node_radius, node.highlighted, to_text.c_str());
+            draw_node(node.current_x, node.current_y, node.highlighted, to_text.c_str());
         }
     }
 
@@ -3477,7 +3498,7 @@ namespace UI {
                     float dx = mouse_pos.x - nodes[i].current_x;
                     float dy = mouse_pos.y - nodes[i].current_y;
 
-                    if (dx * dx + dy * dy <= node_radius * node_radius) {
+                    if (dx * dx + dy * dy <= UI_Theme::node_radius * UI_Theme::node_radius) {
                         mouse_target_node = i;
                         break;
                     }
@@ -3615,7 +3636,7 @@ namespace UI {
         run_arrangement();
 
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
 
         BeginMode2D(*camera);
 
@@ -3869,26 +3890,40 @@ namespace UI {
                 edge_color = edge.status == 1 ? ORANGE : Fade(BLACK, 0.2f);
             }
 
-            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, 3.0f, edge_color);
+            DrawLineEx((Vector2){nodes[v].current_x, nodes[v].current_y}, (Vector2){nodes[u].current_x, nodes[u].current_y}, UI_Theme::edge_thickness, edge_color);
 
             float mid_x = (nodes[v].current_x + nodes[u].current_x) / 2.0f;
             float mid_y = (nodes[v].current_y + nodes[u].current_y) / 2.0f;
 
-            DrawCircle(mid_x, mid_y, 15.0f, main_background_color);
+            float x1 = nodes[u].current_x;
+            float y1 = nodes[u].current_y;
+            float x2 = nodes[v].current_x;
+            float y2 = nodes[v].current_y;
+            
+            if (x1 > x2) {
+                std::swap(x1, x2);
+                std::swap(y1, y2);
+            }
 
+            float dx = x2 - x1;
+            float dy = y2 - y1;
+            float angle = std::atan2(dy, dx) * (180.0f / PI);
+            
             std::string to_text = std::to_string(w);
-            Vector2 text_size = MeasureTextEx(main_font, to_text.c_str(), 20, 1);
-            DrawTextEx(main_font, to_text.c_str(), (Vector2){mid_x - (text_size.x / 2.0f), mid_y - 10.0f}, 20, 1, BLUE);
+            Vector2 text_size = MeasureTextEx(main_font, to_text.c_str(), 23, 1);
+
+            Vector2 origin = {text_size.x / 2.0f, text_size.y / 2 + 12.0f};
+            DrawTextPro(main_font, to_text.c_str(), (Vector2){mid_x, mid_y}, origin, angle, 23, 1, BLUE);
         }
 
         int idx = 0;
         for (const auto &node : nodes) {
             std::string to_text = std::to_string(node.id);
-            draw_node(node.current_x, node.current_y, node_radius, node.highlighted, to_text.c_str());
+            draw_node(node.current_x, node.current_y, node.highlighted, to_text.c_str());
             
             std::string id_label = std::to_string(dis[idx]);
             auto text_size = MeasureText(id_label.c_str(), 20);
-            DrawText(id_label.c_str(), node.current_x - (text_size >> 1), node.current_y - node_radius - 37, 25, RED);
+            DrawTextEx(main_font, id_label.c_str(), (Vector2){node.current_x - (text_size >> 1), node.current_y - UI_Theme::node_radius - 37}, 27, 1, RED);
 
             ++idx;
         }
@@ -4121,7 +4156,7 @@ namespace UI {
                     float dx = mouse_pos.x - nodes[i].current_x;
                     float dy = mouse_pos.y - nodes[i].current_y;
 
-                    if (dx * dx + dy * dy <= node_radius * node_radius) {
+                    if (dx * dx + dy * dy <= UI_Theme::node_radius * UI_Theme::node_radius) {
                         mouse_target_node = i;
                         break;
                     }
@@ -4254,7 +4289,7 @@ namespace UI {
         run_arrangement();
 
         BeginDrawing();
-        ClearBackground(main_background_color);
+        ClearBackground(UI_Theme::bg_color);
 
         BeginMode2D(*camera);
 

@@ -10,16 +10,26 @@ namespace UI {
 
     void draw_button(Rectangle button, const char *text, Color background_color, Color text_color, int font_size) {
         DrawRectangle(button.x, button.y, button.width, button.height, background_color);
-        DrawRectangleLinesEx(button, 1, BLACK);
+        DrawRectangleLinesEx(button, 2.0f, UI_Theme::current_theme == UI_Theme::Color_Theme::LIGHT ? BLACK : PINK);
         Vector2 text_size = MeasureTextEx(GetFontDefault(), text, font_size, 2);
         DrawTextEx(GetFontDefault(), text, (Vector2){button.x + (button.width - text_size.x) / 2, button.y + (button.height - text_size.y) / 2}, font_size, 2, text_color);
     }
 
-    void draw_node(int pos_x, int pos_y, float radius, int highlight, const char *text, int font_size, Color node_color) {
-        DrawCircle(pos_x, pos_y, radius, node_color);
-        Vector2 text_size = MeasureTextEx(main_font, text, font_size, 2);
-        DrawRing((Vector2){(float)pos_x, (float)pos_y}, radius, radius + 2, 0, 360, 36, highlight == 1 ? RED : highlight == 2 ? ORANGE : BLACK);
-        DrawTextEx(main_font, text, {pos_x - text_size.x / 2, pos_y - text_size.y / 2}, font_size, 2, BLACK);
+    void draw_node(int pos_x, int pos_y, int highlight, const char *text, int font_size, Color node_color) {
+        Color fill_color = highlight == 1 ? UI_Theme::highlight_color : node_color;
+
+        Color outline_color = UI_Theme::node_border;
+
+        if (UI_Theme::current_style == UI_Theme::Node_Style::CIRCLE) {
+            DrawCircle(pos_x, pos_y, UI_Theme::node_radius, fill_color);
+            DrawRing((Vector2){(float)pos_x, (float)pos_y}, UI_Theme::node_radius, UI_Theme::node_radius + 2.5f, 0, 360, 36, highlight == 2 ? ORANGE : outline_color);
+        } else {
+            DrawRectangle(pos_x - UI_Theme::node_radius, pos_y - UI_Theme::node_radius, UI_Theme::node_radius * 2, UI_Theme::node_radius * 2, fill_color);
+            DrawRectangleLinesEx((Rectangle){pos_x - UI_Theme::node_radius, pos_y - UI_Theme::node_radius, UI_Theme::node_radius * 2, UI_Theme::node_radius * 2}, 2.0f, highlight == 2 ? ORANGE : outline_color);
+        }
+
+        Vector2 text_size = MeasureTextEx(main_font, text, font_size, 1);
+        DrawTextEx(main_font, text, (Vector2){pos_x - text_size.x / 2.0f, pos_y - text_size.y / 2.0f}, font_size, 1, UI_Theme::text_color);
     }
 
     std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
@@ -40,7 +50,7 @@ namespace UI {
     }
 
     void Code_Highlight::add(const std::string &new_line) {
-        Vector2 text_size = MeasureTextEx(code_font, new_line.c_str(), font_size, 0.5f);
+        Vector2 text_size = MeasureTextEx(code_font, new_line.c_str(), font_size, 0.75f);
         height = std::max(height, text_size.y + 2 * v_padding);
         width = std::max(width, h_left_padding + text_size.x + h_right_padding);
         source_code.push_back(new_line);

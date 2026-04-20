@@ -2,6 +2,7 @@
 #define UI_ELEMENT
 
 #include "UI_config.h"
+#include "UI_theme.h"
 
 #include <vector>
 
@@ -30,13 +31,12 @@ namespace UI {
      * 
      * @param pos_x 
      * @param pos_y 
-     * @param radius 
      * @param highlight 
      * @param text 
      * @param font_size 
      * @param node_color 
      */
-    void draw_node(int pos_x, int pos_y, float radius, int highlight, const char *text, int font_size = 20, Color node_color = WHITE);
+    void draw_node(int pos_x, int pos_y, int highlight, const char *text, int font_size = 20, Color node_color = UI_Theme::node_fill);
 
     /**
      * @brief Get the random integer in range [l..r]

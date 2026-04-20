@@ -2,6 +2,7 @@
 #define TRIE_H
 
 #include "UI_config.h"
+#include "UI_theme.h"
 #include <string>
 #include <vector>
 

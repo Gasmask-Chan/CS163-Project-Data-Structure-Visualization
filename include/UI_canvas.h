@@ -24,7 +24,6 @@ enum UI_State {
 
 namespace UI {
     const int MAX_INPUT_INT_CHAR = 101;
-    const Color main_background_color = {255, 255, 212, 255};
     const float time_between_steps = 1.0f;
     const float ani_speed = 0.05f;
     
@@ -34,6 +33,8 @@ namespace UI {
         UI_State *current_state;
     
     public:
+        virtual ~Canvas() = default;
+        
         /**
          * @brief Set the `current_state` object
          * 
@@ -82,8 +83,8 @@ namespace UI {
         Rectangle heap_button;
         Rectangle mst_button;
         Rectangle sp_button;
-
-        const Color button_color = {255, 255, 136, 255};
+        Rectangle theme_button;
+        Rectangle style_button;
 
     public:
         void setup() override;

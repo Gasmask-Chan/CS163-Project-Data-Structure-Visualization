@@ -5,7 +5,7 @@ namespace UI {
     Font code_font = {0};
 
     void load_font() {
-        main_font = LoadFontEx("font/cmu-serif-bold.ttf", 20, 0, 0);
+        main_font = LoadFontEx("font/cmu-serif-bold.ttf", 30, 0, 0);
         SetTextureFilter(main_font.texture, TEXTURE_FILTER_BILINEAR);
 
         code_font = LoadFontEx("font/CONSOLA.TTF", 15, 0, 0);

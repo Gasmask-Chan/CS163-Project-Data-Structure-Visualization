@@ -226,7 +226,7 @@ void Trie::cal_initial_gap(Node* cur) {
     }
 
     if (is_leaf) {
-        cur->tree_width = UI::node_radius * 2;
+        cur->tree_width = UI_Theme::node_radius * 2;
     }
 }
 
