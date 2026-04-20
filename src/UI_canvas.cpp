@@ -251,13 +251,30 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
+
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -294,13 +311,28 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_erase.push_back(std::stoi(cur_num));
-                cur_num = "";
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_erase.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_erase.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_erase.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -380,15 +412,31 @@ namespace UI {
                 cur_num.push_back(text_string_2[i]);
             }
             else if (!cur_num.empty()) {
-                old_val.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    old_val.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_2 = 0;
+                    text_string_2[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
+
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty() && old_val.size() < 1) {
-            old_val.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                old_val.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_2 = 0;
+                text_string_2[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
-
         
         if (old_val.size() != 1) {
             tinyfd_messageBox("ERROR", "Please type in the old value of the data you want to update!", "ok", "error", 1);
@@ -403,13 +451,29 @@ namespace UI {
                 cur_num.push_back(text_string_3[i]);
             }
             else if (!cur_num.empty()) {
-                new_val.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    new_val.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_3 = 0;
+                    text_string_3[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
         
         if (!cur_num.empty() && new_val.size() < 1) {
-            new_val.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                new_val.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_3 = 0;
+                text_string_3[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
         
         if (new_val.size() != 1) {
@@ -474,13 +538,28 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
-                cur_num = "";
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -1030,13 +1109,29 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -1162,13 +1257,29 @@ namespace UI {
                 cur_num.push_back(text_string_2[i]);
             }
             else if (!cur_num.empty()) {
-                index_val.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    index_val.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_2 = 0;
+                    text_string_2[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty() && index_val.size() < 1) {
-            index_val.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                index_val.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_2 = 0;
+                text_string_2[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         
@@ -1189,13 +1300,29 @@ namespace UI {
                 cur_num.push_back(text_string_3[i]);
             }
             else if (!cur_num.empty()) {
-                new_val.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    new_val.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_3 = 0;
+                    text_string_3[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
         
         if (!cur_num.empty() && new_val.size() < 1) {
-            new_val.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                new_val.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_3 = 0;
+                text_string_3[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
         
         if (new_val.size() != 1) {
@@ -1233,13 +1360,29 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -1784,13 +1927,29 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -1827,13 +1986,29 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_erase.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_erase.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_erase.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_erase.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -1938,13 +2113,29 @@ namespace UI {
                 cur_num.push_back(text_string_2[i]);
             }
             else if (!cur_num.empty()) {
-                old_val.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    old_val.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_2 = 0;
+                    text_string_2[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty() && old_val.size() < 1) {
-            old_val.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                old_val.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_2 = 0;
+                text_string_2[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         
@@ -1961,13 +2152,29 @@ namespace UI {
                 cur_num.push_back(text_string_3[i]);
             }
             else if (!cur_num.empty()) {
-                new_val.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    new_val.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_3 = 0;
+                    text_string_3[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
         
         if (!cur_num.empty() && new_val.size() < 1) {
-            new_val.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                new_val.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_3 = 0;
+                text_string_3[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
         
         if (new_val.size() != 1) {
@@ -2011,13 +2218,29 @@ namespace UI {
                 cur_num.push_back(text_string_1[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count_1 = 0;
+                    text_string_1[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count_1 = 0;
+                text_string_1[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count_1 = 0;
@@ -4082,13 +4305,29 @@ namespace UI {
                 cur_num.push_back(input_text_string[i]);
             }
             else if (!cur_num.empty()) {
-                val_to_insert.push_back(std::stoi(cur_num));
+                try {
+                    int input_val = std::stoi(cur_num);
+                    val_to_insert.push_back(input_val);
+                } catch (const std::out_of_range &e) {
+                    letter_count = 0;
+                    input_text_string[0] = '\0';
+                    tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                    return;
+                }
                 cur_num = "";
             }
         }
 
         if (!cur_num.empty()) {
-            val_to_insert.push_back(std::stoi(cur_num));
+            try {
+                int input_val = std::stoi(cur_num);
+                val_to_insert.push_back(input_val);
+            } catch (const std::out_of_range &e) {
+                letter_count = 0;
+                input_text_string[0] = '\0';
+                tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
+                return;
+            }
         }
 
         letter_count = 0;
