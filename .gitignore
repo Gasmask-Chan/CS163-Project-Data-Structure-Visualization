@@ -39,3 +39,17 @@
 
 # debug information files
 *.dwo
+
+.env
+
+# Latex
+*.aux
+*.log
+*.toc
+*.pdf
+*.out
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.bbl
+*.blg

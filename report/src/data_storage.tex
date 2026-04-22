@@ -1,0 +1,9 @@
+\section{Data Storage}
+The application processes and stores data entirely in-memory using the C++ Standard Template Library (STL) to guarantee high-performance rendering. No external database engines are used.
+
+\begin{itemize}
+    \item \textbf{Node-based Dynamic Allocation:} Structures like AVL Tree, Trie, and Singly Linked List utilize dynamic memory allocation with raw pointers (\texttt{Node*}), accurately reflecting theoretical memory linkages (\texttt{left}, \texttt{right}, \texttt{pNext}).
+    \item \textbf{Contiguous Storage \& Adjacency Lists:} The Max Heap is mapped sequentially using \texttt{std::\allowbreak vector<Node>}. Graph algorithms utilize \texttt{std::vector} for edge lists and \texttt{std::\allowbreak unordered\_map} with Adjacency Lists to efficiently store sparse vertex connections without the overhead of a dense adjacency matrix.
+    \item \textbf{History \& Snapshot Management:} To support operation rewinding (Previous, Next), a state-preservation technique is applied. Each structure maintains a \texttt{std::vector<Snapshot\_Data> \allowbreak history} acting as a chronological ledger, saving deep copies of the structure's state at crucial steps.
+    \item \textbf{External Integration:} The \texttt{tinyfiledialogs} library is integrated to allow users to securely load external \texttt{.txt} datasets directly into the active STL containers.
+\end{itemize}

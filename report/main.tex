@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\input{premable.cls}
+\input{KhaiBao-Color.cls}
+\input{KhaiBao-tcolorbox.cls}
+
+\fancyfoot[L]{\footnotesize{\sffamily{CS163 -- Data Structures -- Data Structure Visualization Project \\ \textbf{Group ID:} 56A}}}
+\fancyfoot[R]{\footnotesize{\sffamily{Page \thepage}}}
+
+%==== MAIN DOCUMENT ====%
+
+\begin{document}
+
+\begin{titlepage}
+    \centering \vspace{1cm}
+    {\sffamily
+        \Large{\textbf{University of Science, VNU-HCM}} \\
+        \Large{\textmd{CS163 -- Data Structures}} \\
+    }
+
+    \vspace{5cm}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[scale = 0.2]{images/Logo chinh.png}
+    \end{figure}
+
+    {\sffamily \Huge{\uline{\textbf{Data Structure Visualization Project Report}}}} \\
+    \vspace{1cm}
+    \large{\textbf{Author:} Bùi Đỗ Thiên Ân -- 25125050 -- 25A01 -- Group ID: 56A}\\
+    \selectlanguage{english}
+    {\large Last modified: \today}\\[1cm]
+\end{titlepage}
+
+\newcommand{\CC}{C\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}\nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
+\def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
+
+\begingroup
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black
+}
+\tableofcontents
+\newpage
+\endgroup
+
+\input{src/abstract.tex}
+\input{src/group_information.tex}
+\input{src/introduction.tex}
+\input{src/data_storage.tex}
+\input{src/project_architecture.tex}
+\input{src/implementation_details.tex}
+\input{src/technical_problems.tex}
+\input{src/conclusion.tex}
+
+\input{ref/ref.tex}
+
+\addcontentsline{toc}{section}{APPENDIX}
+\section*{APPENDIX}
+\appendix
+\input{appendix/appendix.tex}
+
+\end{document}
