@@ -69,3 +69,6 @@ If you want to recompile everything from scratch, clean the object files (`.o`) 
 ```bash
 make clean
 ```
+
+# Credits
+- `tinyfiledialogs` library by Guillaume Vareille.

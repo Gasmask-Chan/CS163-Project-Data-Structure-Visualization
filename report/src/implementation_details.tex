@@ -1,24 +1,40 @@
-\subsection{Implementation Details}
+\section{Implementation Details}
 The project utilizes several core classes divided into two main categories: Data Structures and UI Management.
 
-\noindent\textbf{List of Core Classes and Relevant Functions:}
+\subsection{Core Classes and Relevant Functions:}
 \begin{itemize}
     \item \textbf{\texttt{UI::Handler}:} The main engine.
     \begin{itemize}
-        \item \texttt{run()}: Executes the main application loop, managing frames.
-        \item \texttt{update\_camera()}: Handles user panning and zooming inputs.
+        \item \textbf{\texttt{run()}:} Executes the main application loop, managing frames.
+        \item \textbf{\texttt{update\_camera()}:} Handles user panning and zooming inputs.
     \end{itemize}
+
+    \item \textbf{\texttt{UI::Theme} \& \texttt{UI::Element}:} The visual styling managers.
+    \begin{itemize}
+        \item \textbf{\texttt{next\_theme()}, \texttt{next\_style()}:} Toggles between global color palettes (e.g., Light and Dark modes) and toggles between the node shapes (e.g, Circle and Rectangle shapes).
+        \item \textbf{\texttt{draw\_node()}, \texttt{draw\_button()}:} Renders structural nodes and rectangle buttons using \linebreak dynamically fetched colors from the active theme.
+    \end{itemize}
+
+    \item \textbf{\texttt{UI::Code\_Highlight}:} The visual code-tracing component.
+    \begin{itemize}
+        \item \textbf{\texttt{add()}:} Add the algorithm's pseudo-code to a string vector.
+        \item \textbf{\texttt{set\_highlighted\_line()}:} Updates the active line index based on the current algorithm step.
+        \item \textbf{\texttt{draw\_code()}:} Renders the code block and visually highlights the executing line.
+    \end{itemize}
+
     \item \textbf{\texttt{UI::Canvas} (Polymorphic Base Class):} Defines the foundational virtual methods (\texttt{setup()}, \texttt{run()}, \texttt{update\_animation()}) to allow the \texttt{Handler} to manage different screens uniformly.
-    \item \textbf{Derived Canvas Classes (e.g., \texttt{AVL\_Canvas}, \texttt{MST\_Canvas}):} Inherit from \texttt{UI::Canvas} to render specific structures. To maintain strict encapsulation, each derived class independently manages its own UI playback buttons (\texttt{next()}, \texttt{prev()}, \texttt{skip()}) and playback state variables (\texttt{current\_step}, \texttt{is\_playing}).
+
+    \item \textbf{Derived \texttt{UI::Canvas} Classes (e.g., \texttt{UI::AVL\_Canvas}, \texttt{UI::MST\_Canvas}):} Inherit from \texttt{UI::\allowbreak Canvas} to render specific structures. To maintain strict encapsulation, each derived class independently manages its own UI playback buttons (\texttt{next()}, \texttt{prev()}, \texttt{skip()}) and playback state variables (\texttt{current\_step}, \texttt{is\_playing}).
+
     \item \textbf{\texttt{Data\_Structure::[Type]} (e.g., \texttt{AVL\_Tree}, \texttt{Shortest\_Path}):}
     \begin{itemize}
-        \item \texttt{insert()}, \texttt{erase()}, \texttt{find()}: Core algorithmic operations.
-        \item \texttt{save\_snapshot()}: Captures the state of the structure at a specific step.
-        \item \texttt{get\_copy()}: Creates a deep copy of the current memory state for history logging.
+        \item \textbf{\texttt{insert()}, \texttt{erase()}, \texttt{find()}:} Core algorithmic operations.
+        \item \textbf{\texttt{save\_snapshot()}:} Captures the state of the structure at a specific step.
+        \item \textbf{\texttt{get\_copy()}:} Creates a deep copy of the current memory state for history logging.
     \end{itemize}
 \end{itemize}
 
-\textbf{Main Flows and Class Collaboration:}
+\subsection{Main Flows and Class Collaboration:}
 \begin{itemize}
     \item \textbf{Use Case 1: Data Insertion and History Logging Flow} \\
     When a user enters a value to insert into the AVL Tree, the \texttt{AVL\_Canvas} captures the input and parses it. It then calls \texttt{avl.insert(val)}. Inside the \texttt{AVL\_Tree} class, as the algorithm traverses the tree and performs rotations, it repeatedly calls \texttt{save\_snapshot(current\_line, OPERATION\_TYPE)}. This function uses \texttt{get\_copy()} to duplicate the tree's current pointers and nodes, pushing this frozen state into the \texttt{history} vector. This collaboration creates a chronological ledger of the algorithm's execution without disrupting the main data.

@@ -31,11 +31,7 @@ namespace UI_Theme {
 
     void next_theme();
 
-    void next_style();
-
-    void increase_size();
-    
-    void decrease_size();
+    void next_style(); 
 }
 
 #endif
