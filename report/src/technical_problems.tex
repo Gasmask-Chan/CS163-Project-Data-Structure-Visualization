@@ -1,0 +1,16 @@
+\section{Technical Problems and Solutions}
+
+During the development process, several critical technical challenges were encountered and successfully resolved:
+
+\textbf{Application Crashes from Input Overflow}
+
+\begin{itemize}
+    \item \textit{Issue:} Unvalidated user inputs (input numbers exceeding INT\_MAX) passed to \texttt{std::stoi()} threw unhandled exceptions (\texttt{out\_of\_range}), which terminating the program.
+    \item \textit{Solution:} Wrapped string-to-integer conversions in strict \texttt{try-catch} blocks to catch and discard invalid tokens safely, preventing application failure.
+\end{itemize}
+
+\textbf{Instability and Oscillation in Force-Directed Layouts}
+\begin{itemize}
+    \item \textit{Issue:} The iterative \texttt{run\_\allowbreak arrangement()} function initially caused nodes to vibrate or "jitter" \linebreak indefinitely. The forces were too aggressive, preventing the graph from reaching a stable equilibrium (rest state).
+    \item \textit{Solution:} Fine-tuned the physical simulation constants by reducing the cooling speed (temperature decay) and nerfing the overall force magnitude to only 15\% of its original value. Additionally, the maximum iteration count was capped (\texttt{arrange\_step < 60}) to ensure the simulation eventually halts, resulting in a smooth and stable visual layout.
+\end{itemize}

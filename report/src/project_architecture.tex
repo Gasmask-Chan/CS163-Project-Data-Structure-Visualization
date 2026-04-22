@@ -1,0 +1,86 @@
+\section{Project Architecture}
+The application is built on a modular, object-oriented architecture ensuring a clean separation between algorithmic logic and user interface rendering.
+
+\subsection{Project Folder Structure}
+
+The source code is systematically organized into specific modules. Table \ref{tab:file_description} provides a detailed overview of all project files and their core functionalities.
+
+\textbf{Folder Structure Overview:}
+
+\begin{itemize}
+    \item \textbf{include/:} Contains all header files (\texttt{.h}), defining class interfaces, data structures, and global namespaces (e.g., \texttt{UI\_config.h}, \texttt{UI\_canvas.h}).
+    \item \textbf{src/:} Contains the implementation files (\texttt{.cpp}) where the core algorithms and UI behaviors are executed.
+    \item \textbf{lib/:} Contains external dependencies, specifically the \texttt{tinyfiledialogs} library for cross-platform file selection.
+    \item \textbf{font/}: Stores external graphical resources like custom TrueType fonts (\texttt{cmu-serif-bold.ttf}, \texttt{CONSOLA\allowbreak.TTF}).
+\end{itemize}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|p{0.35\linewidth}|p{0.6\linewidth}|}
+        \hline
+        \textbf{Module / File Name} & \textbf{Description \& Primary Function} \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{Core \& System Management}} \\
+        \hline
+        \texttt{main.cpp} & Application entry point; initializes the \texttt{UI::Handler} to start the main event loop. \\
+        \hline
+        \texttt{UI\_handler.h / .cpp} & Manages application states (Menu, AVL, etc.), camera movements (zoom/pan), and frame rendering. \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{User Interface (UI) Components}} \\
+        \hline
+        \texttt{UI\_config.h / .cpp} & Stores global constants, enumerations, and handles font loading/unloading processes. \\
+        \hline
+        \texttt{UI\_theme.h / .cpp} & Centralized theme manager handling colors (Light/Dark), node styles. \\
+        \hline
+        \texttt{UI\_element.h / .cpp} & Provides utilities for drawing basic UI shapes (buttons, nodes) and the Code Highlight box. \\
+        \hline
+        \texttt{UI\_canvas.h / .cpp} & Defines the polymorphic base \texttt{Canvas} class and all derived classes for specific visualizers. \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{Data Structures \& Graph Algorithms}} \\
+        \hline
+        \texttt{avl\_tree.h / .cpp} & Implements AVL Tree logic such as inserting, erasing, finding operations. \\
+        \hline
+        \texttt{heap.h / .cpp} & Implements Max Heap logic using a contiguous vector array and bitwise index traversal. \\
+        \hline
+        \texttt{singly\_linked\_list.h / .cpp} & Manages dynamic pointer-based Linked List operations. \\
+        \hline
+        \texttt{trie.h / .cpp} & Implements Trie for string storage and prefix search operations. \\
+        \hline
+        \texttt{mst.h / .cpp} & Executes Kruskal's algorithm and Disjoint Set Union to find the Minimum Spanning Tree. \\
+        \hline
+        \texttt{shortest\_path.h / .cpp} & Executes Dijkstra's algorithm using a priority queue to find the shortest paths. \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{External Libraries}} \\
+        \hline
+        \texttt{tinyfiledialogs.h / .cpp} & Cross-platform C/C++ library integrated to securely open native OS file selection dialogs. \\
+        \hline
+    \end{tabular}
+    \caption{Overview of project files and their specific roles.}
+    \label{tab:file_description}
+\end{table}
+
+\subsection{Main Data Structures, Alternatives, and Rationale}
+To optimize performance and memory, specific data structures were chosen over common alternatives.
+
+\begin{enumerate}
+    \item \textbf{AVL Tree, Trie and Linked List}
+    \begin{itemize}
+        \item \textbf{Employed:} Dynamic node allocation using raw pointers (\texttt{Node* left}, \texttt{*right}, \texttt{*pNext}).
+        \item \textbf{Alternative:} Array-based representation (implicit pointers).
+        \item \textbf{Rationale:} Dynamic pointers were chosen because AVL rotations and Trie node insertions require frequent restructuring. Reallocating an entire array during these operations would be highly inefficient $O(N)$. Pointers allow $O(1)$ pointer reassignment, saving memory and processing time.
+    \end{itemize}
+
+    \item \textbf{Max Heap}
+    \begin{itemize}
+        \item \textbf{Employed:} Contiguous array using \texttt{std::vector<Node>}.
+        \item \textbf{Alternative:} Dynamic pointer-based binary tree.
+        \item \textbf{Rationale:} A Heap is a complete binary tree. Using a vector is highly cache-friendly and eliminates the memory overhead of storing pointers. Furthermore, Child/Parent relationships are calculated instantly using bitwise mathematical operations (e.g., $(id << 1) + 1$).
+    \end{itemize}
+
+    \item \textbf{Graphs (Shortest Path, MST)}
+    \begin{itemize}
+        \item \textbf{Employed:} Adjacency List (using \texttt{std::vector} for edges and \texttt{std::unordered\_map} for vertex indices).
+        \item \textbf{Alternative:} Adjacency Matrix (a 2D array of $V \times V$).
+        \item \textbf{Rationale:} Most user-generated graphs in this visualizer are sparse. Therefore, an Adjacency Matrix would waste $O(V^2)$ memory and time. By using the Adjacency List, we reduced memory to $O(V + E)$ and significantly speeds up Dijkstra's and Kruskal's algorithms when iterating through neighboring edges.
+    \end{itemize}
+\end{enumerate}
