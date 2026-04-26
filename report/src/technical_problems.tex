@@ -11,6 +11,6 @@ During the development process, several critical technical challenges were encou
 
 \textbf{Instability and Oscillation in Force-Directed Layouts}
 \begin{itemize}
-    \item \textit{Issue:} The iterative \texttt{run\_\allowbreak arrangement()} function initially caused nodes to vibrate or "jitter" \linebreak indefinitely. The forces were too aggressive, preventing the graph from reaching a stable equilibrium (rest state).
+    \item \textit{Issue:} The iterative \texttt{run\_\allowbreak arrangement()} function initially caused nodes to vibrate indefinitely. The forces were too aggressive, preventing the graph from reaching a stable equilibrium.
     \item \textit{Solution:} Fine-tuned the physical simulation constants by reducing the cooling speed (temperature decay) and nerfing the overall force magnitude to only 15\% of its original value. Additionally, the maximum iteration count was capped (\texttt{arrange\_step < 60}) to ensure the simulation eventually halts, resulting in a smooth and stable visual layout.
 \end{itemize}

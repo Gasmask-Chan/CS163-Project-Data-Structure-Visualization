@@ -24,7 +24,12 @@ The project utilizes several core classes divided into two main categories: Data
 
     \item \textbf{\texttt{UI::Canvas} (Polymorphic Base Class):} Defines the foundational virtual methods (\texttt{setup()}, \texttt{run()}, \texttt{update\_animation()}) to allow the \texttt{Handler} to manage different screens uniformly.
 
-    \item \textbf{Derived \texttt{UI::Canvas} Classes (e.g., \texttt{UI::AVL\_Canvas}, \texttt{UI::MST\_Canvas}):} Inherit from \texttt{UI::\allowbreak Canvas} to render specific structures. To maintain strict encapsulation, each derived class independently manages its own UI playback buttons (\texttt{next()}, \texttt{prev()}, \texttt{skip()}) and playback state variables (\texttt{current\_step}, \texttt{is\_playing}).
+    \item \textbf{Derived \texttt{UI::Canvas} Classes (e.g., \texttt{UI::AVL\_Canvas}, \texttt{UI::MST\_Canvas}):} Inherit from \texttt{UI::\allowbreak Canvas} to render specific data structures. To maintain strict encapsulation, each class independently controls its own playback buttons (\texttt{next()}, \texttt{prev()}, \texttt{skip()}) and state variables (\texttt{current\_step}, \texttt{is\_playing}). To animate and display the structure, these classes typically use the following functions:
+    \begin{itemize}
+        \item \textbf{\texttt{update\_node\_position()}:} Updates the coordinates of the nodes during animations.
+        \item \textbf{\texttt{sync\_position()}:} Aligns node positions between different history snapshots to prevent floating-point calculation errors.
+        \item \textbf{\texttt{draw\_tree()}:} Renders the nodes and edges onto the screen.
+    \end{itemize}
 
     \item \textbf{\texttt{Data\_Structure::[Type]} (e.g., \texttt{AVL\_Tree}, \texttt{Shortest\_Path}):}
     \begin{itemize}

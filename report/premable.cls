@@ -14,9 +14,12 @@
 \usepackage{gensymb}
 \usepackage{longtable}
 \usepackage{hyperref}
-\hypersetup{breaklinks=true}
-\usepackage{xurl}
-\usepackage{ulem}
+\hypersetup{
+    breaklinks=true,
+    hidelinks,
+    pdfborder={0 0 0}
+}
+\usepackage[normalem]{ulem}
 \usepackage{amssymb}
 \usepackage{minted}
 \usepackage{courier}

@@ -3509,11 +3509,17 @@ namespace UI {
 
     void MST_Canvas::apply_new_graph() {
         std::stringstream ss(text_string);
+        std::string line;
         mst.clear();
 
-        int u, v, w;
-        while (ss >> u >> v >> w) {
-            mst.insert(u, v, w);
+        while (std::getline(ss, line)) {
+            std::stringstream line_ss(line);
+            
+            int u, v, w;
+            if (line_ss >> u >> v >> w) {
+                if (u == v) continue;
+                mst.insert(u, v, w);
+            }
         }
 
         setup_arrangement();
@@ -4089,11 +4095,17 @@ namespace UI {
 
     void SP_Canvas::apply_new_graph() {
         std::stringstream ss(text_string);
+        std::string line;
         sp.clear();
 
-        int u, v, w;
-        while (ss >> u >> v >> w) {
-            sp.insert(u, v, w);
+        while (std::getline(ss, line)) {
+            std::stringstream line_ss(line);
+            
+            int u, v, w;
+            if (line_ss >> u >> v >> w) {
+                if (u == v) continue;
+                sp.insert(u, v, w);
+            }
         }
 
         setup_arrangement();
@@ -4336,6 +4348,7 @@ namespace UI {
         if (val_to_insert.size() == 1) {
             sp.reset();
             if (!sp.find_sp(val_to_insert[0])) {
+                current_step = -1;
                 tinyfd_messageBox("ERROR", "The input is invalid. Please try again!", "ok", "error", 1);
                 return;
             }

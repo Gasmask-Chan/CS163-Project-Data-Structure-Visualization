@@ -101,11 +101,13 @@ Trie::Node* Trie::find(std::string str) {
 
     save_snapshot(6, UI::OPERATION::FIND);
     if (cur->exist == 0) { //No string ends here
+        cur->highlighted = false;
         save_snapshot(-1, UI::OPERATION::NONE);
         return nullptr;
     }
 
     save_snapshot(7, UI::OPERATION::FIND);
+    cur->highlighted = false;
     save_snapshot(-1, UI::OPERATION::NONE);
     return cur;
 }
