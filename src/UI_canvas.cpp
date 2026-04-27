@@ -2778,9 +2778,12 @@ namespace UI {
 
         for (int i = 0; i < 26; i++) {
             if (cur->child[i]) {
-
                 DrawLineEx((Vector2){cur->current_x, cur->current_y}, (Vector2){cur->child[i]->current_x, cur->child[i]->current_y}, UI_Theme::edge_thickness, (cur->highlighted && cur->child[i]->highlighted) ? RED : BLACK);
+            }
+        }
 
+        for (int i = 0; i < 26; i++) {
+            if (cur->child[i]) {
                 char c = 'A';
                 c += i;
                 std::string new_label = "";

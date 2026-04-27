@@ -117,7 +117,7 @@ public:
     };
 
     const float vertical_gap = 80.0f;
-    const float horizontal_gap = 25.0f;
+    const float horizontal_gap = 15.0f;
 
     std::vector<Snapshot_Data> history;
 
