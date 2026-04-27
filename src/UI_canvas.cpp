@@ -320,6 +320,8 @@ namespace UI {
                     tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
                     return;
                 }
+
+                cur_num = "";
             }
         }
 
@@ -547,6 +549,8 @@ namespace UI {
                     tinyfd_messageBox("ERROR", "The value must not exceed integer limit. Please try again!", "ok", "error", 1);
                     return;
                 }
+                
+                cur_num = "";
             }
         }
 
